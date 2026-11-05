@@ -24,7 +24,7 @@
 *{box-sizing:border-box}
 body{background:var(--vellum);background-image:radial-gradient(circle at 20% 10%,color-mix(in srgb,var(--gold) 10%,transparent),transparent 40%),radial-gradient(circle at 85% 90%,color-mix(in srgb,var(--rubric) 7%,transparent),transparent 45%);
   color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.4;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 60px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:max(12px,env(safe-area-inset-top,0px));padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 .app{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -688,3 +688,8 @@ nav .dot{position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:
 .aprev{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:8px 0 4px}.aprev .apwhy{color:var(--rubric)}
 .autopull .apwhy{margin-top:4px;font-weight:700;color:var(--rubric)}
 @media (prefers-reduced-motion:reduce){.autopull.on{animation:none}}
+/* phones: summon buttons and result dialogs stay inside the screen */
+.modal .row{flex-wrap:wrap}
+.pullrow .btn{min-width:0}
+@media (max-width:520px){.pullrow .btn.big{font-size:17px;padding:10px 6px;gap:4px;flex-wrap:wrap;justify-content:center;line-height:1.15}
+  .rc .soft{font-size:11px!important}.rc img{width:54px;height:54px}}

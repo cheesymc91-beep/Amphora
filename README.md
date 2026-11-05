@@ -26,6 +26,16 @@ Open the .dmg and drag **Amphora** into **Applications**. The app isn't notarize
 
 After that it opens normally. (On macOS 14 or older you can instead right-click Amphora → **Open** → **Open**.)
 
+## Phones
+
+**Play in the browser or install it:** https://cheesymc91-beep.github.io/Amphora/
+
+- **iPhone / iPad:** open the link in **Safari**, tap the **Share** button, then **Add to Home Screen**. Amphora gets its own icon, opens full-screen and works offline.
+- **Android (any browser app):** open the link in **Chrome**, tap **⋮**, then **Add to Home screen → Install**.
+- **Android app file:** download **Amphora-Android.apk** from the [latest release](https://github.com/cheesymc91-beep/Amphora/releases/latest) on your phone and open it. Android asks you to allow installing apps from your browser the first time; allow it, then tap **Install**. If Play Protect warns about an unknown app, choose **Install anyway**.
+
+The phone versions always load the newest game, and keep playing offline after the first start. Progress is saved on the phone; use **? → Copy my save code** to move it between devices.
+
 ## Updates
 
 The app checks this repository for new versions when it starts and every few hours. New versions download in the background, are checked against SHA-256 fingerprints, and start the next time you restart the game. Your progress is stored on your own PC (`%APPDATA%\Amphora`) and is never touched by updates.

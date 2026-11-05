@@ -1,16 +1,16 @@
 {
- "version": "1.0.3",
+ "version": "1.0.4",
  "shell": "1.1.0",
- "notes": "Auto summon now plays the full summon animation for every batch (can be switched off). Rarity names in the Temple and help now match the game.",
+ "notes": "Phone app: fits iPhone notches and home-screen mode; summon buttons and results fit small screens.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "68d70fa64d66ffa9fa5f9d82a9331d81dc34a71518cf42033baa1d93ba494be8",
+  "css/marginalia.css": "56f5669ef436c08150f6034e1a544a3f3f3a5984bd93de80f47f793ef4efe323",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "b2fd83fe45ec3097f7594dd98f9ddf789e8a61fced78935c8d494a4609b9f23a",
+  "index.html": "9a4551eeabdaf9ecc118ff071ab11cf82b30164e6be82002260121325c22affc",
   "js/marginalia.js": "8c480297209b0c6c4761a9c76e735b59b3ed4ea7cfdf679b740404fcc849b6fd"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"

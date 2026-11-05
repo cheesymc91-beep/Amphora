@@ -1,0 +1,11 @@
+{
+  "appId": "com.amphora.game",
+  "appName": "Amphora",
+  "webDir": "www",
+  "server": {
+    "url": "https://cheesymc91-beep.github.io/Amphora/",
+    "errorPath": "offline.html",
+    "androidScheme": "https"
+  },
+  "android": { "backgroundColor": "#ece1c8" }
+}

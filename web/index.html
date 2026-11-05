@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Amphora</title>
+<meta name="description" content="An idle gacha game of Greek myth: summon marble heroes, build a team and fight turn-based battles.">
+<meta name="theme-color" content="#ece1c8">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Amphora">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<!-- FONTS: loaded from Google Fonts by default. To self-host them instead (no third-party requests),
+     follow fonts/README.md, then replace the two Google lines below with:
+     <link rel="stylesheet" href="fonts/fonts.css"> -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="css/marginalia.css?v=d7f5e0abc5">
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand"><img class="sp" id="logo" style="width:46px;height:46px" alt=""><h1>Amph<span>o</span>ra</h1></div>
+    <div class="purse"><div class="purse" id="purse"></div><button class="btn small" id="artbtn" data-act="artstyle" title="Art style">Art</button><button class="help" data-act="help" data-sec="basics" aria-label="How to play">?</button></div>
+  </div>
+  <nav id="nav"></nav>
+  <main id="stage"></main>
+</div>
+<div id="modal"></div>
+<div id="pops"></div>
+<div class="toast" id="toast" hidden></div>
+<noscript><p style="padding:24px;font:18px Georgia,serif">Amphora needs JavaScript to run. Please enable it and reload.</p></noscript>
+<script src="js/marginalia.js?v=d7f5e0abc5"></script>
+<script src="js/register-sw.js?v=d7f5e0abc5"></script>
+</body>
+</html>
