@@ -1,7 +1,7 @@
 {
- "version": "1.0.5",
+ "version": "1.1.0",
  "shell": "1.1.0",
- "notes": "Fix: stopping auto summon during the animation could freeze the screen and block all buttons. New: Hide animations button, and Esc closes summon results and help.",
+ "notes": "19 new heroes: the Olympians (Hades, Athena, Ares, Hephaestus, Aphrodite, Dionysus), Primordials Gaia and Nyx, Achilles, Hecate, Nemesis, Perseus, Cassandra, Orpheus, Hector, Icarus, Daedalus, Arachne and Jason, with 13 new bonds.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "56f5669ef436c08150f6034e1a544a3f3f3a5984bd93de80f47f793ef4efe323",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "e7952dc285dfd46f197e1da7980c8af20fa685af767d04bd785d88f25a57c59a",
-  "js/marginalia.js": "eadb3d95c6610776c36d76ee3d7ba0b34a83e161c1d46a2a88443b2efb02a441"
+  "index.html": "9608796c724bc9ff41a752961f6799a232a6c252cf8a603a1c3d8063c641d750",
+  "js/marginalia.js": "c600f91b1a25ece6b8f73089023b5f12a04b8d615419fd8e2ca4ba18dd8a6275"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

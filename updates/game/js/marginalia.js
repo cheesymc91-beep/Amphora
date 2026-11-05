@@ -2501,7 +2501,10 @@ const HEAD={
  goat:(x,y,r,c)=>E(x-r*1.05,y-r*.15,r*.35,r*.15,c,-25)+E(x+r*1.05,y-r*.15,r*.35,r*.15,c,25),
  flame:(x,y,r)=>P(`M${x-r*.6} ${y-r*.75} Q${x-r*.9} ${y-r*1.6} ${x-r*.2} ${y-r*1.9} Q${x-r*.2} ${y-r*1.4} ${x+r*.1} ${y-r*1.3} Q${x+r*.2} ${y-r*2.2} ${x+r*.8} ${y-r*1.6} Q${x+r*.9} ${y-r*1.1} ${x+r*.6} ${y-r*.75}Z`,"red"),
  halo:(x,y,r)=>`<circle cx="${x}" cy="${y-r*.1}" r="${r*1.45}" fill="none" stroke="${T.dil}" stroke-width="1.4" stroke-dasharray="3 2"/>`,
- hood:(x,y,r,c)=>P(`M${x-r*1.15} ${y+r*.6} Q${x-r*1.25} ${y-r*1.25} ${x} ${y-r*1.2} Q${x+r*1.25} ${y-r*1.25} ${x+r*1.15} ${y+r*.6} Q${x+r*.85} ${y-r*.75} ${x} ${y-r*.8} Q${x-r*.85} ${y-r*.75} ${x-r*1.15} ${y+r*.6}Z`,c||"glaze")
+ hood:(x,y,r,c)=>P(`M${x-r*1.15} ${y+r*.6} Q${x-r*1.25} ${y-r*1.25} ${x} ${y-r*1.2} Q${x+r*1.25} ${y-r*1.25} ${x+r*1.15} ${y+r*.6} Q${x+r*.85} ${y-r*.75} ${x} ${y-r*.8} Q${x-r*.85} ${y-r*.75} ${x-r*1.15} ${y+r*.6}Z`,c||"glaze"),
+ ivy:(x,y,r)=>[...Array(7)].map((_,i)=>{const a=Math.PI*(1.05+i*.15);return P(`M${x+Math.cos(a)*r} ${y+Math.sin(a)*r} l${r*.18} ${-r*.1} l${-r*.04} ${r*.22} l${-r*.18} ${-r*.06}z`,"olive");}).join("")+[0,1,2].map(i=>`<circle cx="${x+r*(.55+i*.12)}" cy="${y-r*(.75-i*.1)}" r="${r*.07}" fill="${T.red}"/>`).join(""),
+ pilos:(x,y,r)=>P(`M${x-r*.95} ${y-r*.5} Q${x-r*.7} ${y-r*1.9} ${x+r*.1} ${y-r*1.95} Q${x+r*.8} ${y-r*1.7} ${x+r*.95} ${y-r*.5} Q${x} ${y-r*.75} ${x-r*.95} ${y-r*.5}Z`,"clayD"),
+ stars:(x,y,r)=>[...Array(7)].map((_,i)=>{const a=Math.PI*(1.0+i*.166),sx=x+Math.cos(a)*r*1.35,sy=y-r*.1+Math.sin(a)*r*1.35;return P(`M${sx} ${sy-r*.16} L${sx+r*.05} ${sy-r*.05} L${sx+r*.16} ${sy} L${sx+r*.05} ${sy+r*.05} L${sx} ${sy+r*.16} L${sx-r*.05} ${sy+r*.05} L${sx-r*.16} ${sy} L${sx-r*.05} ${sy-r*.05}Z`,"dil");}).join("")
 };
 const ITEM={
  spear:(x,y)=>L(`M${x-2} ${y+14} L${x+6} ${y-28}`,"glaze",2.2)+P(`M${x+6} ${y-28} l-3.2 -1 l6.2 -10 l1 11.5z`,"dil"),
@@ -2525,7 +2528,18 @@ const ITEM={
  jar:(x,y)=>P(`M${x} ${y-18} L${x+6} ${y-18} L${x+5} ${y-15} Q${x+11} ${y-10} ${x+9} ${y-2} Q${x+3} ${y+3} ${x-3} ${y-2} Q${x-5} ${y-10} ${x+1} ${y-15}Z`,FOE?"red":"glaze")+meander(x-2,x+8,y-8,FOE?T.clayL:T.clay,2),
  bowl:(x,y)=>P(`M${x-6} ${y-6} L${x+12} ${y-6} Q${x+10} ${y+2} ${x+3} ${y+2} Q${x-4} ${y+2} ${x-6} ${y-6}Z`,"glaze")+L(`M${x-2} ${y-9} q2 -3 4 0 q2 -3 4 0`,"olive",1.4),
  crook:(x,y)=>L(`M${x} ${y+14} L${x+1} ${y-22} Q${x+2} ${y-31} ${x+9} ${y-29} Q${x+13} ${y-26} ${x+10} ${y-22}`,"clayD",2.2),
- net:(x,y)=>L(`M${x-4} ${y} l12 -14 M${x} ${y+2} l12 -14 M${x-4} ${y-12} l12 12 M${x} ${y-14} l12 12`,"dil",.9)
+ net:(x,y)=>L(`M${x-4} ${y} l12 -14 M${x} ${y+2} l12 -14 M${x-4} ${y-12} l12 12 M${x} ${y-14} l12 12`,"dil",.9),
+ bident:(x,y)=>L(`M${x} ${y+14} L${x+4} ${y-24}`,"glaze",2.2)+L(`M${x-1} ${y-23} L${x+9} ${y-25} M${x-1} ${y-23} L${x-2} ${y-33} M${x+9} ${y-25} L${x+9.5} ${y-35}`,"dil",2)+P(`M${x-2} ${y-33} l-1.6 1 l1.8 -5 l1.4 5z M${x+9.5} ${y-35} l-1.4 1 l1.6 -5 l1.4 5z`,"dil"),
+ hammer:(x,y)=>L(`M${x} ${y+10} L${x+3} ${y-16}`,"clayD",2.6)+P(`M${x-4} ${y-26} L${x+10} ${y-27} L${x+10.5} ${y-16} L${x-3.5} ${y-15}Z`,"glaze")+P(`M${x-4} ${y-26} L${x-7} ${y-24} L${x-6.5} ${y-17} L${x-3.5} ${y-15}Z`,"dil"),
+ mirror:(x,y)=>L(`M${x+1} ${y+6} L${x+3} ${y-8}`,"dil",2.2)+E(x+4,y-17,7,8.5,"dil")+E(x+4,y-17,5.4,6.8,"white")+L(`M${x+1} ${y-20} q2 -3 5 -2`,"dil",.8),
+ thyrsus:(x,y)=>L(`M${x} ${y+14} L${x+5} ${y-22}`,"clayD",2)+E(x+5.5,y-27,4.5,6.5,"olive")+L(`M${x+2} ${y-6} q4 2 3 -4 M${x+3} ${y-14} q-4 1 -3 -4`,"olive",1.4)+[0,1,2].map(i=>`<circle cx="${x+4+i*1.4}" cy="${y-30+i*2.6}" r=".9" fill="${T.glaze}"/>`).join(""),
+ cup:(x,y)=>P(`M${x-6} ${y-14} L${x+10} ${y-14} Q${x+9} ${y-5} ${x+2} ${y-4} Q${x-5} ${y-5} ${x-6} ${y-14}Z`,FOE?"red":"glaze")+L(`M${x-6} ${y-12} q-4 2 0 5 M${x+10} ${y-12} q4 2 0 5 M${x+2} ${y-4} L${x+2} ${y} M${x-2} ${y+1} L${x+6} ${y+1}`,FOE?"red":"glaze",1.3)+L(`M${x-4} ${y-15} q3 -3 6 0 q3 -3 6 0`,"red",1.2),
+ cornucopia:(x,y)=>P(`M${x-2} ${y+4} Q${x-4} ${y-12} ${x+10} ${y-22} Q${x+14} ${y-12} ${x+4} ${y-4} Q${x+2} ${y} ${x-2} ${y+4}Z`,"dil")+E(x+8,y-24,3.4,3.4,"red")+E(x+12.5,y-21,3,3,"olive")+E(x+5,y-27,2.6,2.6,"clayD"),
+ scales:(x,y)=>L(`M${x+2} ${y+6} L${x+2} ${y-22} M${x-9} ${y-20} L${x+13} ${y-20} M${x-9} ${y-20} L${x-11} ${y-12} M${x-9} ${y-20} L${x-7} ${y-12} M${x+13} ${y-20} L${x+11} ${y-12} M${x+13} ${y-20} L${x+15} ${y-12}`,"dil",1.2)+P(`M${x-12} ${y-12} Q${x-9} ${y-8} ${x-6} ${y-12}Z M${x+10} ${y-12} Q${x+13} ${y-8} ${x+16} ${y-12}Z`,"dil"),
+ gorgon:(x,y)=>[...Array(6)].map((_,i)=>{const a=Math.PI*(1+i*.2);return L(`M${x+3} ${y-6} q${Math.cos(a)*8} ${Math.sin(a)*4} ${Math.cos(a)*10} ${Math.sin(a)*9}`,"olive",1.4);}).join("")+E(x+3,y-5,6,6.5,FOE?"clayL":"clay")+`<circle cx="${x+1}" cy="${y-6}" r="1" fill="${T.glaze}"/><circle cx="${x+5}" cy="${y-6}" r="1" fill="${T.glaze}"/>`+L(`M${x} ${y-2} q3 2 6 0`,T.glaze,.8),
+ scroll:(x,y)=>P(`M${x-4} ${y-20} L${x+10} ${y-22} L${x+12} ${y-2} L${x-2} ${y}Z`,"white")+E(x-3,y-20,2.4,1.6,"clayD",-8)+E(x-1,y,2.4,1.6,"clayD",-8)+L(`M${x} ${y-16} L${x+8} ${y-17} M${x+.5} ${y-12} L${x+9} ${y-13} M${x+1} ${y-8} L${x+8} ${y-9}`,T.glaze,.6),
+ spindle:(x,y)=>L(`M${x} ${y+10} L${x+4} ${y-26}`,"clayD",1.6)+E(x+2.5,y-4,5,2,"dil")+E(x+3.5,y-16,4,6,"white")+L(`M${x+1} ${y-20} q3 2 5 0 M${x+1} ${y-16} q3 2 5 0 M${x+1} ${y-12} q3 2 5 0`,"clayD",.6)+L(`M${x+4} ${y-26} Q${x+16} ${y-30} ${x+20} ${y-14}`,"white",.6),
+ compass:(x,y)=>L(`M${x+4} ${y-26} L${x-4} ${y+8} M${x+4} ${y-26} L${x+12} ${y+8} M${x-1} ${y-4} L${x+9} ${y-4}`,"dil",1.8)+`<circle cx="${x+4}" cy="${y-26}" r="2" fill="${T.dil}"/>`
 };
 /* ---------- bodies ---------- */
 function biped(o){const c=o.c||"clay",c2=o.c2||"clayL",hx=o.hx||50,hy=o.hy||38,r=o.r||20;let s="";
@@ -2624,6 +2638,25 @@ const S={
  ouroboros:{b:biped,c2:"glaze",hat:["hairM","crownW"],beard:"white",item:"sickle",m:"grr",cape:"clayD"},
  firsthand:{b:biped,c2:"white",hat:["hairM","laurel"],beard:"glaze",item:"bolt",m:"grr",cape:"red"},
  wyvern:{b:biped,c2:"clayD",hat:["hairM","crownW"],beard:"glaze",item:"trident",m:"grr",cape:"red"},
+ hades:{b:biped,c2:"glaze",hat:["hairM","crownW"],beard:"glaze",item:"bident",m:"grr",cape:"glaze"},
+ athena:{b:biped,c2:"white",hat:["hairF","corinth"],item:"spear",off:"aspis",oc:"owl",cuirass:1,m:"calm"},
+ ares:{b:biped,c2:"red",hat:["corinth"],beard:"glaze",item:"spear",off:"aspis",oc:"",cuirass:1,greaves:1,cape:"red",m:"grr",r:21},
+ hephaestus:{b:biped,c2:"clayD",hat:["hairM","pilos"],beard:"glaze",item:"hammer",m:"grr",belt:"dil",r:21},
+ aphrodite:{b:biped,c2:"white",hat:["hairF","diadem"],item:"mirror",m:"smile",hb:"veil",hbc:"red"},
+ dionysus:{b:biped,c2:"red",hat:["hairM","ivy"],item:"thyrsus",off:"cup",m:"smile",cape:"red"},
+ gaia:{b:biped,c2:"clayD",hat:["hairF","ivy"],hb:"veil",hbc:"olive",item:"cornucopia",m:"calm",r:21},
+ nyx:{b:biped,c2:"glaze",hat:["hairF","stars"],hb:"veil",hbc:"glaze",wingsB:"glaze",item:"torch",m:"calm"},
+ achilles:{b:biped,c2:"red",hat:["corinth"],item:"spear",off:"aspis",oc:"lambda",cuirass:1,greaves:1,m:"grr"},
+ hecate:{b:biped,c2:"glaze",hat:["hairF","diadem"],hb:"veil",hbc:"glaze",item:"torch",off:"torch",m:"calm"},
+ nemesis:{b:biped,c2:"white",hat:["hairF"],wingsB:"clayD",item:"xiphos",off:"scales",m:"grr"},
+ perseus:{b:biped,c2:"clayD",hat:["hairM","petasos"],item:"sickle",off:"gorgon",m:"calm",cape:"clayD"},
+ cassandra:{b:biped,c2:"white",hat:["hairF","laurel"],item:"scroll",m:"crazy",hb:"veil",hbc:"red"},
+ orpheus:{b:biped,c2:"red",hat:["hairM","laurel"],item:"lyre",m:"smile"},
+ hector:{b:biped,c2:"clayD",hat:["corinth"],beard:"glaze",item:"spear",off:"aspis",oc:"crescent",cuirass:1,greaves:1,cape:"clayD",m:"calm",r:21},
+ icarus:{b:biped,c2:"white",hat:["hairM"],wingsB:"white",m:"smile"},
+ daedalus:{b:biped,c2:"clayD",hat:["hairM"],beard:"white",item:"compass",off:"hammer",m:"calm"},
+ arachne:{b:biped,c2:"glaze",hat:["hairF"],item:"spindle",m:"smile",back:`<path d="M14 18 L50 50 M86 18 L50 50 M10 52 L50 50 M90 52 L50 50 M22 86 L50 50 M78 86 L50 50" stroke="#d8d2c6" stroke-width=".7" fill="none" opacity=".8"/><path d="M28 30 Q50 38 72 30 Q66 50 72 70 Q50 62 28 70 Q34 50 28 30Z M20 24 Q50 34 80 24 Q72 50 80 78 Q50 68 20 78 Q28 50 20 24Z" stroke="#d8d2c6" stroke-width=".6" fill="none" opacity=".7"/>`},
+ jason:{b:biped,c2:"red",hat:["hairM"],item:"spear",off:"aspis",oc:"",cape:"dil",greaves:1,m:"smile"},
  /* monsters: black-figure */
  bookworm:{b:biped,c:"glaze",c2:"glaze",white:1,hat:["corinth"],hc:"glaze",item:"xiphos",off:"aspis",m:"grr"},
  silverfish:{b:bird,c:"glaze",human:1,hc2:"glaze",white:1,hat:["hairF"],m:"crazy"},
@@ -2758,7 +2791,10 @@ const HEAD={
  goat:(x,y,r,c)=>E(x-r*1.05,y-r*.15,r*.35,r*.15,c,-25)+E(x+r*1.05,y-r*.15,r*.35,r*.15,c,25),
  flame:(x,y,r)=>P(`M${x-r*.6} ${y-r*.75} Q${x-r*.9} ${y-r*1.6} ${x-r*.2} ${y-r*1.9} Q${x-r*.2} ${y-r*1.4} ${x+r*.1} ${y-r*1.3} Q${x+r*.2} ${y-r*2.2} ${x+r*.8} ${y-r*1.6} Q${x+r*.9} ${y-r*1.1} ${x+r*.6} ${y-r*.75}Z`,"red"),
  halo:(x,y,r)=>`<circle cx="${x}" cy="${y-r*.1}" r="${r*1.45}" fill="none" stroke="${T.dil}" stroke-width="1.4" stroke-dasharray="3 2"/>`,
- hood:(x,y,r,c)=>P(`M${x-r*1.15} ${y+r*.6} Q${x-r*1.25} ${y-r*1.25} ${x} ${y-r*1.2} Q${x+r*1.25} ${y-r*1.25} ${x+r*1.15} ${y+r*.6} Q${x+r*.85} ${y-r*.75} ${x} ${y-r*.8} Q${x-r*.85} ${y-r*.75} ${x-r*1.15} ${y+r*.6}Z`,c||"glaze")
+ hood:(x,y,r,c)=>P(`M${x-r*1.15} ${y+r*.6} Q${x-r*1.25} ${y-r*1.25} ${x} ${y-r*1.2} Q${x+r*1.25} ${y-r*1.25} ${x+r*1.15} ${y+r*.6} Q${x+r*.85} ${y-r*.75} ${x} ${y-r*.8} Q${x-r*.85} ${y-r*.75} ${x-r*1.15} ${y+r*.6}Z`,c||"glaze"),
+ ivy:(x,y,r)=>[...Array(7)].map((_,i)=>{const a=Math.PI*(1.05+i*.15);return P(`M${x+Math.cos(a)*r} ${y+Math.sin(a)*r} l${r*.18} ${-r*.1} l${-r*.04} ${r*.22} l${-r*.18} ${-r*.06}z`,"olive");}).join("")+[0,1,2].map(i=>`<circle cx="${x+r*(.55+i*.12)}" cy="${y-r*(.75-i*.1)}" r="${r*.07}" fill="${T.red}"/>`).join(""),
+ pilos:(x,y,r)=>P(`M${x-r*.95} ${y-r*.5} Q${x-r*.7} ${y-r*1.9} ${x+r*.1} ${y-r*1.95} Q${x+r*.8} ${y-r*1.7} ${x+r*.95} ${y-r*.5} Q${x} ${y-r*.75} ${x-r*.95} ${y-r*.5}Z`,"clayD"),
+ stars:(x,y,r)=>[...Array(7)].map((_,i)=>{const a=Math.PI*(1.0+i*.166),sx=x+Math.cos(a)*r*1.35,sy=y-r*.1+Math.sin(a)*r*1.35;return P(`M${sx} ${sy-r*.16} L${sx+r*.05} ${sy-r*.05} L${sx+r*.16} ${sy} L${sx+r*.05} ${sy+r*.05} L${sx} ${sy+r*.16} L${sx-r*.05} ${sy+r*.05} L${sx-r*.16} ${sy} L${sx-r*.05} ${sy-r*.05}Z`,"dil");}).join("")
 };
 const ITEM={
  spear:(x,y)=>L(`M${x-2} ${y+14} L${x+6} ${y-28}`,"glaze",2.2)+P(`M${x+6} ${y-28} l-3.2 -1 l6.2 -10 l1 11.5z`,"dil"),
@@ -2782,7 +2818,18 @@ const ITEM={
  jar:(x,y)=>P(`M${x} ${y-18} L${x+6} ${y-18} L${x+5} ${y-15} Q${x+11} ${y-10} ${x+9} ${y-2} Q${x+3} ${y+3} ${x-3} ${y-2} Q${x-5} ${y-10} ${x+1} ${y-15}Z`,FOE?"red":"glaze")+meander(x-2,x+8,y-8,FOE?T.clayL:T.clay,2),
  bowl:(x,y)=>P(`M${x-6} ${y-6} L${x+12} ${y-6} Q${x+10} ${y+2} ${x+3} ${y+2} Q${x-4} ${y+2} ${x-6} ${y-6}Z`,"glaze")+L(`M${x-2} ${y-9} q2 -3 4 0 q2 -3 4 0`,"olive",1.4),
  crook:(x,y)=>L(`M${x} ${y+14} L${x+1} ${y-22} Q${x+2} ${y-31} ${x+9} ${y-29} Q${x+13} ${y-26} ${x+10} ${y-22}`,"clayD",2.2),
- net:(x,y)=>L(`M${x-4} ${y} l12 -14 M${x} ${y+2} l12 -14 M${x-4} ${y-12} l12 12 M${x} ${y-14} l12 12`,"dil",.9)
+ net:(x,y)=>L(`M${x-4} ${y} l12 -14 M${x} ${y+2} l12 -14 M${x-4} ${y-12} l12 12 M${x} ${y-14} l12 12`,"dil",.9),
+ bident:(x,y)=>L(`M${x} ${y+14} L${x+4} ${y-24}`,"glaze",2.2)+L(`M${x-1} ${y-23} L${x+9} ${y-25} M${x-1} ${y-23} L${x-2} ${y-33} M${x+9} ${y-25} L${x+9.5} ${y-35}`,"dil",2)+P(`M${x-2} ${y-33} l-1.6 1 l1.8 -5 l1.4 5z M${x+9.5} ${y-35} l-1.4 1 l1.6 -5 l1.4 5z`,"dil"),
+ hammer:(x,y)=>L(`M${x} ${y+10} L${x+3} ${y-16}`,"clayD",2.6)+P(`M${x-4} ${y-26} L${x+10} ${y-27} L${x+10.5} ${y-16} L${x-3.5} ${y-15}Z`,"glaze")+P(`M${x-4} ${y-26} L${x-7} ${y-24} L${x-6.5} ${y-17} L${x-3.5} ${y-15}Z`,"dil"),
+ mirror:(x,y)=>L(`M${x+1} ${y+6} L${x+3} ${y-8}`,"dil",2.2)+E(x+4,y-17,7,8.5,"dil")+E(x+4,y-17,5.4,6.8,"white")+L(`M${x+1} ${y-20} q2 -3 5 -2`,"dil",.8),
+ thyrsus:(x,y)=>L(`M${x} ${y+14} L${x+5} ${y-22}`,"clayD",2)+E(x+5.5,y-27,4.5,6.5,"olive")+L(`M${x+2} ${y-6} q4 2 3 -4 M${x+3} ${y-14} q-4 1 -3 -4`,"olive",1.4)+[0,1,2].map(i=>`<circle cx="${x+4+i*1.4}" cy="${y-30+i*2.6}" r=".9" fill="${T.glaze}"/>`).join(""),
+ cup:(x,y)=>P(`M${x-6} ${y-14} L${x+10} ${y-14} Q${x+9} ${y-5} ${x+2} ${y-4} Q${x-5} ${y-5} ${x-6} ${y-14}Z`,FOE?"red":"glaze")+L(`M${x-6} ${y-12} q-4 2 0 5 M${x+10} ${y-12} q4 2 0 5 M${x+2} ${y-4} L${x+2} ${y} M${x-2} ${y+1} L${x+6} ${y+1}`,FOE?"red":"glaze",1.3)+L(`M${x-4} ${y-15} q3 -3 6 0 q3 -3 6 0`,"red",1.2),
+ cornucopia:(x,y)=>P(`M${x-2} ${y+4} Q${x-4} ${y-12} ${x+10} ${y-22} Q${x+14} ${y-12} ${x+4} ${y-4} Q${x+2} ${y} ${x-2} ${y+4}Z`,"dil")+E(x+8,y-24,3.4,3.4,"red")+E(x+12.5,y-21,3,3,"olive")+E(x+5,y-27,2.6,2.6,"clayD"),
+ scales:(x,y)=>L(`M${x+2} ${y+6} L${x+2} ${y-22} M${x-9} ${y-20} L${x+13} ${y-20} M${x-9} ${y-20} L${x-11} ${y-12} M${x-9} ${y-20} L${x-7} ${y-12} M${x+13} ${y-20} L${x+11} ${y-12} M${x+13} ${y-20} L${x+15} ${y-12}`,"dil",1.2)+P(`M${x-12} ${y-12} Q${x-9} ${y-8} ${x-6} ${y-12}Z M${x+10} ${y-12} Q${x+13} ${y-8} ${x+16} ${y-12}Z`,"dil"),
+ gorgon:(x,y)=>[...Array(6)].map((_,i)=>{const a=Math.PI*(1+i*.2);return L(`M${x+3} ${y-6} q${Math.cos(a)*8} ${Math.sin(a)*4} ${Math.cos(a)*10} ${Math.sin(a)*9}`,"olive",1.4);}).join("")+E(x+3,y-5,6,6.5,FOE?"clayL":"clay")+`<circle cx="${x+1}" cy="${y-6}" r="1" fill="${T.glaze}"/><circle cx="${x+5}" cy="${y-6}" r="1" fill="${T.glaze}"/>`+L(`M${x} ${y-2} q3 2 6 0`,T.glaze,.8),
+ scroll:(x,y)=>P(`M${x-4} ${y-20} L${x+10} ${y-22} L${x+12} ${y-2} L${x-2} ${y}Z`,"white")+E(x-3,y-20,2.4,1.6,"clayD",-8)+E(x-1,y,2.4,1.6,"clayD",-8)+L(`M${x} ${y-16} L${x+8} ${y-17} M${x+.5} ${y-12} L${x+9} ${y-13} M${x+1} ${y-8} L${x+8} ${y-9}`,T.glaze,.6),
+ spindle:(x,y)=>L(`M${x} ${y+10} L${x+4} ${y-26}`,"clayD",1.6)+E(x+2.5,y-4,5,2,"dil")+E(x+3.5,y-16,4,6,"white")+L(`M${x+1} ${y-20} q3 2 5 0 M${x+1} ${y-16} q3 2 5 0 M${x+1} ${y-12} q3 2 5 0`,"clayD",.6)+L(`M${x+4} ${y-26} Q${x+16} ${y-30} ${x+20} ${y-14}`,"white",.6),
+ compass:(x,y)=>L(`M${x+4} ${y-26} L${x-4} ${y+8} M${x+4} ${y-26} L${x+12} ${y+8} M${x-1} ${y-4} L${x+9} ${y-4}`,"dil",1.8)+`<circle cx="${x+4}" cy="${y-26}" r="2" fill="${T.dil}"/>`
 };
 /* ---------- bodies ---------- */
 function biped(o){const sk=o.c||"clay",cl=o.c2||"clayL",fem=(o.hat||[]).includes("hairF")||o.fem;let s="";
@@ -2869,6 +2916,13 @@ const PALS={
  fox:h("l","k","#7a1f5a","#3a2a3a",0,{eye:"#6a3aa0"}),siren:h("l","a","#4a8aa0","#7a5a4a",0,{clayD:"#8a6a50",eye:"#2a8a8a"}),pelican:h("l","b","#7a1f3a","#4a2a3a",0,{eye:"#3a6a3a"}),gryphon:h("m","y","#3a6a8a","#7a5a3a"),
  elephant:h("b","k","#9a1f1f","#7a5418",0,{clay:"#c89040",dil:"#b8862e",eye:"#e06a20"}),sagittary:h("l","a","#ece6dc","#6a5a4a","#f2ede4",{eye:"#4a6a8a"}),phoenix:{clay:"#e0602a",red:"#c0301c",dil:"#f2b632",clayD:"#a03018",eye:"#f2d040"},
  ouroboros:h("o","g","#3a3a4a","#4a3a30",0,{white:"#d8d2c6"}),firsthand:h("t","w","#c9973c","#6a4a2a","#f3ecdc",{eye:"#3a6ab0"}),wyvern:h("o","k","#1f5f7a","#2a4a5a",0,{eye:"#2a8aa0"}),
+ hades:h("o","k","#2a2a3a","#3a2a3a",0,{eye:"#6a8ab0",dil:"#8a7a5a"}),athena:h("l","b","#2a5a8a","#5a4a3a","#f3ecdc",{eye:"#7a8a9a"}),ares:h("t","k","#a01f1f","#5a2a1a",0,{eye:"#a03a20"}),
+ hephaestus:h("d","k","#6a4a2a","#4a3020",0,{eye:"#c86a20"}),aphrodite:h("l","y","#c84a6a","#8a4a5a","#fbf3ec",{eye:"#3a8ab0"}),dionysus:h("m","b","#6a2a6a","#4a2a3a",0,{eye:"#6a3a8a"}),
+ gaia:h("t","b","#4a7a3a","#5a4a2a",0,{eye:"#4a7a3a"}),nyx:h("l","k","#1f2240","#1a1a2a",0,{eye:"#9ab0ff",glaze:"#14142a",dil:"#d8dcff"}),achilles:h("m","y","#a8301f","#6a4a2a",0,{eye:"#3a6a9a"}),
+ hecate:h("l","k","#3a2a4a","#2a2030",0,{eye:"#b0a0ff"}),nemesis:h("l","k","#5a5a6a","#4a4050",0,{eye:"#a0a0b0"}),perseus:h("m","b","#3a5a7a","#5a4a3a",0,{eye:"#3a6a3a"}),
+ cassandra:h("l","a","#8a2a2a","#5a3a2a",0,{eye:"#5a8a5a"}),orpheus:h("m","b","#a0602a","#6a4a2a",0,{eye:"#5a7a3a"}),hector:h("t","k","#6a3a1f","#4a3020",0,{eye:"#4a3020"}),
+ icarus:h("l","y","#d8c8a8","#8a7a5a","#fbf6ec",{eye:"#4a8ab0"}),daedalus:h("t","g","#5a4a3a","#4a3a2a",0,{eye:"#5a6a7a"}),arachne:h("m","k","#3a2a4a","#2a2030",0,{eye:"#8a2a6a"}),
+ jason:h("m","b","#2a5a8a","#5a4a3a",0,{eye:"#3a6a9a",dil:"#e0b040"}),
  bookworm:{glaze:"#d6ccb4",clay:"#d6ccb4",red:"#6a2a2a",dil:"#8a7a5a"},silverfish:{glaze:"#6a5440",clay:"#c8a480",red:"#8a3a2a"},madhare:{glaze:"#5a3a26",clay:"#b8835a",red:"#7a2a5a"},
  armorsnail:{glaze:"#b8402a"},bonnacon:{glaze:"#3a2a24",white:"#e6dccc"},mandrake:{glaze:"#8a6a44",olive:"#5f7a2e"},thornvine:{glaze:"#4a6a2a",clay:"#7a9a4a",red:"#a02a4a"},henbane:{glaze:"#6a8a3a",clay:"#c8b080"},
  beeswarm:{glaze:"#8a7a5a",red:"#c88a20"},lamb:{glaze:"#3a6a3a",red:"#c8a020"},grotesque:{glaze:"#7a4a2a",clay:"#c08a5e",red:"#8a1f1f",dil:"#b88a3a"},piper:{glaze:"#5a3a26",clay:"#c08a5e",red:"#7a2a6a"},
@@ -2912,6 +2966,25 @@ const S={
  ouroboros:{b:biped,c2:"glaze",hat:["hairM","crownW"],beard:"white",item:"sickle",m:"grr",cape:"clayD"},
  firsthand:{b:biped,c2:"white",hat:["hairM","laurel"],beard:"glaze",item:"bolt",m:"grr",cape:"red"},
  wyvern:{b:biped,c2:"clayD",hat:["hairM","crownW"],beard:"glaze",item:"trident",m:"grr",cape:"red"},
+ hades:{b:biped,c2:"glaze",hat:["hairM","crownW"],beard:"glaze",item:"bident",m:"grr",cape:"glaze"},
+ athena:{b:biped,c2:"white",hat:["hairF","corinth"],item:"spear",off:"aspis",oc:"owl",cuirass:1,m:"calm"},
+ ares:{b:biped,c2:"red",hat:["corinth"],beard:"glaze",item:"spear",off:"aspis",oc:"",cuirass:1,greaves:1,cape:"red",m:"grr",r:21},
+ hephaestus:{b:biped,c2:"clayD",hat:["hairM","pilos"],beard:"glaze",item:"hammer",m:"grr",belt:"dil",r:21},
+ aphrodite:{b:biped,c2:"white",hat:["hairF","diadem"],item:"mirror",m:"smile",hb:"veil",hbc:"red"},
+ dionysus:{b:biped,c2:"red",hat:["hairM","ivy"],item:"thyrsus",off:"cup",m:"smile",cape:"red"},
+ gaia:{b:biped,c2:"clayD",hat:["hairF","ivy"],hb:"veil",hbc:"olive",item:"cornucopia",m:"calm",r:21},
+ nyx:{b:biped,c2:"glaze",hat:["hairF","stars"],hb:"veil",hbc:"glaze",wingsB:"glaze",item:"torch",m:"calm"},
+ achilles:{b:biped,c2:"red",hat:["corinth"],item:"spear",off:"aspis",oc:"lambda",cuirass:1,greaves:1,m:"grr"},
+ hecate:{b:biped,c2:"glaze",hat:["hairF","diadem"],hb:"veil",hbc:"glaze",item:"torch",off:"torch",m:"calm"},
+ nemesis:{b:biped,c2:"white",hat:["hairF"],wingsB:"clayD",item:"xiphos",off:"scales",m:"grr"},
+ perseus:{b:biped,c2:"clayD",hat:["hairM","petasos"],item:"sickle",off:"gorgon",m:"calm",cape:"clayD"},
+ cassandra:{b:biped,c2:"white",hat:["hairF","laurel"],item:"scroll",m:"crazy",hb:"veil",hbc:"red"},
+ orpheus:{b:biped,c2:"red",hat:["hairM","laurel"],item:"lyre",m:"smile"},
+ hector:{b:biped,c2:"clayD",hat:["corinth"],beard:"glaze",item:"spear",off:"aspis",oc:"crescent",cuirass:1,greaves:1,cape:"clayD",m:"calm",r:21},
+ icarus:{b:biped,c2:"white",hat:["hairM"],wingsB:"white",m:"smile"},
+ daedalus:{b:biped,c2:"clayD",hat:["hairM"],beard:"white",item:"compass",off:"hammer",m:"calm"},
+ arachne:{b:biped,c2:"glaze",hat:["hairF"],item:"spindle",m:"smile",back:`<path d="M14 18 L50 50 M86 18 L50 50 M10 52 L50 50 M90 52 L50 50 M22 86 L50 50 M78 86 L50 50" stroke="#d8d2c6" stroke-width=".7" fill="none" opacity=".8"/><path d="M28 30 Q50 38 72 30 Q66 50 72 70 Q50 62 28 70 Q34 50 28 30Z M20 24 Q50 34 80 24 Q72 50 80 78 Q50 68 20 78 Q28 50 20 24Z" stroke="#d8d2c6" stroke-width=".6" fill="none" opacity=".7"/>`},
+ jason:{b:biped,c2:"red",hat:["hairM"],item:"spear",off:"aspis",oc:"",cape:"dil",greaves:1,m:"smile"},
  /* monsters: black-figure */
  bookworm:{b:biped,c:"glaze",c2:"glaze",white:1,hat:["corinth"],hc:"glaze",item:"xiphos",off:"aspis",m:"grr"},
  silverfish:{b:bird,c:"glaze",human:1,hc2:"glaze",white:1,hat:["hairF"],m:"crazy"},
@@ -3153,7 +3226,7 @@ const elname=el=>`<span class="elname">${gem(el)}${EL[el]}</span>`;
 const QN=["Mortal","Sketch","Mosaic","Masterwork","Olympian","Secret Rare"];
 const ROLE={tank:{hp:700,atk:44,def:46,spd:90},warrior:{hp:560,atk:62,def:32,spd:98},striker:{hp:460,atk:74,def:24,spd:112},mage:{hp:430,atk:78,def:20,spd:102},healer:{hp:490,atk:50,def:28,spd:104},support:{hp:510,atk:54,def:30,spd:106}};
 const ROLE_TXT={tank:"Tank: soaks hits and protects allies",warrior:"Warrior: sturdy all-round fighter",striker:"Striker: fast, hard-hitting",mage:"Mage: hits many foes at once",healer:"Healer: keeps the team alive",support:"Support: buffs the whole team"};
-const RMULT=[1,1.12,1.26,1.42,1.5,1.62];
+const RMULT=[1,1.12,1.26,1.42,1.56,1.62];
 const D=(m,tg="one")=>({t:"dmg",m,tg});
 /* ===== BREAK: every foe carries a shield of weak points. Hits from a hero whose ink or class it is weak to chip it; at 0 it is Broken ===== */
 const BRK={sh:{fodder:2,fast:2,caster:2,brute:2,tank:3,boss:4},dmg:1,meter:15};
@@ -3162,7 +3235,7 @@ function hashK(k){let h=7;for(const c of k)h=(h*31+c.charCodeAt(0))>>>0;return h
 function weakOf(key){const e=EN[key],cls=Object.keys(CLS),h=hashK(key),w=[{t:"el",k:beatenBy(e.el)}];
   const c1=h%cls.length,c2=(c1+1+((h>>>5)%(cls.length-1)))%cls.length;w.push({t:"cls",k:cls[c1]},{t:"cls",k:cls[c2]});
   return w;}
-const isWeakTo=(a,t)=>a.side==="h"&&t.weak&&t.weak.some(w=>w.t==="el"?w.k===a.el:w.k===HERO[a.id].cls);
+const isWeakTo=(a,t)=>a.side==="h"&&t.weak&&(t.weak.some(w=>w.t==="el"?w.k===a.el:w.k===HERO[a.id].cls)||!!(t.weakX&&t.weakX.includes(a.el)));
 function brkHit(a,t){if(t.dead||t.broken||!isWeakTo(a,t))return;t.brk--;pop(t,"◆ −1","brkc");
   if(t.brk<=0){t.broken=true;t.brk=0;t.intent=null;addSt(t,"broken",1,1);C.breaks=(C.breaks||0)+1;gainMeter(BRK.meter);pop(t,"BREAK!","brk");fx(t,"glow");
     blog(`${t.n} is BROKEN! It loses its next turn and takes double damage until then.`);C.hitstop=240;
@@ -3521,15 +3594,17 @@ function unequip(hid,slot){const gid=G.heroes[hid].gear[slot];if(!gid)return;con
 
 /* ============ gacha ============ */
 const SECRET={hero:{rate:.25,pity:200},gear:{rate:.15,pity:300}};
+const HERO_OLY={rate:.75,pity:120};
 function pullHero(){
-  G.pity.h10++;G.pity.hL++;G.pity.hS=(G.pity.hS||0)+1;G.stats.pulls++;
+  G.pity.h10++;G.pity.hL++;G.pity.hS=(G.pity.hS||0)+1;G.pity.hO=(G.pity.hO||0)+1;G.stats.pulls++;
   let q;
   const r=Math.random()*100;
   if(G.pity.hS>=SECRET.hero.pity||r<SECRET.hero.rate)q=5;
+  else if(G.pity.hO>=HERO_OLY.pity||r<SECRET.hero.rate+HERO_OLY.rate)q=4;
   else if(G.pity.hL>=50)q=3;
   else if(G.pity.h10>=10)q=roll(81)?2:3;
   else{const r2=Math.random()*100;q=r2<3?3:r2<16?2:r2<48?1:0;}
-  if(q>=2)G.pity.h10=0;if(q>=3)G.pity.hL=0;if(q===5){G.pity.hS=0;G.stats.secrets=(G.stats.secrets||0)+1;}
+  if(q>=2)G.pity.h10=0;if(q>=3)G.pity.hL=0;if(q===4)G.pity.hO=0;if(q===5){G.pity.hS=0;G.stats.secrets=(G.stats.secrets||0)+1;}
   const fd=G.daily&&G.daily.featured&&HERO[G.daily.featured];
   const h=fd&&fd.q===q&&roll(50)?fd:pick(HEROES.filter(x=>x.q===q));let isNew=false;track("pullh");
   if(G.heroes[h.id])G.heroes[h.id].shards++;else{G.heroes[h.id]=newHeroRec();isNew=true;G.newHeroes=G.newHeroes||{};G.newHeroes[h.id]=1;}
@@ -3710,6 +3785,14 @@ function startBattle(s,heroic=false,opt={}){
     roundCap:opt.roundCap||0,mdata:opt.mdata||null,log:opt.log?opt.log:heroic?"Heroic page! Every wave fields an elite.":mode==="golden"?"A Gilded Spartoi Skeleton! Hit it as hard as you can before it flees.":mode==="run"?`The Labyrinth, floor ${info.i}.`:"The gods are watching. Battle is joined!",over:false,result:null,extra:null,sanct:false,phaseQ:[],rebuild:false,
     pageBuff:!SIM&&!mode&&!!G.pageBuff,sceptre:rm.some(b=>b.m&&b.m.fl&&b.m.fl.includes("foolSceptre"))};
   if(C.pageBuff)G.pageBuff=0;
+  {const has=k=>C.heroes.some(x=>x.pa.k===k);
+   if(has("forgeblessed"))C.heroes.forEach(x=>{const g=(rec(x.id)||{}).gear||{};if(Object.values(g).some(Boolean)){x.atk=Math.round(x.atk*1.15);x.def=Math.round(x.def*1.15);}});
+   if(has("bacchic"))C.heroes.forEach(x=>{if(x.id==="hare"||x.id==="wodewose"){x.atk=Math.round(x.atk*1.2);x.spd+=10;}});
+   if(has("craftsman"))C.heroes.forEach(x=>{x.critDmg=(x.critDmg||0)+.25;});
+   C.heroes.filter(x=>x.pa.k==="argo").forEach(x=>{const n=C.heroes.filter(y=>y!==x&&ARGONAUTS.includes(y.id)).length;if(n){const m=1+.08*n;x.atk=Math.round(x.atk*m);x.def=Math.round(x.def*m);x.maxhp=x.hp=Math.round(x.maxhp*m);}});
+   if(has("strategy"))C.meter+=15;
+   if(has("motherofall"))C.heroes.forEach(x=>{x.maxhp=x.hp=Math.round(x.maxhp*1.15);});
+   if(has("nightfalls"))C.heroes.forEach(x=>{if(x.el==="iron")x.atk=Math.round(x.atk*1.15);});}
   const syn=activeSyn(team);C.syn=syn.map(x=>x.id);
   C.heroes.forEach(u=>{
     heroTalentMods(u.id).forEach(m=>{applyMods(u,m);if(m.meter)C.meter+=m.meter;});
@@ -3760,10 +3843,11 @@ function eff(u,k){
     if(u.pa.k==="phoenix")b+=.3*(u.rises||0);
     if(u.pa.k==="chesteyes")b+=.08*(u.stacks||0);
     if(u.blood)b+=.15*u.blood;
+    if(u.pa.k==="warlust")b+=.4*(1-u.hp/u.maxhp);
     b+=rage(u);
     return u.atk*Math.max(.3,b);}
-  if(k==="def")return u.def*Math.max(.3,1+stv(u,"defUp")-stv(u,"defDown"));
-  if(k==="spd")return u.spd*Math.max(.3,1+stv(u,"spdUp")-stv(u,"spdDown"));
+  if(k==="def"){let b=1+stv(u,"defUp")-stv(u,"defDown")+(u.gaiaDef||0);if(u.pa.k==="troy"&&C)b+=.12*alliesOf(u).filter(x=>x!==u&&x.row==="back").length;return u.def*Math.max(.3,b);}
+  if(k==="spd")return (u.spd+(u.spdX||0))*Math.max(.3,1+stv(u,"spdUp")-stv(u,"spdDown"));
   return u.crit+stv(u,"critUp");
 }
 function later(fn,ms){if(SIM){const tk=C;SIMQ.push(()=>{if(C&&C===tk&&!C.over)fn();});return;}const tok=C;const hs=C&&C.hitstop?C.hitstop:0;if(C)C.hitstop=0;setTimeout(()=>{if(C&&C===tok&&!C.over)fn();},ms/(G.speed||1)+hs);}
@@ -3774,6 +3858,7 @@ function newRound(){
   if(C.roundCap&&C.round>C.roundCap){C.timedOut=true;blog(MODE_CAPMSG[C.mode]||"Time is up!");return finish(true);}
   if(C.mode==="golden"&&C.round>3){blog("The Gilded Spartoi Skeleton wriggles off the field with a flash of gold!");return finish(true);}
   if(C.heroes.some(h=>!h.dead&&F(h,"vespers")))C.heroes.filter(h=>!h.dead&&h.hp<h.maxhp).forEach(h=>heal(h,h,h.maxhp*.04));
+  unitsAll().forEach(u=>{u.lastDealt=u.dmgThis||0;u.dmgThis=0;});
   const ent=[];unitsAll().filter(u=>!u.dead).forEach(u=>{const sp=eff(u,"spd");ent.push({id:u.uid,i:sp+rnd(-.5,.5)});if(u.doubleAct)ent.push({id:u.uid,i:sp-30});});
   C.queue=ent.sort((a,b)=>b.i-a.i).map(e=>e.id);
   C.foes.forEach(planIntent);
@@ -3792,15 +3877,22 @@ function nextTurn(){
   if(u.pa.k==="endless"){if(u.hp<u.maxhp)heal(u,u,u.maxhp*.08);alliesOf(u).forEach(a=>{if(a!==u&&a.hp<a.maxhp)heal(u,a,a.maxhp*.03);});}
   if(hasM(u,"ages")&&u.hp<u.maxhp)heal(u,u,u.maxhp*.1);
   if(u.regenX&&u.hp<u.maxhp)heal(u,u,u.maxhp*u.regenX);
+  if(u.side==="h"&&u.hp<u.maxhp&&C.heroes.some(x=>!x.dead&&x.pa.k==="lyrecomfort"))heal(null,u,u.maxhp*.03);
+  if(u.pa.k==="sunward"){u.spdX=(u.spdX||0)+6;if(u.spdX>30&&!F(u,"waxsafe")){const d=Math.min(u.hp-1,Math.round(u.maxhp*.05));if(d>0){u.hp-=d;pop(u,"The wax melts −"+d,"weak");}}}
   if(u.pa.k==="arrives"){if(!u.hitSince&&C.round>1){const v=Math.round(u.maxhp*.06);u.shield+=v;pop(u,"+"+v+" shield","heal");}u.hitSince=false;}
   const stunned=u.st.some(x=>x.k==="stun"||x.k==="broken"),asleep=u.st.some(x=>x.k==="sleep"),up=u.st.find(x=>x.k==="aloft");
   u.st.forEach(x=>x.turns--);u.st=u.st.filter(x=>x.turns>0);
+  if(u.el0&&!u.st.some(x=>x.k==="elshift")){u.el=u.el0;u.el0=null;u.weakX=null;C.rebuild=true;}
   if(u.broken&&!u.st.some(x=>x.k==="broken")){u.broken=false;if(u.boss)u.brkMax++;u.brk=u.brkMax;u.wasBroken=true;}
   if(u.cd>0)u.cd--;
   if(up){if(up.turns<=0){const d=Math.min(u.hp-1,Math.round(u.maxhp*.25));if(d>0){u.hp-=d;pop(u,"Dropped! "+d,"weak");fx(u,"hit");}blog(`${u.n} is dropped back onto the field.`);C.rebuild=true;}
     else{blog(`${u.n} is carried high above the field.`);pop(u,"Aloft","info");}render();return later(nextTurn,700);}
   if(stunned||asleep){const bk=u.wasBroken;u.wasBroken=false;blog(asleep?`${u.n} is fast asleep.`:bk?`${u.n} is Broken and reels, losing the turn. Its shield comes back.`:`${u.n} is stunned and loses the turn.`);pop(u,asleep?"Zzz":bk?"Reeling…":"Stunned","info");if(u.side==="f")planIntent(u);render();return later(nextTurn,700);}
   if(u.echo){const e=u.echo;u.echo=null;pop(u,"The tide returns!","info");resolve(u,e,autoTarget(u,e),false);handlePhases();render();if(checkEnd())return;}
+  if(u.st.some(x=>x.k==="charm")){u.st=u.st.filter(x=>x.k!=="charm");const own=alliesOf(u).filter(x=>x!==u);if(own.length){const t=own.slice().sort((a,b)=>b.hp-a.hp)[0];blog(`${u.n} is charmed and attacks ${t.n}!`);pop(u,"Charmed!","info");anim(u,u.side==="h"?"go-r":"go-l");
+    later(()=>{strike(u,t,1.2,true);handlePhases();render();if(checkEnd())return;later(nextTurn,520);},300);if(u.side==="f")planIntent(u);render();return;}}
+  if(u.st.some(x=>x.k==="mad")&&roll(60)){const own=alliesOf(u).filter(x=>x!==u),oth=foesOf(u),all=own.length&&roll(70)?own:oth;if(all.length){const t=pick(all);blog(`${u.n} is mad with wine and attacks ${t.n}!`);pop(u,"Maddened!","info");anim(u,"cast");
+    later(()=>{strike(u,t,1,true);handlePhases();render();if(checkEnd())return;later(nextTurn,520);},300);if(u.side==="f")planIntent(u);render();return;}}
   if(u.st.some(x=>x.k==="beguile")&&roll(40)){const own=alliesOf(u).filter(x=>x!==u);if(own.length){const t=pick(own);blog(`${u.n} is beguiled and attacks ${t.n}!`);pop(u,"Beguiled!","info");anim(u,u.side==="h"?"go-r":"go-l");
     later(()=>{strike(u,t,1,true);handlePhases();render();if(checkEnd())return;later(nextTurn,520);},300);if(u.side==="f")planIntent(u);render();return;}}
   if(u.side==="f"){render();later(()=>{const a=foeAct(u);perform(u,a.sk,a.t);},380);}
@@ -3823,7 +3915,7 @@ function targetsFor(u){const l=reachOf(u),tt=l.filter(x=>x.st.some(s=>s.k==="tau
 function scoreTarget(u,t,m=1){
   const em=elemMult(u.el,t.el),est=eff(u,"atk")*m*(100/(100+eff(t,"def")))*em;
   let s=(est>=t.hp+t.shield?100:0)+(1-t.hp/t.maxhp)*40+(em-1)*50;
-  if(t.side==="h"){const r=HERO[t.id].role;s+=r==="healer"?25:r==="support"?15:r==="mage"?10:0;}
+  if(t.side==="h"){const r=HERO[t.id].role;s+=r==="healer"?25:r==="support"?15:r==="mage"?10:0;if(t.pa.k==="beloved")s-=25;}
   else{if(t.tr&&t.tr.includes("healer"))s+=25;if(t.boss)s-=10;
     if(u.side==="h"){if(t.broken)s+=30;else if(isWeakTo(u,t))s+=t.brk<=1?35:15;}}
   return s;
@@ -3846,6 +3938,7 @@ function useful(u,sk){
 }
 function autoTarget(u,sk){
   const n=needs(sk),m=(sk.fx.find(f=>f.t==="dmg")||{}).m||1;
+  if(n==="enemy"&&u.pa&&u.pa.k==="retribution"&&(sk===u.s||sk===u.u)){const l=targetsFor(u);if(l.length)return l.slice().sort((a,b)=>(b.lastDealt||0)-(a.lastDealt||0))[0];}
   if(n==="enemy"&&sk===u.s&&hasT(u,"gazer")){const l=targetsFor(u);if(l.length)return l.slice().sort((a,b)=>eff(b,"atk")-eff(a,"atk"))[0];}
   return n==="enemy"?pickEnemy(u,m):n==="ally"?alliesOf(u).sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0]:null;
 }
@@ -3895,7 +3988,7 @@ function perform(u,sk,target){
   if((skill||ult)&&F(u,"echo40")&&u.pa.k!=="twicetold")u.echo={n:sk.n+" (echo)",fx:sk.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot")?Object.assign({},f,{m:f.m*.4}):f)};
   if((skill||ult)&&u.pa.k==="twicetold")u.echo={n:sk.n+" (echo)",fx:sk.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot")?Object.assign({},f,{m:f.m*.6}):f)};
   if((skill||ult)&&u.side==="h"){const fx2=sk.fx.filter(f=>!["revive","refresh","selfcost"].includes(f.t));if(fx2.length)C.foes.filter(f=>!f.dead&&hasT(f,"mimic")).forEach(f=>{f.s={n:"Mimic: "+sk.n,cd:3,fx:fx2.map(x=>Object.assign({},x))};});}
-  later(()=>{resolve(u,sk,target,skill);
+  later(()=>{C.foeSkill=u.side==="f"&&skill;resolve(u,sk,target,skill);C.foeSkill=false;
     if(u.pa.k==="garrison"&&!u.dead){const n=u.shield>0?3:2;for(let i=0;i<n;i++){const l=foesOf(u);if(!l.length)break;strike(u,pick(l),.35,true,true);}}
     if(u.side==="f")planIntent(u);
     handlePhases();render();if(checkEnd())return;
@@ -3917,9 +4010,10 @@ function resolve(u,sk,target,skill){
       const ts=f.tg==="self"?[u]:f.tg==="allies"?alliesOf(u):[target&&!target.dead&&target.side===u.side?target:alliesOf(u).sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0]];
       ts.forEach(t=>t&&heal(u,t,eff(u,"atk")*f.m*BAL.heal));
     } else if(f.t==="shield"){
-      (f.tg==="self"?[u]:alliesOf(u)).forEach(t=>{const v=Math.round(u.maxhp*f.m);t.shield+=v;pop(t,"+"+v+" shield","heal");fx(t,"glow");});
+      (f.tg==="self"?[u]:alliesOf(u)).forEach(t=>{const v=Math.round(u.maxhp*f.m*(u.pa.k==="troy"?1.12:1));t.shield+=v;pop(t,"+"+v+" shield","heal");fx(t,"glow");});
     } else if(f.t==="buff"){
-      (f.tg==="self"?[u]:alliesOf(u)).forEach(t=>{addSt(t,f.k,f.v,f.turns+(F(u,"buffPlus")&&f.k!=="taunt"?1:0));fx(t,"glow");});
+      const strat=f.k!=="taunt"&&u.side==="h"&&C.heroes.some(x=>!x.dead&&x.pa.k==="strategy")?1:0;
+      (f.tg==="self"?[u]:alliesOf(u)).forEach(t=>{addSt(t,f.k,f.v,f.turns+(F(u,"buffPlus")&&f.k!=="taunt"?1:0)+strat);fx(t,"glow");});
       pop(u,({atkUp:"ATK up!",defUp:"DEF up!",critUp:"Crit up!",spdUp:"Speed up!",taunt:"Taunt!"})[f.k],"info");
     } else if(f.t==="debuff"){
       (f.tg==="all"?foesOf(u):hit.filter(t=>!t.dead)).forEach(t=>{if(!warded(t))addSt(t,f.k,f.v,f.turns);});
@@ -3948,9 +4042,30 @@ function resolve(u,sk,target,skill){
     } else if(f.t==="invert"){
       const sw={atkUp:"atkDown",atkDown:"atkUp",defUp:"defDown",defDown:"defUp",spdUp:"spdDown",spdDown:"spdUp"};
       unitsAll().filter(t=>!t.dead).forEach(t=>{t.st.forEach(x=>{if(sw[x.k])x.k=sw[x.k];});});pop(u,"Madness!","info");
+    } else if(f.t==="charm"){
+      const pool=f.tg==="top"?foesOf(u).filter(t=>!t.boss).sort((a,b)=>eff(b,"atk")-eff(a,"atk")).slice(0,f.n||1):hit.filter(t=>!t.dead);
+      pool.forEach(t=>{if(warded(t)||F(t,"unstoppable"))return;const p=f.p+(u.ctrlBonus||0);if(roll(t.boss?p*.4:p)){addSt(t,"charm",1,f.turns||2);pop(t,"Charmed!","info");}});
+    } else if(f.t==="mad"){
+      (f.tg==="all"?foesOf(u):hit.filter(t=>!t.dead)).forEach(t=>{if(warded(t)||F(t,"unstoppable")||t.pa.k==="pureheart")return;const p=f.p+(u.ctrlBonus||0);if(roll(t.boss?p*.4:p)){addSt(t,"mad",1,f.turns);pop(t,"Maddened!","info");}});
+    } else if(f.t==="hexel"){
+      const ne=u.side==="h"?bestHexEl(u):null;(f.tg==="all"?foesOf(u):hit.filter(t=>!t.dead)).forEach(t=>{if(warded(t)||!ne)return;if(!t.el0)t.el0=t.el;t.el=ne;t.weakX=[beatenBy(ne)];addSt(t,"elshift",1,f.turns);pop(t,"Now "+EL[ne]+"!","info");});C.rebuild=true;
+    } else if(f.t==="blind"){
+      (f.tg==="all"?foesOf(u):hit.filter(t=>!t.dead)).forEach(t=>{if(!warded(t)){addSt(t,"blind",f.v,f.turns);pop(t,"Blinded","info");}});
+    } else if(f.t==="web"){
+      (f.tg==="all"?foesOf(u):hit.filter(t=>!t.dead)).forEach(t=>weave(u,t,f.n||1));
+    } else if(f.t==="execute"){
+      foesOf(u).filter(t=>!t.boss&&t.hp<=t.maxhp*f.v).forEach(t=>{pop(t,"Routed!","crit");hurt(t,t.hp+t.shield,u,{cls:"crit"});});
+    } else if(f.t==="foresee"){
+      const l=foesOf(u).filter(t=>t.s),tg=f.all?l:l.filter(t=>t.intent&&t.intent.sk===t.s).sort((a,b)=>eff(b,"atk")-eff(a,"atk")).slice(0,1);
+      tg.forEach(t=>{t.cd=Math.max(t.cd,2);if(t.intent&&t.intent.sk===t.s){const x=autoTarget(t,t.b);t.intent={sk:t.b,tid:x?x.uid:null};}pop(t,"Foreseen!","info");});
+      if(!tg.length)alliesOf(u).forEach(a=>addSt(a,"critUp",10,2));
+    } else if(f.t==="nightfall"){
+      C.heroes.filter(h=>!h.dead&&h!==u&&h.el==="iron").reverse().forEach(h=>{C.queue=C.queue.filter(id=>id!==h.uid);C.queue.unshift(h.uid);});pop(u,"Night falls!","info");
+    } else if(f.t==="shades"){
+      C.shades={until:C.round+(f.turns||3),src:u.uid,m:f.m||1};pop(u,"The dead rise!","info");
     } else if(f.t==="revive"){
       const fallen=(u.side==="h"?C.heroes:C.foes).filter(a=>a.dead&&!a.wasRevived);
-      (f.all?fallen:fallen.slice(0,1)).forEach(t=>{t.dead=false;t.wasRevived=true;t.hp=Math.round(t.maxhp*f.m);t.st=[];pop(t,"Back from Hades!","heal");fx(t,"glow");});
+      (f.all?fallen:fallen.slice(0,1)).forEach(t=>{const full=F(u,"fullRevive")&&!C.fullRevUsed;if(full)C.fullRevUsed=true;t.dead=false;t.wasRevived=true;t.hp=Math.round(t.maxhp*(full?1:f.m));t.st=[];pop(t,"Back from Hades!","heal");fx(t,"glow");});
       if(!fallen.length&&!f.all)alliesOf(u).forEach(t=>heal(u,t,eff(u,"atk")*.6*BAL.heal));
     }
   }
@@ -3959,7 +4074,8 @@ function resolve(u,sk,target,skill){
 function strike(a,t,m,counter,single=true){
   t.hitSince=true;
   const tt=t.tr||[];
-  if((hasM(t,"dodge")&&roll(30))||(t.pa.k==="skittish"&&roll(25))||(single&&tt.includes("evasive")&&roll(30))){pop(t,"Dodge","weak");return;}
+  {const bl=stv(a,"blind")+(a.side==="f"&&C.round>=2&&C.heroes.some(x=>!x.dead&&x.pa.k==="nightfalls")?25:0);if(bl>0&&roll(bl)){pop(a,"Miss!","weak");return;}}
+  if((hasM(t,"dodge")&&roll(30))||(t.pa.k==="skittish"&&roll(25))||(t.pa.k==="darkcap"&&roll(20))||(single&&tt.includes("evasive")&&roll(30))){pop(t,"Dodge","weak");return;}
   if(hasT(t,"earcloak")){t.hitsTaken=(t.hitsTaken||0)+1;if(t.hitsTaken%4===0){pop(t,"Saw it coming!","weak");return;}}
   const em=elemMult(a.el,t.el);
   let d=eff(a,"atk")*m*(100/(100+eff(t,"def")))*em*rnd(.92,1.08)*BAL.dmg;
@@ -3974,6 +4090,10 @@ function strike(a,t,m,counter,single=true){
   if(a.pa.k==="redletters")bonus+=.2*t.st.filter(x=>x.k==="blot").length;
   if((a.pa.k==="apex"||a.pa.k==="executioner")&&t.hp/t.maxhp<.35)bonus+=a.pa.k==="apex"?.5:a.pa.v;
   bonus+=stv(t,"mark");
+  if(a.pa.k==="witchqueen"&&t.el0)bonus+=.25;
+  if(a.pa.k==="spinner"&&t.st.some(x=>x.k==="web"))bonus+=.25;
+  if(a.pa.k==="beloved"&&t.st.some(x=>x.k==="charm"||x.k==="beguile"))bonus+=.25;
+  if(a.pa.k==="bacchic"&&t.st.some(x=>x.k==="mad"))bonus+=.35;
   if(t.broken)bonus+=BRK.dmg;
   if(F(a,"exec")&&t.hp/t.maxhp<.35)bonus+=.4;
   if(F(a,"exec30")&&t.hp/t.maxhp<.35)bonus+=.3;
@@ -3983,16 +4103,20 @@ function strike(a,t,m,counter,single=true){
   if(a.pa.k==="pounce"){a.pounced=a.pounced||[];if(!a.pounced.includes(t.uid)){a.pounced.push(t.uid);bonus+=.6;pop(a,"Breach!","info");}}
   if(t.st.some(x=>x.k==="sleep")){bonus+=(a.side==="h"?C.heroes:C.foes).some(x=>!x.dead&&x.pa.k==="siren")?1:.5;t.st=t.st.filter(x=>x.k!=="sleep");pop(t,"Woken!","info");}
   d*=1+bonus;
+  if(a.pa.k==="retribution"&&t.lastDealt){const ex=Math.min(t.lastDealt*.3,eff(a,"atk")*1.5);if(ex>0){d+=ex;pop(a,"Nemesis!","info");}}
   if(hasT(a,"fortune")&&!counter){if(roll(50)){d*=2;pop(a,"Heads!","info");}else{const self=Math.max(1,Math.round(d*.5));pop(a,"Tails!","info");hurt(a,self,a,{cls:"weak",noKill:true});return;}}
   {const pg=t.side==="h"&&C.heroes.find(x=>!x.dead&&x!==t&&x.pa.k==="shellduty");if(pg)d*=F(pg,"shell25")?.75:.85;}
   if(t.side==="h"&&C.heroes.some(x=>!x.dead&&x!==t&&F(x,"guardian")))d*=.92;
+  if(t.pa.k==="heel")d*=t.hp>t.maxhp/2?.5:1.3;
+  if(t.side==="h"&&t.pa.k!=="motherofall"&&C.heroes.some(x=>!x.dead&&x.pa.k==="motherofall"))d*=.88;
+  if(t.side==="h"&&a.side==="f"&&C.foeSkill&&C.heroes.some(x=>!x.dead&&x.pa.k==="prophetess"))d*=.75;
   if(single&&tt.includes("armored")&&!t.st.some(x=>x.k==="defDown"))d*=.6;
   if(!single&&tt.includes("bulwark"))d*=.6;
   d=Math.max(1,Math.round(d));
   const dealt=hurt(t,d,a,{cls:t.broken?"crit":crit?"crit":em>1?"adv":em<1?"weak":""});
   if(a.side==="h"&&t.side==="f"&&!counter)brkHit(a,t);
   if(crit&&a.pa.k==="chesteyes"){a.stacks=(a.stacks||0)+1;pop(a,"ATK +8%","info");}
-  const ls=(a.pa.k==="lifesteal"?a.pa.v:0)+(a.pa.k==="pureheart"?.1:0)+(hasM(a,"leech")?.25:0)+(a.elite==="vampiric"?.3:0)+(a.lsX||0);
+  const ls=(a.pa.k==="lifesteal"?a.pa.v:0)+(a.pa.k==="warlust"?.15:0)+(a.pa.k==="pureheart"?.1:0)+(hasM(a,"leech")?.25:0)+(a.elite==="vampiric"?.3:0)+(a.lsX||0);
   if(crit&&a.side==="h"){track("crits");C.hitstop=130;}
   if(F(t,"thorns20")&&!a.dead&&dealt>0)hurt(a,Math.round(dealt*.2),t,{cls:"weak",noKill:true});
   if(F(a,"squireShield")){const k=C.heroes.find(x=>!x.dead&&x.id==="snailknight");if(k)k.shield+=Math.round(k.maxhp*.04);}
@@ -4019,6 +4143,7 @@ function strike(a,t,m,counter,single=true){
 function hurt(t,d,src,o={}){
   if(t.dead)return 0;
   let rest=d;if(t.shield>0){const ab=Math.min(t.shield,rest);t.shield-=ab;rest-=ab;}
+  if(src&&src.side!==t.side)src.dmgThis=(src.dmgThis||0)+d;
   t.hp-=rest;pop(t,(o.cls==="crit"?"CRIT ":"")+d,o.cls||"");fx(t,"hit");SFX.play(o.cls==="crit"?"crit":"hit");
   if(t.side==="h")gainMeter(3);
   if(t.hp<=0){
@@ -4030,12 +4155,17 @@ function hurt(t,d,src,o={}){
     else if(hasM(t,"revive")&&!t.revived){t.revived=true;t.hp=Math.round(t.maxhp*.4);pop(t,"The Fleece!","heal");}
     else if(t.side==="h"&&!C.sanct&&!t.wasRevived&&allies.some(x=>!x.dead&&x.pa.k==="sanctuary")){C.sanct=true;t.hp=1;pop(t,"Rod of Asclepius!","heal");fx(t,"glow");}
     else if(t.side==="h"&&!C.saintUsed&&!t.wasRevived&&allies.some(x=>!x.dead&&x!==t&&F(x,"saint"))){C.saintUsed=true;t.wasRevived=true;t.hp=Math.round(t.maxhp*.3);t.st=[];pop(t,"Blessed!","heal");fx(t,"glow");}
+    else if(t.side==="h"&&!C.gaiaUsed&&!t.wasRevived&&allies.some(x=>!x.dead&&x!==t&&x.pa.k==="motherofall")){C.gaiaUsed=true;t.wasRevived=true;t.hp=Math.round(t.maxhp*.4);t.st=[];pop(t,"Gaia restores!","heal");fx(t,"glow");}
     else if(t.side==="h"&&!C.featherUsed&&allies.some(x=>F(x,"feather"))){C.featherUsed=true;t.hp=Math.round(t.maxhp*.5);t.st=[];pop(t,"Phoenix Feather!","heal");fx(t,"glow");}
     else{t.hp=0;t.dead=true;t.st=[];t.shield=0;fx(t,"splat");SFX.play("kill");
       if(t.side==="f")track("kills");
       if(t.side==="h"&&HERO[t.id])say(t,FALL[HERO[t.id].cls]);
       if(src&&!o.noKill&&src.side!==t.side&&F(src,"bloodlust")&&!src.dead){src.blood=(src.blood||0)+1;pop(src,"Bloodlust!","info");}
       if(t.side==="f"&&src&&src.side==="h")gainMeter(8);
+      if(t.side==="f"&&C.heroes.some(x=>!x.dead&&x.pa.k==="lordofdead"))gainMeter(6);
+      if(t.side==="f"&&C.shades&&C.round<=C.shades.until){const h=find(C.shades.src),l=C.foes.filter(x=>!x.dead);if(h&&!h.dead&&l.length){pop(t,"A shade rises!","info");strike(h,pick(l),C.shades.m,true);}}
+      if(t.side==="h"){C.heroes.filter(x=>!x.dead&&x.pa.k==="motherofall").forEach(x=>{x.shield+=Math.round(x.maxhp*.2);x.gaiaDef=(x.gaiaDef||0)+.2;pop(x,"The earth grieves","info");});
+        if(t.id==="hector")C.heroes.filter(x=>!x.dead&&F(x,"wrath")).forEach(x=>{addSt(x,"atkUp",.5,99);pop(x,"WRATH!","crit");});}
       if(t.side==="h")C.heroes.filter(x=>!x.dead&&hasM(x,"lastpage")).forEach(x=>{addSt(x,"atkUp",.5,99);gainMeter(50);pop(x,"The Lyre mourns!","info");});
       if(src&&!o.noKill&&src.pa&&!src.dead){
         if((src.pa.k==="topsy"||F(src,"topsy"))&&roll(30))C.extra=src.uid;
@@ -4053,6 +4183,9 @@ function heal(a,t,amt){
   if(a&&F(a,"healShield")&&a!==t)t.shield+=Math.round(v*.3);
   if(a&&F(a,"purify")){const i=t.st.findIndex(x=>["atkDown","defDown","spdDown","blot","stun","sleep","beguile","mark"].includes(x.k));if(i>=0)t.st.splice(i,1);}
 }
+function bestHexEl(u){const hs=C.heroes.filter(h=>!h.dead),cnt={};hs.forEach(h=>{const e=BEATS[h.el];cnt[e]=(cnt[e]||0)+1;});const ks=Object.keys(cnt);if(!ks.length)return null;const m=Math.max(...ks.map(k=>cnt[k]));return pick(ks.filter(k=>cnt[k]===m));}
+function weave(u,t,n){if(t.dead||warded(t))return;t.webs=(t.webs||0)+n;addSt(t,"spdDown",.15,2);if(t.webs>=3){t.webs=0;t.st=t.st.filter(x=>x.k!=="web");if(t.pa.k!=="pureheart"&&!F(t,"unstoppable")&&roll(t.boss?40:100)){addSt(t,"stun",1,1);pop(t,"Cocooned!","info");}else pop(t,"Tears free","weak");}
+  else{t.st=t.st.filter(x=>x.k!=="web");t.st.push({k:"web",v:t.webs,turns:3});pop(t,"Web "+t.webs+"/3","info");}}
 function addSt(t,k,v,turns){const ex=t.st.find(x=>x.k===k);if(ex){ex.v=Math.max(ex.v,v);ex.turns=Math.max(ex.turns,turns);}else t.st.push({k,v,turns});}
 function applyBlot(a,t,m,turns){if(warded(t))return;if(t.tr&&t.tr.includes("inkproof")){pop(t,"Immune","weak");return;}const v=Math.max(1,Math.round(eff(a,"atk")*m*(F(a,"blotUp")?1.3:1)*BAL.dmg));t.st.push({k:"blot",v,turns,src:a.uid});}
 function summon(key){
@@ -4198,6 +4331,11 @@ const STX={
  phase:{n:"Phase 2",ab:"PHASE 2",c:"dn",d:()=>`This boss has changed at half HP.`},
  elite:{n:"Elite",ab:"ELITE",c:"el",d:()=>`A tougher foe with a special modifier, worth extra Ambrosia.`},
  beguile:{n:"Beguiled",ab:"BEGUILED",c:"st",d:()=>`Confused: 40% chance each turn to attack its own allies instead.`},
+ charm:{n:"Charmed",ab:"CHARMED",c:"st",d:()=>`Love-struck: on its next turn it attacks its own strongest ally.`},
+ mad:{n:"Maddened",ab:"MAD",c:"st",d:()=>`Drunk on Dionysus's wine: 60% chance each turn to lash out wildly, usually at its own side.`},
+ elshift:{n:"Element changed",ab:"HEXED",c:"dn",d:()=>`Hecate has changed its element, so new heroes are strong against it (and chip its Break shield).`},
+ blind:{n:"Blinded",ab:"BLIND",c:"dn",d:v=>`${v}% chance that each of its attacks misses.`},
+ web:{n:"Webbed",ab:"WEB",c:"dn",d:v=>`Caught in Arachne's silk (${v}/3): slowed, and wrapped in a stunning cocoon at 3 webs.`},
  sleep:{n:"Asleep",ab:"ZZZ",c:"st",d:()=>`Skips its turns until it wakes. The next attack on it wakes it and deals +50% damage (double with the Siren in your team).`},
  mark:{n:"Marked",ab:"MARK",c:"dn",d:v=>`Takes +${pctS(v)} damage from every attack.`},
  aloft:{n:"Carried off",ab:"ALOFT",c:"st",d:()=>`Snatched into the sky: can't act or be targeted, and is dropped for 25% of max HP when it lands.`},
@@ -4269,7 +4407,16 @@ function skDesc(sk){
     if(f.t==="snatch")parts.push("carries off your healthiest hero for 2 turns");
     if(f.t==="swaprows")parts.push("swaps your front and back rows");
     if(f.t==="invert")parts.push("turns every buff into a debuff and back");
-    if(f.t==="revive")parts.push(f.all?`revives ALL fallen allies at ${f.m*100}% HP`:`revives a fallen ally at ${f.m*100}% HP (or heals all a little)`);
+    if(f.t==="revive")parts.push(f.all?`revives ALL fallen allies at ${Math.round(f.m*100)}% HP`:`revives a fallen ally at ${Math.round(f.m*100)}% HP (or heals all a little)`);
+    if(f.t==="charm")parts.push(f.tg==="top"?`${f.p}% chance to Charm the ${f.n||1} strongest foes (they attack their own side)`:`${f.p}% chance to Charm (attacks its own strongest ally)`);
+    if(f.t==="mad")parts.push(`${f.p}% chance to Madden ${f.tg==="all"?"every foe":"them"} (${f.turns} turns)`);
+    if(f.t==="hexel")parts.push(`changes ${f.tg==="all"?"every foe's":"its"} element to one your team beats (${f.turns} turns)`);
+    if(f.t==="blind")parts.push(`Blinds: ${f.v}% miss chance (${f.turns} turns)`);
+    if(f.t==="web")parts.push(f.n>1?`wraps them in ${f.n} webs`:"adds a web (3 webs cocoon a foe)");
+    if(f.t==="execute")parts.push(`destroys every non-boss foe below ${Math.round(f.v*100)}% HP`);
+    if(f.t==="foresee")parts.push(f.all?"delays EVERY foe's special skill":"delays the most dangerous foe skill coming");
+    if(f.t==="nightfall")parts.push("every other Night hero acts again at once");
+    if(f.t==="shades")parts.push(`for ${f.turns} rounds, every foe that dies rises to strike another for ${Math.round(f.m*100)}% ATK`);
   });
   const s=parts.join(", ");return s.charAt(0).toUpperCase()+s.slice(1)+".";
 }
@@ -4570,16 +4717,16 @@ function viewParty(){
    </section></div>`;
 }
 function viewWells(){
-  const hr=[[5,SECRET.hero.rate],[3,3],[2,13],[1,32],[0,51.75]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
+  const hr=[[5,SECRET.hero.rate],[4,HERO_OLY.rate],[3,3],[2,13],[1,32],[0,51]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
   const odds=a=>`<div class="odds">${a.map(([q,p])=>`<div class="q${q}"><span class="qtag">${QN[q]}</span><span class="bar"><i style="width:${Math.max(2,p/52*100)}%"></i></span><b>${p}%</b></div>`).join("")}</div>`;
   const pity=(lbl,cur,max)=>`<div class="pity"><span>${lbl}</span><b class="px">${max-cur} left</b><span class="bar"><i style="width:${cur/max*100}%"></i></span></div>`;
   return `<div class="wells">
    <section class="panel framed well">${PH("Oracle of Delphi","wells","Summon heroes")}
      <div class="wart">${im("unicorn","sp side l")}${im("inkwell","sp main")}${im("illuminator","sp side")}</div>
      ${(()=>{const D=ensureDaily(),fh=HERO[D.featured];return `<div class="feat">${im(fh.id)}<div><span class="label">★ Featured today</span><b>${esc(fh.n)}</b> ${clsBadge(fh.id)}<span class="soft" style="font-size:13px">Half of all ${QN[fh.q]} summons today will be ${esc(fh.n)}.</span></div></div>`;})()}
-     <p class="explain" style="margin:0">Spend Drachmae to draw a random hero from the Oracle's smoke. A hero you already own becomes a <b>copy</b> that you use to Star up. A rare few are <b class="holo-t">Primordials</b>.</p>
+     <p class="explain" style="margin:0">Spend Drachmae to draw a random hero from the Oracle's smoke. A hero you already own becomes a <b>copy</b> that you use to Star up. Gods of Olympus walk among the <b>Olympians</b>, and a rare few are <b class="holo-t">Primordials</b>.</p>
      ${odds(hr)}
-     ${pity("Guaranteed Legendary or better",G.pity.h10,10)}${pity("Guaranteed Demigod",G.pity.hL,50)}<div class="secretpity">${pity("✦ Guaranteed Primordial",G.pity.hS||0,SECRET.hero.pity)}</div>
+     ${pity("Guaranteed Legendary or better",G.pity.h10,10)}${pity("Guaranteed Demigod",G.pity.hL,50)}${pity("Guaranteed Olympian",G.pity.hO||0,HERO_OLY.pity)}<div class="secretpity">${pity("✦ Guaranteed Primordial",G.pity.hS||0,SECRET.hero.pity)}</div>
      <div class="pullrow"><button class="btn gold big" data-act="pullh" data-n="1" ${G.gilt<COST.hero1?"disabled":""}>Summon ×1 ${ico("c_gilt")}${COST.hero1}</button><button class="btn gold big" data-act="pullh" data-n="10" ${G.gilt<COST.hero10?"disabled":""}>Summon ×10 ${ico("c_gilt")}${COST.hero10}</button></div>
      ${apPanel("h")}
      ${G.gilt<COST.hero1?`<p class="soft" style="font-size:14px">Need more Drachmae? Clear new stages, finish Tasks, or collect from the Agora.</p>`:""}
@@ -4695,7 +4842,7 @@ const HELP={
  classes:{t:"Classes",b:()=>`<h3>Hero classes</h3><p>Every hero has one class that tells you its job in a fight. A solid team usually has a <b>Tank or Bruiser</b> in front, a <b>Healer</b>, and one or two damage heroes, then a Buffer or Controller to taste.</p>
   <div class="hcards">${Object.keys(CLS).map(k=>`<div class="hcard"><span class="cls big" style="--cc:${CLS[k].c}">${clsIco(k)}</span><div><b>${CLS[k].n}</b>${CLS[k].d}<br><i class="soft">${HEROES.filter(h=>h.cls===k&&(G.heroes[h.id]||!h.secret)).map(h=>esc(h.n)).join(", ")}</i></div></div>`).join("")}</div>
   <p>Filter your heroes by class in the Party tab. The <b>Team makeup</b> line warns you when a line-up is missing a front-liner, a healer or damage.</p>`},
- party:{t:"Heroes",b:()=>`<h3>Heroes</h3><ul><li><b>Rarity</b>: Mortal, Famed, Legendary, Demigod, and the hidden <b>Primordial</b> (0.25% per summon, guaranteed within 200). Rarer heroes have higher stats and stronger skills.</li>
+ party:{t:"Heroes",b:()=>`<h3>Heroes</h3><ul><li><b>Rarity</b>: Mortal, Famed, Legendary, Demigod, <b>Olympian</b>, and the hidden <b>Primordial</b> (0.25% per summon, guaranteed within 200). Rarer heroes have higher stats and stronger skills.</li>
   <li><b>Level</b>: spend Ambrosia. The cap is 50, plus 10 per extra star.</li><li><b>Stars</b>: pulling a hero you already own gives a copy. Spend copies to Star up: +15% to every stat.</li>
   <li><b>Roles</b>: tanks protect, healers heal, supports buff, strikers and mages deal damage. A mix works best.</li>
   <li><b>Unique passive</b>: every hero has a one-of-a-kind trait that is always on, from the Leonidas's growing shell to Medusa turning attackers to stone. Some help the whole team, so try combinations.</li></ul>`},
@@ -4989,7 +5136,7 @@ const TAL={
 };
 const talentsOf=id=>TAL[HERO[id].cls];
 function heroTalentMods(id){const o=rec(id),t=o.tal||{},T=talentsOf(id),out=[];[3,5].forEach(tier=>{if(o.stars>=tier&&t[tier]!=null&&T[tier][t[tier]])out.push(T[tier][t[tier]].m);});return out;}
-const debuffed=t=>t.st.some(x=>["atkDown","defDown","spdDown","stun","sleep","beguile","mark","blot"].includes(x.k));
+const debuffed=t=>t.st.some(x=>["atkDown","defDown","spdDown","stun","sleep","beguile","mark","blot","charm","mad","blind","web","elshift"].includes(x.k));
 
 /* ---------------- personality ---------------- */
 const QUIP={
@@ -5313,6 +5460,132 @@ function viewBestTeam(){
     <button class="qbtn" data-act="help" data-sec="bestteam" aria-label="How the best team finder works">?</button></div>
     <p class="soft" style="font-size:14px;margin-top:4px">Tests your heroes and gear in simulated battles against the stage and picks the line-up, rows and equipment that win most often.</p>${body}</div>`;
 }
+
+/* ===================== NEW HEROES: the Olympians, two more Primordials, and heroes of Troy, Colchis and the Underworld ===================== */
+const ARGONAUTS=["unicorn","blemmye","orpheus","rubricator"];   /* Heracles, Atalanta, Orpheus, Medea */
+(function(){
+const N=[
+ /* ---------------- Olympians (q4) ---------------- */
+ {id:"hades",n:"Hades",q:4,el:"iron",role:"mage",cls:"mage",lore:"Lord of the Underworld and the richest of the gods: everything that falls ends up in his house, sooner or later.",
+  b:{n:"Bident",fx:[D(1.3)]},s:{n:"Grasp of the Dead",cd:3,fx:[D(1.55,"all"),{t:"mark",v:.2,turns:2}]},
+  u:{n:"Lord of the Dead",fx:[D(2.5,"all"),{t:"shades",m:1.5,turns:3},{t:"debuff",k:"defDown",v:.25,turns:2,tg:"hit"}]},
+  pa:{k:"lordofdead",n:"King of the Dead",t:"Every foe that falls fills the Glory meter by an extra 6%. His ultimate raises the shades: for 3 rounds, every foe that dies rises to strike a random foe for 150% of his ATK."},
+  qp:["All roads lead to my house.","Welcome. You'll be staying."],bio:["He drew the Underworld when the brothers split the world by lot. He insists he wanted it.","Cerberus is a very good boy. Do not tell Heracles."]},
+ {id:"athena",n:"Athena",q:4,el:"gold",role:"support",cls:"buffer",lore:"Goddess of wisdom and strategy, born fully armoured from the head of Zeus. She has never lost an argument or a war.",
+  b:{n:"Spear of Wisdom",fx:[D(1.05)]},s:{n:"Aegis",cd:3,fx:[{t:"shield",m:.15,tg:"allies"},{t:"cleanse",tg:"allies"},{t:"buff",k:"defUp",v:.2,turns:2,tg:"allies"}]},
+  u:{n:"Strategy of Athena",fx:[{t:"buff",k:"atkUp",v:.45,turns:3,tg:"allies"},{t:"buff",k:"spdUp",v:.25,turns:3,tg:"allies"},{t:"shield",m:.18,tg:"allies"}]},
+  pa:{k:"strategy",n:"Grey-Eyed Strategist",t:"While she is in the team, every buff your heroes give lasts 1 turn longer, and battles start with the Glory meter 15% full."},
+  qp:["Think first. Then strike.","As planned."],bio:["She won Athens from Poseidon with an olive tree. He offered a salt spring. Nobody wanted the salt spring.","Her owl reports everything. Everything."]},
+ {id:"ares",n:"Ares",q:4,el:"verm",role:"warrior",cls:"bruiser",lore:"God of war at its loudest. Where Athena plans, Ares charges, and he has the scars to prove both are valid strategies.",
+  b:{n:"Spear of Ares",fx:[D(1.15)]},s:{n:"Battle Fury",cd:3,fx:[D(2.5),{t:"buff",k:"atkUp",v:.25,turns:2,tg:"self"}]},
+  u:{n:"Rout",fx:[D(1.8,"all"),{t:"execute",v:.3}]},
+  pa:{k:"warlust",n:"Bloodthirst",t:"Gains up to +40% ATK the more HP he is missing, and heals for 15% of the damage he deals. His ultimate destroys every non-boss foe left below 30% HP."},
+  qp:["WAR!","More. Bring more."],bio:["The other gods do not like him much. He has decided this is their problem.","Phobos and Deimos, Fear and Dread, are his sons. Family dinners are tense."]},
+ {id:"hephaestus",n:"Hephaestus",q:4,el:"verd",role:"warrior",cls:"buffer",lore:"Smith of the gods. He forged Zeus's thunderbolts, Achilles's shield and Pandora, and he has never once been thanked properly.",
+  b:{n:"Hammer Blow",fx:[D(1.25)]},s:{n:"Molten Strike",cd:3,fx:[D(2.5),{t:"dispel",tg:"hit"}]},
+  u:{n:"Forge of Olympus",fx:[{t:"shield",m:.22,tg:"allies"},{t:"buff",k:"defUp",v:.3,turns:3,tg:"allies"},D(1.1,"all")]},
+  pa:{k:"forgeblessed",n:"Master Smith",t:"While he is in the team, every ally wearing gear gains +15% ATK and +15% DEF: he tempers it before the battle."},
+  qp:["Hold still. I'm adjusting your armour.","Forged. Again. You're welcome."],bio:["Thrown off Olympus by his own mother, he landed on Lemnos and built a forge out of spite.","His mechanical golden handmaidens are better company than most gods."]},
+ {id:"aphrodite",n:"Aphrodite",q:4,el:"lapis",role:"mage",cls:"control",lore:"Goddess of love, born from the sea foam. One look from her and armies forget which side they are on.",
+  b:{n:"Rosebud",fx:[D(1.2)]},s:{n:"Kestos Charm",cd:3,fx:[D(1.15,"all"),{t:"charm",p:60,turns:2}]},
+  u:{n:"Golden Apple",fx:[D(1.7,"all"),{t:"charm",tg:"top",n:2,p:90,turns:2}]},
+  pa:{k:"beloved",n:"Beloved",t:"Foes are much less likely to target her, and she deals +25% damage to charmed or beguiled foes. A charmed foe attacks its own strongest ally on its next turn."},
+  qp:["Look at me. Now look at him.","Love conquers all. Especially armies."],bio:["She won the golden apple from Paris. Troy paid for it. She considers it a bargain.","Married to Hephaestus. It is complicated."]},
+ {id:"dionysus",n:"Dionysus",q:4,el:"verd",role:"mage",cls:"control",lore:"God of wine, theatre and glorious madness. His parties last for days, and his enemies rarely remember why they came.",
+  b:{n:"Thyrsus",fx:[D(1.2)]},s:{n:"Revelry",cd:3,fx:[D(1.35,"all"),{t:"mad",p:65,turns:2},{t:"buff",k:"atkUp",v:.2,turns:2,tg:"allies"}]},
+  u:{n:"Bacchanal",fx:[D(1.7,"all"),{t:"mad",p:90,turns:2,tg:"all"},{t:"buff",k:"atkUp",v:.25,turns:2,tg:"allies"}]},
+  pa:{k:"bacchic",n:"God of the Revel",t:"While he is in the team, the Satyr Skirmisher and Pan gain +20% ATK and +10 Speed. Maddened foes have a 60% chance each turn to lash out wildly, usually at their own side, and take +35% damage from him."},
+  qp:["Euoi! Drink, dance, fight!","The party never ends."],bio:["Born twice: once from his mother, once from Zeus's thigh. He does not like to talk about the thigh.","Pirates once kidnapped him. Their ship grew vines and they became dolphins."]},
+ /* ---------------- Primordials (q5) ---------------- */
+ {id:"gaia",n:"Gaia",q:5,el:"verd",role:"tank",cls:"tank",secret:true,lore:"The Earth herself, first of all beings, mother of the Titans and grandmother of the gods. Everything stands on her.",
+  b:{n:"Quake",fx:[D(1.1)]},s:{n:"Deep Roots",cd:3,fx:[{t:"shield",m:.2,tg:"allies"},{t:"buff",k:"taunt",v:1,turns:2,tg:"self"},{t:"heal",m:.8,tg:"allies"}]},
+  u:{n:"The Earth Rises",fx:[D(1.7,"all"),{t:"stun",p:70,turns:1,tg:"hit"},{t:"heal",m:1,tg:"allies"},{t:"buff",k:"taunt",v:1,turns:3,tg:"self"}]},
+  pa:{k:"motherofall",n:"Mother of All",t:"All allies get +15% max HP, and while she stands every other ally takes 12% less damage. Once per battle, the first ally to fall is restored at 40% HP. Every ally that falls after that gives her a shield of 20% of her max HP and +20% DEF for the rest of the battle."},
+  qp:["Stand on me, children.","The earth endures."],bio:["She was here before the sky. She will be here after it.","Every mountain is a muscle of hers. Every earthquake, a sigh."]},
+ {id:"nyx",n:"Nyx",q:5,el:"iron",role:"mage",cls:"mage",secret:true,lore:"Primordial Night, older than the gods. Even Zeus is afraid to anger her.",
+  b:{n:"Starless Touch",fx:[D(1.35)]},s:{n:"Shroud of Night",cd:3,fx:[D(1.6,"all"),{t:"blind",v:35,turns:2}]},
+  u:{n:"Primordial Night",fx:[D(2.9,"all"),{t:"blind",v:50,turns:2},{t:"nightfall"}]},
+  pa:{k:"nightfalls",n:"Night Falls",t:"Night heroes in the team (her included) get +15% ATK. From round 2, every foe's attacks miss 25% of the time. Her ultimate also gives every other Night hero an immediate extra turn."},
+  qp:["Close your eyes. It's easier.","Goodnight."],bio:["Her children are Sleep and Death, Dreams and Doom. She is proud of all of them.","Zeus once nearly struck Hypnos. Nyx frowned. Zeus put the thunderbolt away."]},
+ /* ---------------- Demigods (q3) ---------------- */
+ {id:"achilles",n:"Achilles",q:3,el:"verm",role:"striker",cls:"dps",lore:"Greatest warrior of the Greeks, dipped in the Styx as a baby. Every part of him is invulnerable, except one.",
+  b:{n:"Pelian Spear",fx:[D(1.15)]},s:{n:"Wrath of Achilles",cd:3,fx:[D(2.6)]},
+  u:{n:"Shield of Achilles",fx:[D(3.4),D(.9,"all")]},
+  pa:{k:"heel",n:"The Heel",t:"Takes 50% less damage while above half HP. Below half HP his heel is exposed and he takes 30% more."},
+  qp:["Sing of my wrath!","Glory, forever."],bio:["He chose a short glorious life over a long dull one. He has not stopped mentioning it.","He sulked in his tent for most of the war. Fair warning."]},
+ {id:"hecate",n:"Hecate",q:3,el:"iron",role:"mage",cls:"control",lore:"Goddess of crossroads, torches and witchcraft. She holds the keys between worlds and changes what things are made of.",
+  b:{n:"Torchlight",fx:[D(1.25)]},s:{n:"Crossroads",cd:3,fx:[D(1.7),{t:"hexel",turns:3}]},
+  u:{n:"Triple Moon",fx:[D(1.9,"all"),{t:"hexel",tg:"all",turns:3},{t:"debuff",k:"defDown",v:.2,turns:2,tg:"hit"}]},
+  pa:{k:"witchqueen",n:"Witch-Queen",t:"Her Crossroads changes a foe's element to the one most of your team is strong against, and lets those heroes chip its Break shield. She deals +25% damage to foes whose element she changed."},
+  qp:["Which road will you take?","All paths are mine."],bio:["She has three faces and uses all of them to give disapproving looks.","Medea learned everything she knows from her."]},
+ {id:"nemesis",n:"Nemesis",q:3,el:"iron",role:"striker",cls:"dps",lore:"Goddess of retribution. Whatever you did, she knows, and she has come to balance the scales.",
+  b:{n:"Righteous Blade",fx:[D(1.15)]},s:{n:"Due Punishment",cd:3,fx:[D(2.4)]},
+  u:{n:"Balance Restored",fx:[D(3.4),{t:"debuff",k:"atkDown",v:.3,turns:3,tg:"all"}]},
+  pa:{k:"retribution",n:"Retribution",t:"Her hits deal extra damage equal to 30% of what that foe dealt last round (up to 150% of her ATK). Her skill and ultimate always hunt the foe that did the most damage."},
+  qp:["You know what you did.","Balanced."],bio:["She punished Narcissus by letting him see himself. It was enough.","Her scales are never wrong. She checks them twice anyway."]},
+ /* ---------------- Legendary (q2) ---------------- */
+ {id:"perseus",n:"Perseus",q:2,el:"iron",role:"striker",cls:"dps",lore:"Son of Zeus and slayer of Medusa, with winged sandals, a curved sword and the Cap of Darkness.",
+  b:{n:"Harpe",fx:[D(1.3)]},s:{n:"Gorgon's Head",cd:3,fx:[D(1.95),{t:"stun",p:60,turns:1,tg:"hit"}]},
+  u:{n:"Slayer of Monsters",fx:[D(1.3,"all"),{t:"stun",p:45,turns:1,tg:"hit"}]},
+  pa:{k:"darkcap",n:"Cap of Darkness",t:"25% chance to dodge any attack completely."},
+  qp:["Don't look. I've got this.","One gorgon, bagged."],bio:["He borrowed most of his gear from gods. He has returned none of it.","He rescued Andromeda on the way home. Very efficient."]},
+ {id:"cassandra",n:"Cassandra",q:2,el:"iron",role:"support",cls:"control",lore:"Princess of Troy, cursed by Apollo to see the future and never be believed. Luckily, in battle, you only need to dodge.",
+  b:{n:"Laurel Switch",fx:[D(.95)]},s:{n:"Prophecy",cd:3,fx:[{t:"foresee"},{t:"shield",m:.14,tg:"allies"},{t:"buff",k:"atkUp",v:.2,turns:2,tg:"allies"}]},
+  u:{n:"Doom Foretold",fx:[{t:"foresee",all:true},{t:"buff",k:"atkUp",v:.4,turns:2,tg:"allies"},{t:"shield",m:.12,tg:"allies"}]},
+  pa:{k:"prophetess",n:"No One Believes Her",t:"While she stands, your heroes take 25% less damage from foes' special skills. Her Prophecy delays the most dangerous foe skill that is coming."},
+  qp:["I told you so. I always tell you so.","Nobody ever listens."],bio:["She warned Troy about the wooden horse. Troy did not listen. Troy is gone.","She has learned to say 'duck' instead of 'beware'. It works better."]},
+ {id:"orpheus",n:"Orpheus",q:2,el:"gold",role:"healer",cls:"healer",lore:"The greatest musician who ever lived. His song made stones weep and Hades himself give back the dead.",
+  b:{n:"Lyre Chord",fx:[D(.95)]},s:{n:"Lament",cd:5,fx:[{t:"revive",m:.3},{t:"heal",m:.6,tg:"allies"}]},
+  u:{n:"Song for Hades",fx:[{t:"revive",m:.35,all:true},{t:"heal",m:1,tg:"allies"}]},
+  pa:{k:"lyrecomfort",n:"Song of Comfort",t:"While he is in the team, every hero heals 3% of max HP at the start of each of their turns."},
+  qp:["Listen…","Even the stones are crying."],bio:["He sailed with the Argonauts and outsang the Sirens. The crew was grateful.","He looked back once. Just once. He will never stop regretting it."]},
+ {id:"hector",n:"Hector",q:2,el:"gold",role:"tank",cls:"tank",lore:"Prince of Troy and its greatest defender. He fights for his city, his wife and his little son, and never for glory.",
+  b:{n:"Spear of Troy",fx:[D(1)]},s:{n:"Breaker of Horses",cd:4,fx:[{t:"shield",m:.16,tg:"allies"},{t:"buff",k:"taunt",v:1,turns:2,tg:"self"},{t:"buff",k:"defUp",v:.2,turns:2,tg:"self"}]},
+  u:{n:"Last Stand at the Gates",fx:[{t:"shield",m:.22,tg:"allies"},{t:"buff",k:"taunt",v:1,turns:3,tg:"self"},D(1,"all")]},
+  pa:{k:"troy",n:"Defender of Troy",t:"+12% DEF for every living ally in the back row behind him, and +12% to all of his shields' strength."},
+  qp:["For Troy!","The walls stand."],bio:["He took off his helmet so his baby son would not be scared of him. Best dad in the Iliad.","He knew how it would end. He went out anyway."]},
+ /* ---------------- Famed (q1) ---------------- */
+ {id:"icarus",n:"Icarus",q:1,el:"gold",role:"striker",cls:"dps",lore:"Son of Daedalus, who flew on wings of feathers and wax. He was told not to fly too high. He heard 'fly high'.",
+  b:{n:"Wing Strike",fx:[D(1.05)]},s:{n:"Dive",cd:3,fx:[D(2.4)]},
+  u:{n:"Wings of Wax",fx:[D(1,"rand3"),D(1,"rand3"),{t:"heal",m:.4,tg:"self"}]},
+  pa:{k:"sunward",n:"Too Close to the Sun",t:"Gains +6 Speed at the start of each of his turns. Once he is more than +30 faster, the wax melts and he loses 5% of his max HP every turn."},
+  qp:["Higher! HIGHER!","Was that the sun? It was hot."],bio:["His father built the Labyrinth. He built a kite once. It also crashed.","He did not listen. He rarely does."]},
+ {id:"daedalus",n:"Daedalus",q:1,el:"verd",role:"support",cls:"buffer",lore:"The greatest inventor of Greece: the Labyrinth, the wings, the dancing floor of Ariadne. All his.",
+  b:{n:"Mallet",fx:[D(.95)]},s:{n:"Ingenuity",cd:3,fx:[{t:"buff",k:"critUp",v:20,turns:2,tg:"allies"},{t:"buff",k:"atkUp",v:.15,turns:2,tg:"allies"},{t:"shield",m:.1,tg:"allies"}]},
+  u:{n:"The Labyrinth",fx:[D(.6,"all"),{t:"stun",p:40,turns:1,tg:"hit"},{t:"buff",k:"atkUp",v:.3,turns:2,tg:"allies"}]},
+  pa:{k:"craftsman",n:"Master Craftsman",t:"While he is in the team, every ally's critical hits deal +25% more damage."},
+  qp:["I have a design for that.","Precisely engineered."],bio:["King Minos locked him in his own Labyrinth. He flew out. Minos was furious.","He invented the saw, the axe and the glue. Everyone forgets the glue."]},
+ {id:"arachne",n:"Arachne",q:1,el:"verd",role:"mage",cls:"control",lore:"The weaver who beat Athena at the loom and was turned into a spider for it. She has been weaving ever since.",
+  b:{n:"Silk Thread",fx:[D(1.2),{t:"web"}]},s:{n:"Weave",cd:3,fx:[D(1.1,"all"),{t:"web"}]},
+  u:{n:"Tapestry of the Gods",fx:[D(1.6,"all"),{t:"web",n:2}]},
+  pa:{k:"spinner",n:"Spinner",t:"Her hits wrap foes in silk: each web slows them, and the third web cocoons them (a stun; bosses often tear free). She deals +25% damage to webbed foes."},
+  qp:["Hold still. I'm weaving.","A masterpiece. Again."],bio:["Her tapestry showed the gods misbehaving. It was accurate. That was the problem.","She does not regret it. Not one thread."]},
+ {id:"jason",n:"Jason",q:1,el:"lapis",role:"warrior",cls:"bruiser",lore:"Captain of the Argo and leader of the Argonauts, who sailed to the end of the world for the Golden Fleece.",
+  b:{n:"Argonaut's Spear",fx:[D(1.15)]},s:{n:"Golden Fleece",cd:3,fx:[D(2),{t:"shield",m:.15,tg:"self"}]},
+  u:{n:"Voyage of the Argo",fx:[D(1.3,"all"),{t:"buff",k:"atkUp",v:.3,turns:2,tg:"allies"}]},
+  pa:{k:"argo",n:"Captain of the Argo",t:"+8% ATK, DEF and HP for each fellow Argonaut in the team: Heracles, Atalanta, Orpheus and Medea."},
+  qp:["All hands to the oars!","Another island, another monster."],bio:["He lost a sandal crossing a river. That was the start of everything.","He gets a lot of credit. Medea did most of the work."]}
+];
+N.forEach(h=>{const pa=h.pa,u=h.u,q=h.qp,bio=h.bio;delete h.pa;delete h.u;delete h.qp;delete h.bio;
+  h.pa=PASSIVE[h.id]=pa;HEROES.push(h);HERO[h.id]=h;HERO_CLS[h.id]=h.cls;ULT[h.id]=u;QUIP[h.id]=q;BIO[h.id]=bio;});
+
+/* ---------------- new bonds ---------------- */
+SYN.push(
+ {id:"wisdom",a:"owl",b:"athena",n:"Wise Counsel",t:"The Owl's opening shield grows to 15% of max HP. Athena gains +10% ATK.",ma:{fl:["bigWatch"]},mb:{atk:.1},q:["Hoo. Report ready.","Good. Everything as planned."]},
+ {id:"strife",a:"ares",b:"queen",n:"Strife and War",t:"Ares and Eris both gain +12% ATK and +10% crit chance.",ma:{atk:.12,crit:10},mb:{atk:.12,crit:10},q:["Shall we start something?","We always do."]},
+ {id:"wrath",a:"achilles",b:"hector",n:"The Wrath of Achilles",t:"If Hector falls, Achilles gains +50% ATK for the rest of the battle. Hector gains +15% DEF.",ma:{fl:["wrath"]},mb:{def:.15},q:["Hector. Finally.","Not today, Achilles."]},
+ {id:"myrmidons",a:"achilles",b:"snailpage",n:"Lord of the Myrmidons",t:"The Myrmidon gains +15% HP. Achilles gains +10% crit chance.",ma:{crit:10},mb:{hp:.15},q:["Myrmidons, with me!","Always, my lord."]},
+ {id:"gaze",a:"perseus",b:"basilisk",n:"The Severed Gaze",t:"Perseus's stun chances rise by 20. Medusa sulks: −10% ATK.",ma:{ctrl:20},mb:{atk:-.1},q:["Just one look, for old times' sake?","Absolutely not."]},
+ {id:"lookback",a:"orpheus",b:"pelican",n:"Do Not Look Back",t:"Orpheus's first revive each battle brings the hero back at full HP. Persephone's heals are 15% stronger.",ma:{fl:["fullRevive"]},mb:{heal:.15},q:["Please. One more time.","Go. And do not look back."]},
+ {id:"wax",a:"icarus",b:"daedalus",n:"Wings of Wax",t:"Icarus's wax never melts and he gains +10% crit chance. Daedalus gains +10 Speed.",ma:{fl:["waxsafe"],crit:10},mb:{spd:10},q:["Watch me, father!","Not too high!"]},
+ {id:"fleece",a:"jason",b:"rubricator",n:"Fleece and Sorcery",t:"Jason gains +15% ATK. Medea's Miasma deal 30% more.",ma:{atk:.15},mb:{fl:["blotUp"]},q:["The Fleece is ours!","You're welcome."]},
+ {id:"underworld",a:"hades",b:"pelican",n:"King and Queen Below",t:"Hades and Persephone both gain +15% ATK and +15% HP.",ma:{atk:.15,hp:.15},mb:{atk:.15,hp:.15},q:["My queen.","Only for half the year, dear."]},
+ {id:"night",a:"nyx",b:"hecate",n:"Daughters of Night",t:"Nyx and Hecate both gain +15% ATK.",ma:{atk:.15},mb:{atk:.15},q:["The moon is out.","And the stars are mine."]},
+ {id:"priam",a:"hector",b:"cassandra",n:"Children of Priam",t:"Hector and Cassandra both gain +12% HP and +10% DEF.",ma:{hp:.12,def:.1},mb:{hp:.12,def:.1},q:["Stay behind me, sister.","I've seen how this ends, brother."]},
+ {id:"forge",a:"hephaestus",b:"aphrodite",n:"Married to the Forge",t:"Hephaestus gains +15% DEF. Aphrodite's charm chances rise by 15.",ma:{def:.15},mb:{ctrl:15},q:["I made you a necklace.","…It's lovely, dear."]},
+ {id:"titans",a:"gaia",b:"ouroboros",n:"Mother and Son",t:"Kronos gains +20% HP. Gaia gains +20% DEF.",ma:{def:.2},mb:{hp:.2},q:["You swallowed your children.","They were very annoying, mother."]}
+);
+})();
 
 /* ================= MODES: eight extra ways to play, all built on the campaign's battle engine ================= */
 const MODE_START={},MODE_SPAWN={},MODE_FIN={},MODE_RES={},MODE_FLEE={},MODE_CAPMSG={};
@@ -5780,6 +6053,54 @@ const fx={
 const shakeNow=k=>()=>{const w=document.querySelector(".bwrap");if(w){w.classList.remove("shake","shakeH");void w.offsetWidth;w.classList.add(k||"shake");}};
 /* ---- the recipes: me = caster centre, F = foe centres, A = ally centres, T = main target ---- */
 const R={
+ hades:(e)=>[fx.tint("#140a1e",.6,0,1.9),fx.vignette("rgba(30,0,40,.8)",0,1.9),fx.giant(e.k,[e.W/2,e.H+90],[e.W/2,e.H*.42],140,250,0,1.3,{glow:"#9a6ab0"}),
+   ...e.F.flatMap((f,i)=>[fx.burst(f[0],f[1]+30,26,.5+i*.08,1,{dir:-Math.PI/2,spread:.4,speed:200,grav:-60,shapes:["c"],colors:["#b8a8d0","#6a5a8a","#e6e0ff"],size:6}),fx.ring(f[0],f[1],"#9a6ab0",90,.6+i*.08,.6,8)]),
+   fx.text("ΑΙΔΗΣ",e.W/2,e.H*.18,60,"#d8c8ff",.7,1.1),fx.call(.8,shakeNow())],
+ athena:(e)=>[fx.tint("#c9b06a",.35,0,1.9),fx.giant(e.k,[-60,e.H*.5],[e.W*.3,e.H*.45],120,230,0,1.1,{glow:"#ffe9a8"}),...e.A.map((a,i)=>fx.dome(a[0],a[1],60,"#8ec8f0",.4+i*.08,1.2)),
+   ...e.A.map((a,i)=>fx.burst(a[0],a[1],14,.5+i*.08,.8,{dir:-Math.PI/2,spread:.5,speed:160,shapes:["s"],colors:["#ffd34d","#fff"]})),fx.lines(e.W/2,e.H/2,"#fff6c8",.3,1.2),fx.text("ΝΙΚΗ!",e.W/2,e.H*.18,64,"#fff6c8",.7,1.1)],
+ ares:(e)=>[fx.vignette("rgba(70,0,0,.8)",0,1.9),fx.tint("#5a0a0a",.35,0,1.9),fx.giant(e.k,[-80,e.H*.6],[e.W*.45,e.H*.5],130,240,0,.7,{glow:"#ff5a3c",rot:.15}),
+   ...e.F.flatMap((f,i)=>[fx.slash(f[0],f[1],170,-.6,"#ff6b5a",.6+i*.07,.22,8),fx.slash(f[0],f[1],170,.6,"#fff",.66+i*.07,.22,6),fx.burst(f[0],f[1],24,.66+i*.07,.7,{shapes:["d","r"],colors:["#ff5a3c","#ffd34d","#fff"],speed:380,grav:300})]),
+   fx.flash(.62,"#ffb0a0"),fx.text("ROUT!",e.W/2,e.H*.2,72,"#ff8a6a",.75,1),fx.call(.65,shakeNow("shakeH"))],
+ hephaestus:(e)=>[fx.tint("#3a1a0a",.5,0,1.9),fx.giant(e.k,[e.W/2,e.H*.55],[e.W/2,e.H*.48],80,230,0,.9,{glow:"#ff9a3a"}),fx.ring(e.W/2,e.H*.62,"#ff9a3a",320,.75,.7,14),
+   fx.burst(e.W/2,e.H*.62,90,.75,1,{shapes:["c","d"],colors:["#ffd34d","#ff9a3a","#fff"],speed:520,grav:600,size:4}),...e.A.map((a,i)=>fx.dome(a[0],a[1],56,"#ffb050",.9+i*.06,.9)),
+   fx.flash(.76,"#ffd9a0"),fx.text("FORGED!",e.W/2,e.H*.18,64,"#ffd34d",.8,1),fx.call(.78,shakeNow())],
+ aphrodite:(e)=>[fx.tint("#ff8ab0",.35,0,1.9),fx.rain(46,0,1.8,{glyph:["♥","♡","✿"],colors:["#ff6b9a","#ffd0e0","#fff"],size:9}),fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.45],60,240,.1,1.3,{glow:"#ffb0d0"}),
+   ...e.F.map((f,i)=>fx.ring(f[0],f[1],"#ff6b9a",80,.7+i*.08,.6,7)),...e.F.map((f,i)=>fx.text("♥",f[0],f[1]-40,40,"#ff6b9a",.8+i*.08,.8,{family:"serif"})),fx.text("ΕΡΩΣ!",e.W/2,e.H*.16,62,"#fff0f6",.8,1)],
+ dionysus:(e)=>[fx.tint("#3a0a3a",.45,0,1.9),fx.swirl(e.W/2,e.H*.5,70,Math.min(e.W,e.H)*.45,0,1.8,{k:"c",colors:["#8a2a8a","#b05ab0","#6aa03a","#d8b0ff"],size:6,spin:3}),
+   fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.46],60,230,.2,1.2,{glow:"#c08aff",rot:.12}),...e.F.map((f,i)=>fx.burst(f[0],f[1],18,.7+i*.08,.8,{shapes:["c"],colors:["#8a2a8a","#d8b0ff"],speed:200,grav:200})),
+   fx.text("EUOI!",e.W/2,e.H*.18,70,"#e8c8ff",.6,1.2)],
+ gaia:(e)=>[fx.tint("#1e3a12",.45,0,1.9),fx.giant(e.k,[e.W/2,e.H+120],[e.W/2,e.H*.45],180,300,0,1.2,{glow:"#9ad06a"}),
+   ...e.F.flatMap((f,i)=>[fx.burst(f[0],f[1]+50,30,.6+i*.07,.9,{dir:-Math.PI/2,spread:.7,speed:420,grav:900,shapes:["d","r"],colors:["#8a6a44","#5f7a2e","#c8a070"],size:7}),fx.ring(f[0],f[1]+30,"#9ad06a",110,.6+i*.07,.6,10)]),
+   ...e.A.map(a=>fx.text("✚",a[0],a[1]-30,40,"#9ad06a",1.1,.7,{family:"serif"})),fx.text("ΓΑΙΑ",e.W/2,e.H*.16,66,"#d8f0b0",.8,1),fx.call(.62,shakeNow())],
+ nyx:(e)=>[fx.tint("#03030e",.8,0,1.95),fx.rain(70,0,1.9,{glyph:["✦","·","✧"],colors:["#fff","#d8dcff","#9ab0ff"],size:6}),fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.45],100,280,.1,1.4,{glow:"#6a7aff"}),
+   ...e.F.map((f,i)=>fx.dome(f[0],f[1],60,"#14142a",.8+i*.06,.9)),fx.text("ΝΥΞ",e.W/2,e.H*.16,70,"#d8dcff",.7,1.1)],
+ achilles:(e)=>[fx.vignette("rgba(40,10,0,.75)",0,1.8),fx.lines(e.T[0],e.T[1],"#fff",0,.9),fx.giant(e.k,[-80,e.H*.5],[e.T[0]-50,e.T[1]],120,240,.1,.55,{glow:"#ffd34d"}),
+   fx.slash(e.T[0],e.T[1],300,-.5,"#ffd34d",.66,.24,10),fx.slash(e.T[0],e.T[1],300,.8,"#fff",.72,.24,8),fx.flash(.7),fx.ring(e.T[0],e.T[1],"#ffd34d",240,.7,.6,14),
+   ...e.F.map((f,i)=>fx.burst(f[0],f[1],16,.9+i*.05,.6,{shapes:["d"],colors:["#fff","#ffd34d"],speed:300})),fx.text("ΑΧΙΛΛΕΥΣ!",e.W/2,e.H*.16,56,"#ffd34d",.8,1),fx.call(.72,shakeNow("shakeH"))],
+ hecate:(e)=>[fx.tint("#1a0a2a",.55,0,1.9),...[0,1,2].map(i=>fx.ring(e.me[0],e.me[1],["#b0a0ff","#ff9a3a","#7ee0c0"][i],120+i*40,.1+i*.15,.9,6)),fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.45],80,230,.2,1.2,{glow:"#b0a0ff"}),
+   ...e.F.map((f,i)=>fx.swirl(f[0],f[1],18,50,.7+i*.08,.9,{k:"s",colors:["#ff5a3c","#3fbf7a","#4a6cf0","#f2b632","#b0a0ff"],size:4,spin:5})),fx.text("ΤΡΙΟΔΟΣ",e.W/2,e.H*.16,56,"#e0d8ff",.7,1.1)],
+ nemesis:(e)=>[fx.tint("#1e1e26",.55,0,1.9),fx.beam([e.T[0],-20],e.T,"#e6ecff",36,.4,.8),fx.giant(e.k,[e.T[0],-80],[e.T[0]-30,e.T[1]-20],120,220,.1,.7,{glow:"#e6ecff"}),
+   fx.slash(e.T[0],e.T[1],260,-.9,"#fff",.75,.22,9),fx.ring(e.T[0],e.T[1],"#e6ecff",200,.78,.6,10),fx.text("⚖",e.T[0],e.T[1]-90,70,"#e6ecff",.4,1,{family:"serif"}),fx.text("BALANCED.",e.W/2,e.H*.16,58,"#e6ecff",.85,1),fx.call(.78,shakeNow())],
+ perseus:(e)=>[fx.tint("#0c2a12",.5,0,1.9),fx.giant(e.k,[e.W*.2,e.H*.5],[e.W*.32,e.H*.45],120,220,0,1.1,{glow:"#9ad06a"}),
+   {t0:.45,d:1,draw(x,p){x.globalAlpha=bell(p);x.fillStyle="#b9ff8a";x.shadowColor="#b9ff8a";x.shadowBlur=30;e.F.forEach(f=>{x.beginPath();x.arc(f[0],f[1]-10,12*bell(p),0,TAU);x.fill();});x.shadowBlur=0;}},
+   ...e.F.map((f,i)=>fx.ring(f[0],f[1],"#c8c8c0",80,.7+i*.06,.6,10)),fx.text("DON'T LOOK!",e.W/2,e.H*.16,56,"#d8f0c0",.6,1.1)],
+ cassandra:(e)=>[fx.tint("#0a1a3a",.5,0,1.9),fx.lines(e.me[0],e.me[1],"#b8d8ff",0,1.6),fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.45],60,220,.1,1.3,{glow:"#b8d8ff"}),
+   ...e.F.map((f,i)=>fx.text("✕",f[0],f[1]-40,44,"#b8d8ff",.7+i*.07,.8,{family:"serif"})),...e.A.map((a,i)=>fx.dome(a[0],a[1],50,"#b8d8ff",.9+i*.06,.8)),fx.text("I FORESAW IT!",e.W/2,e.H*.16,48,"#e6f0ff",.6,1.2)],
+ orpheus:(e)=>[fx.tint("#3a2a0a",.4,0,1.9),fx.rain(50,0,1.8,{glyph:["♪","♫","♩"],colors:["#ffd34d","#fff6c8"],size:8}),fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.45],60,230,.1,1.3,{glow:"#ffd34d"}),
+   ...e.A.map((a,i)=>fx.beam([a[0],-20],a,"#fff6c8",26,.6+i*.08,.8)),...e.A.map((a,i)=>fx.ring(a[0],a[1],"#ffd34d",70,.9+i*.08,.6,6)),fx.text("RISE AGAIN",e.W/2,e.H*.16,54,"#fff6c8",.7,1.1)],
+ hector:(e)=>[fx.tint("#3a2a12",.45,0,1.9),fx.giant(e.k,[e.W*.25,e.H+80],[e.W*.3,e.H*.45],140,250,0,1,{glow:"#e0b060"}),...e.A.map((a,i)=>fx.dome(a[0],a[1],62,"#e0b060",.5+i*.07,1.1)),
+   ...e.F.map((f,i)=>fx.burst(f[0],f[1],14,1+i*.06,.6,{shapes:["d"],colors:["#e0b060","#fff"],speed:260})),fx.text("FOR TROY!",e.W/2,e.H*.16,62,"#f8e0a8",.6,1.2),fx.call(.95,shakeNow())],
+ icarus:(e)=>[fx.tint("#fff0b0",.4,0,1.9),{t0:0,d:1.8,draw(x,p,W,H){x.globalAlpha=bell(p)*.9;const g=x.createRadialGradient(W*.85,H*.12,10,W*.85,H*.12,H*.6);g.addColorStop(0,"#fff6c8");g.addColorStop(.3,"#ffd34d");g.addColorStop(1,"rgba(255,211,77,0)");x.fillStyle=g;x.fillRect(0,0,W,H);}},
+   fx.giant(e.k,[e.W*.1,-60],[e.T[0],e.T[1]],100,200,.2,.7,{glow:"#ffd34d",rot:.4,ease:"in"}),...e.F.map((f,i)=>fx.burst(f[0],f[1],22,.9+i*.06,.7,{shapes:["s"],colors:["#fff","#f6efe0","#ffd34d"],speed:300,grav:120})),
+   fx.text("HIGHER!",e.W/2,e.H*.16,64,"#fff6c8",.4,1.2),fx.call(.9,shakeNow())],
+ daedalus:(e)=>{const maze=[...Array(16)].map((_,i)=>{const a=i*.9,r=30+i*12;return [e.W/2+Math.cos(a)*r,e.H*.52+Math.sin(a)*r*.55];});
+   return [fx.tint("#2a2418",.5,0,1.9),fx.scribble(maze,"#e0c890",5,.1,1.3),fx.giant(e.k,[e.W/2,e.H*.5],[e.W/2,e.H*.45],60,200,.1,1.2,{glow:"#e0c890"}),
+   ...e.F.map((f,i)=>fx.ring(f[0],f[1],"#e0c890",70,.8+i*.06,.6,8)),...e.A.map((a,i)=>fx.burst(a[0],a[1],12,1+i*.05,.6,{dir:-Math.PI/2,spread:.6,speed:150,shapes:["s"],colors:["#e0c890","#fff"]})),fx.text("THE LABYRINTH",e.W/2,e.H*.14,48,"#f0e0b0",.6,1.2)];},
+ arachne:(e)=>[fx.tint("#1a1420",.5,0,1.9),...[[0,0],[e.W,0],[0,e.H],[e.W,e.H]].flatMap((c,j)=>e.F.map((f,i)=>fx.beam(c,f,"#e8e2d6",2.5,.2+j*.08+i*.04,1.1))),
+   fx.giant(e.k,[e.W/2,-80],[e.W/2,e.H*.42],100,220,0,1,{glow:"#e8e2d6"}),...e.F.map((f,i)=>fx.swirl(f[0],f[1],14,40,.8+i*.06,.8,{k:"s",colors:["#fff","#d8d2c6"],size:3,spin:4})),fx.text("WOVEN!",e.W/2,e.H*.16,62,"#f6f0e6",.7,1.1)],
+ jason:(e)=>[fx.tint("#0a2a4a",.45,0,1.9),{t0:.1,d:1.6,draw(x,p,W,H){x.globalAlpha=bell(p)*.8;for(let k=0;k<3;k++){x.fillStyle=["#2f6f9e","#4a8ac8","#8ec8f0"][k];x.beginPath();x.moveTo(0,H);for(let i=0;i<=24;i++){const X=i/24*W;x.lineTo(X,H*(1-.4*ease(p))+k*26+Math.sin(i*.7+p*12+k)*14);}x.lineTo(W,H);x.fill();}}},
+   fx.giant(e.k,[-100,e.H*.55],[e.W+100,e.H*.5],140,200,.2,1.3,{glow:"#e0b040"}),...e.F.map((f,i)=>fx.burst(f[0],f[1],18,.8+i*.06,.6,{shapes:["c"],colors:["#fff","#8ec8f0"],speed:260,grav:300})),
+   fx.text("ALL HANDS!",e.W/2,e.H*.16,60,"#e0f0ff",.6,1.1)],
  squire:(e)=>[fx.vignette("rgba(40,20,10,.7)",0,1.8),fx.lines(e.T[0],e.T[1],"#fff",0,.9),fx.giant(e.k,[-80,e.H*.5],[e.T[0]-40,e.T[1]],120,220,.15,.6,{glow:"#ffd34d",rot:.2}),
    fx.slash(e.T[0],e.T[1],260,-.6,"#ffd34d",.72),fx.slash(e.T[0],e.T[1],260,.7,"#ff6b5a",.78),fx.flash(.75),fx.ring(e.T[0],e.T[1],"#ffd34d",220,.75,.6,14),fx.burst(e.T[0],e.T[1],70,.75,.9,{shapes:["d","r"],colors:["#d5dbe4","#fff","#ffd34d"],speed:420,grav:300}),
    fx.text("ΑΛΑΛΑ!",e.T[0],e.T[1]-70,64,"#ffd34d",.78,.9),fx.call(.75,shakeNow("shakeH"))],
@@ -5831,7 +6152,8 @@ function centre(u,box){const n=document.querySelector(`.bu[data-uid="${u.uid}"] 
 let running=null;
 /* how each hero moves on the battlefield during its ultimate */
 const MOVE={squire:"dash",monk:"float",hare:"zigzag",snailpage:"stomp",scribe:"float",rabbit:"leap",wodewose:"leap",owl:"float",lion:"stomp",ape:"float",snailknight:"stomp",blemmye:"spin",cyno:"float",rubricator:"float",stag:"float",illuminator:"float",
-  manticore:"leap",basilisk:"spin",unicorn:"dash",queen:"spin",phoenix:"float",ouroboros:"spin",mouser:"zigzag",acolyte:"float",fox:"spin",siren:"float",pelican:"float",gryphon:"leap",elephant:"stomp",sagittary:"dash",wyvern:"float",firsthand:"spin"};
+  manticore:"leap",basilisk:"spin",unicorn:"dash",queen:"spin",phoenix:"float",ouroboros:"spin",mouser:"zigzag",acolyte:"float",fox:"spin",siren:"float",pelican:"float",gryphon:"leap",elephant:"stomp",sagittary:"dash",wyvern:"float",firsthand:"spin",
+  hades:"float",athena:"dash",ares:"leap",hephaestus:"stomp",aphrodite:"float",dionysus:"spin",gaia:"stomp",nyx:"float",achilles:"dash",hecate:"float",nemesis:"dash",perseus:"leap",cassandra:"float",orpheus:"float",hector:"stomp",icarus:"leap",daedalus:"float",arachne:"spin",jason:"dash"};
 const PAL={verm:["#ff5a3c","#ffd34d"],verd:["#3fbf7a","#e8ff9a"],lapis:["#4a6cf0","#b8e0ff"],gold:["#f2b632","#fff3b0"],iron:["#6a6f86","#e6ecff"]};
 function runList(cv,x,W,H,list,ms,onEnd){const total=Math.max(...list.map(f=>f.t0+f.d)),scale=ms/1000/total,t0=performance.now();let raf=0,stopped=false;
   function frame(now){if(stopped)return;const t=(now-t0)/1000/scale;x.clearRect(0,0,W,H);list.forEach(f=>{const p=(t-f.t0)/f.d;if(p<0||p>1)return;x.save();try{f.draw(x,p,W,H);}catch(e){}x.restore();});if(t<total)raf=requestAnimationFrame(frame);else{stopped=true;onEnd&&onEnd();}}
@@ -5878,7 +6200,8 @@ function play(u,target,dur,skName){
   running={stop};}
 /* ---- attack animations for every normal attack and skill ---- */
 const HK={squire:"thrust",monk:"note",hare:"note",snailpage:"thrust",scribe:"wave",rabbit:"slash",wodewose:"note",owl:"claw",lion:"wave",ape:"smash",snailknight:"thrust",blemmye:"arrow",cyno:"arrow",rubricator:"magic",stag:"magic",illuminator:"sun",
-  manticore:"fire",basilisk:"magic",unicorn:"smash",queen:"magic",mouser:"wave",acolyte:"fire",fox:"magic",siren:"note",pelican:"magic",gryphon:"thrust",elephant:"smash",sagittary:"arrow",phoenix:"fire",ouroboros:"slash",firsthand:"lightning",wyvern:"wave"};
+  manticore:"fire",basilisk:"magic",unicorn:"smash",queen:"magic",mouser:"wave",acolyte:"fire",fox:"magic",siren:"note",pelican:"magic",gryphon:"thrust",elephant:"smash",sagittary:"arrow",phoenix:"fire",ouroboros:"slash",firsthand:"lightning",wyvern:"wave",
+  hades:"magic",athena:"thrust",ares:"thrust",hephaestus:"smash",aphrodite:"magic",dionysus:"magic",gaia:"smash",nyx:"magic",achilles:"thrust",hecate:"fire",nemesis:"slash",perseus:"slash",cassandra:"magic",orpheus:"note",hector:"thrust",icarus:"claw",daedalus:"smash",arachne:"magic",jason:"thrust"};
 const FK={fodder:"slash",fast:"claw",caster:"magic",brute:"smash",tank:"smash",boss:"smash"};
 const MELEE={thrust:1,slash:1,smash:1,claw:1};
 function attack(u,targets,isSkill,ms){
