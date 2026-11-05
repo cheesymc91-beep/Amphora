@@ -1,17 +1,17 @@
 {
- "version": "1.1.1",
+ "version": "1.2.0",
  "shell": "1.1.0",
- "notes": "Fix: the Campaign map froze past stage 80 (Tartarus), for example after fleeing a battle. Tartarus bands now get proper Roman numerals.",
+ "notes": "Rarer heroes, grander abilities: every rarity tier adds a flourish to ultimates (and from Demigod up, to skills), and attacks, skills and ultimates look more spectacular the rarer the hero.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "56f5669ef436c08150f6034e1a544a3f3f3a5984bd93de80f47f793ef4efe323",
+  "css/marginalia.css": "af6307f4b8d8fcb6615e2a7d6d5f1a8bc3e22d3a70635bbb0f2f308daaf3e094",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "6671f04f20b3108340be34006b81947e24f3745c0ffb8a9aae0dd4048d2a0b2a",
-  "js/marginalia.js": "317d9e02f336431381ef76dffd9ff0b488f6db4d0828fb1f10ea402cd3105057"
+  "index.html": "56438699b03a08641bf2766a62910115f31e403a25720dccc1ad617d1d1d855a",
+  "js/marginalia.js": "eb3318a2418f6f46234d1c0e0a36411b00f36bb4136611f93d439d27b371ee53"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

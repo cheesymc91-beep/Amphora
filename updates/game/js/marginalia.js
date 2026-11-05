@@ -4061,6 +4061,8 @@ function resolve(u,sk,target,skill){
       if(!tg.length)alliesOf(u).forEach(a=>addSt(a,"critUp",10,2));
     } else if(f.t==="nightfall"){
       C.heroes.filter(h=>!h.dead&&h!==u&&h.el==="iron").reverse().forEach(h=>{C.queue=C.queue.filter(id=>id!==h.uid);C.queue.unshift(h.uid);});pop(u,"Night falls!","info");
+    } else if(f.t==="glory"){
+      if(u.side==="h"){gainMeter(f.v);pop(u,"Glory +"+f.v+"%","info");}
     } else if(f.t==="shades"){
       C.shades={until:C.round+(f.turns||3),src:u.uid,m:f.m||1};pop(u,"The dead rise!","info");
     } else if(f.t==="revive"){
@@ -4248,7 +4250,7 @@ function heroAct(target){
 
 /* ============ battle fx ============ */
 /* ultimate cut-in: the hero slides across a dark band with the move's name */
-function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return 900;return G.speed>=4?1450:G.speed>=2?2200:3200;}
+function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return 900;const rm=[.82,.9,1,1.1,1.2,1.3][(HERO[u.id]||{}).q||0];return Math.round((G.speed>=4?1450:G.speed>=2?2200:3200)*rm);}
 function cutIn(u,text){if(SIM||!u||u.side!=="h")return;const bf=document.getElementById("bf");if(!bf)return;const old=bf.querySelector(".cutin");if(old)old.remove();
   const d=document.createElement("div");d.className="cutin";d.innerHTML=`<img src="${spriteURL(u.spr)}" alt=""><div><span>${esc(u.n)}</span><b>${esc(text)}</b></div>`;bf.appendChild(d);setTimeout(()=>d.remove(),1000);}
 let popQ=[],fxQ=[];
@@ -4389,7 +4391,13 @@ function inspectHTML(u){
   </div>`;
 }
 function skDesc(sk){
-  const parts=[];sk.fx.forEach(f=>{
+  const main=skParts(sk.fx.filter(f=>!f.rider)),rid=skParts(sk.fx.filter(f=>f.rider));
+  const s=main.join(", ");let out=s.charAt(0).toUpperCase()+s.slice(1)+".";
+  if(sk.flourish){const fl=(sk.flourish.pow?[`+${Math.round(sk.flourish.pow*100)}% power (included above)`]:[]).concat(rid);if(fl.length)out+=` ✦ ${QN[sk.flourish.q]} flourish: ${fl.join(", ")}.`;}
+  return out;
+}
+function skParts(fxl){
+  const parts=[];fxl.forEach(f=>{
     if(f.t==="dmg")parts.push(`${Math.round(f.m*100)}% ATK to ${f.tg==="one"?"one foe":f.tg==="all"?"ALL foes":"3 random foes"}`);
     if(f.t==="heal")parts.push(`heal ${f.tg==="allies"?"all allies":f.tg==="self"?"self":"one ally"} for ${Math.round(f.m*100)}% ATK`);
     if(f.t==="shield")parts.push(`shield ${f.tg==="self"?"self":"all allies"} (${Math.round(f.m*100)}% max HP)`);
@@ -4417,8 +4425,9 @@ function skDesc(sk){
     if(f.t==="foresee")parts.push(f.all?"delays EVERY foe's special skill":"delays the most dangerous foe skill coming");
     if(f.t==="nightfall")parts.push("every other Night hero acts again at once");
     if(f.t==="shades")parts.push(`for ${f.turns} rounds, every foe that dies rises to strike another for ${Math.round(f.m*100)}% ATK`);
+    if(f.t==="glory")parts.push(`fills the Glory meter by ${f.v}%`);
   });
-  const s=parts.join(", ");return s.charAt(0).toUpperCase()+s.slice(1)+".";
+  return parts;
 }
 /* the special skill under each fighter: name, recharge countdown, READY */
 function skillChip(x){if(x.dead||!x.s)return "";
@@ -5588,6 +5597,20 @@ SYN.push(
 );
 })();
 
+/* ===================== RARITY FLOURISHES: the rarer the hero, the more its ultimate (and skill) does =====================
+   Every tier adds to the one below. Applied once at load to all heroes, old and new. */
+const FLOURISH={
+ 1:{pow:.05,ult:[]},
+ 2:{pow:.08,ult:[{t:"buff",k:"atkUp",v:.2,turns:2,tg:"self"}]},
+ 3:{pow:.10,ult:[{t:"buff",k:"atkUp",v:.2,turns:2,tg:"self"},{t:"cleanse",tg:"allies"}],skill:[{t:"glory",v:8}]},
+ 4:{pow:.12,ult:[{t:"buff",k:"atkUp",v:.25,turns:2,tg:"self"},{t:"cleanse",tg:"allies"},{t:"shield",m:.1,tg:"allies"}],skill:[{t:"glory",v:10},{t:"buff",k:"critUp",v:10,turns:2,tg:"self"}]},
+ 5:{pow:.15,ult:[{t:"buff",k:"atkUp",v:.3,turns:2,tg:"self"},{t:"cleanse",tg:"allies"},{t:"shield",m:.12,tg:"allies"},{t:"debuff",k:"atkDown",v:.2,turns:2,tg:"all"}],skill:[{t:"glory",v:12},{t:"buff",k:"critUp",v:15,turns:2,tg:"self"},{t:"heal",m:.25,tg:"allies"}]}
+};
+HEROES.forEach(h=>{const F=FLOURISH[h.q];if(!F)return;const U=ULT[h.id];if(!U||U.flourish)return;
+  U.fx=U.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot"||f.t==="shield")?Object.assign({},f,{m:Math.round(f.m*(1+F.pow)*100)/100}):f).concat(F.ult.map(f=>Object.assign({rider:true},f)));
+  U.flourish={q:h.q,pow:F.pow};
+  if(F.skill&&h.s&&!h.s.flourish){h.s.fx=h.s.fx.concat(F.skill.map(f=>Object.assign({rider:true},f)));h.s.flourish={q:h.q};}});
+
 /* ================= MODES: eight extra ways to play, all built on the campaign's battle engine ================= */
 const MODE_START={},MODE_SPAWN={},MODE_FIN={},MODE_RES={},MODE_FLEE={},MODE_CAPMSG={};
 const weekNum=()=>Math.floor((dayNum(dayKey())+3)/7);
@@ -6053,6 +6076,17 @@ const fx={
 };
 const shakeNow=k=>()=>{const w=document.querySelector(".bwrap");if(w){w.classList.remove("shake","shakeH");void w.offsetWidth;w.classList.add(k||"shake");}};
 /* ---- the recipes: me = caster centre, F = foe centres, A = ally centres, T = main target ---- */
+/* ---- rarity flourishes: the rarer the hero, the richer the show ---- */
+const HOLO=["#ff6b9a","#ffd34d","#7ee0a0","#6fb6e6","#c08aff"];
+const rq=u=>u&&u.side==="h"&&typeof HERO!=="undefined"&&HERO[u.id]?HERO[u.id].q:0;
+const rays=(X,Y,n,cols,t0,d,len=900,w=.07)=>({t0,d,draw(x,p){x.globalAlpha=bell(p)*.55;x.globalCompositeOperation="lighter";for(let i=0;i<n;i++){const a=i/n*TAU+p*.9;x.fillStyle=cols[i%cols.length];x.beginPath();x.moveTo(X,Y);x.arc(X,Y,len,a-w,a+w);x.closePath();x.fill();}x.globalCompositeOperation="source-over";}});
+function rarityUlt(q,e){const L=[],W=e.W,H=e.H;
+  if(q>=1)L.push(fx.burst(e.me[0],e.me[1],10+q*6,.05,.9,{shapes:["s"],colors:q>=5?HOLO:["#fff6c8","#ffd34d"],speed:220+q*40,size:3+q*.5}));
+  if(q>=2)L.push(...e.F.map((f,i)=>fx.ring(f[0],f[1],q>=5?HOLO[i%5]:"#e6ecff",60+q*14,.95+i*.05,.5,3+q)));
+  if(q>=3)L.push(rays(W/2,-H*.15,q>=5?18:q>=4?14:10,q>=5?HOLO:q>=4?["#fff6c8","#ffe9a8"]:["#ffd34d","#f2c552"],0,1.85,Math.max(W,H)*1.4,q>=4?.06:.05));
+  if(q>=4){L.push(fx.rain(26+(q-4)*20,.1,1.7,{glyph:q>=5?["✦","✧","❖"]:["❦","✦"],colors:q>=5?HOLO:["#fff6c8","#ffd34d","#e8f0d0"],size:7}));L.push(fx.flash(1.0,"#fff8e0",.14));}
+  if(q>=5){L.push(fx.swirl(W/2,H/2,40,Math.min(W,H)*.5,0,1.8,{k:"s",colors:HOLO,size:4,spin:4}));L.push(fx.flash(1.35,"#ffffff",.2));L.push(fx.call(1.35,shakeNow()));}
+  return L;}
 const R={
  hades:(e)=>[fx.tint("#140a1e",.6,0,1.9),fx.vignette("rgba(30,0,40,.8)",0,1.9),fx.giant(e.k,[e.W/2,e.H+90],[e.W/2,e.H*.42],140,250,0,1.3,{glow:"#9a6ab0"}),
    ...e.F.flatMap((f,i)=>[fx.burst(f[0],f[1]+30,26,.5+i*.08,1,{dir:-Math.PI/2,spread:.4,speed:200,grav:-60,shapes:["c"],colors:["#b8a8d0","#6a5a8a","#e6e0ff"],size:6}),fx.ring(f[0],f[1],"#9a6ab0",90,.6+i*.08,.6,8)]),
@@ -6180,6 +6214,7 @@ function play(u,target,dur,skName){
   const T=(target&&centre(target,box))||F[0]||[W*.7,H*.5];
   const env={k:u.spr,me,F:F.length?F:[T],A:A.length?A:[me],T,W,H};
   let list;try{list=R[u.id](env);}catch(e){return;}
+  const q=rq(u);try{list=list.concat(rarityUlt(q,env));}catch(e){}
   const [c1,c2]=PAL[u.el]||PAL.gold,a1=dur*.17,a2=dur*.3,a3=dur-a1-a2;
   const cv=document.createElement("canvas");cv.className="ultfx";const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;bf.appendChild(cv);const x=cv.getContext("2d");x.scale(dpr,dpr);
   bf.classList.add("ulting");let stopRun=null,cam=null,splash=null,tms=[];
@@ -6187,11 +6222,11 @@ function play(u,target,dur,skName){
   cam=camZoom(bf,box,me,1,1.9,a1,true);const bu=document.querySelector(`.bu[data-uid="${u.uid}"]`);if(bu)bu.style.zIndex=20;
   const n=document.querySelector(`.bu[data-uid="${u.uid}"] .lng`);if(n&&n.animate)n.animate([{transform:"none",filter:"none"},{transform:"translateY(-10px) scale(1.12)",filter:`drop-shadow(0 0 10px ${c2}) brightness(1.3)`}],{duration:a1,fill:"forwards"});
   stopRun=runList(cv,x,W,H,[fx.tint("#0a0610",.55,0,2),{t0:0,d:1,draw(x,p,W,H){x.globalAlpha=.75*Math.min(1,p*2);x.fillStyle="#0a0610";const b=H*.14*ease(Math.min(1,p*1.5));x.fillRect(0,0,W,b);x.fillRect(0,H-b,W,b);}},
-    fx.swirl(me[0],me[1],26,140,0,1,{inward:true,colors:[c1,c2,"#fff"],k:"s",size:4,spin:6}),fx.lines(me[0],me[1],c2,0,1)],a1);
+    fx.swirl(me[0],me[1],26+q*10,140+q*15,0,1,{inward:true,colors:q>=5?HOLO:[c1,c2,"#fff"],k:"s",size:4,spin:6}),fx.lines(me[0],me[1],q>=4?"#fff6c8":c2,0,1),...(q>=3?[rays(me[0],me[1],q*3,q>=5?HOLO:["#ffd34d","#fff6c8"],0,1,400)]:[])],a1);
   /* act 2: splash */
   tms.push(setTimeout(()=>{if(cam)cam.forEach(a=>a.cancel());if(bu)bu.style.zIndex="";if(n&&n.getAnimations)n.getAnimations().forEach(a=>a.cancel());stopRun&&stopRun();x.clearRect(0,0,W,H);
-    splash=document.createElement("div");splash.className="ultsplash";splash.style.setProperty("--c1",c1);splash.style.setProperty("--c2",c2);splash.style.setProperty("--d",a2+"ms");
-    splash.innerHTML=`<div class="usbg"></div><div class="usband"></div><div class="uslines"></div><img class="uspic" src="${spriteURL(u.spr,true)}" alt=""><div class="ustxt"><span>${esc(u.n)}</span><b>${esc(skName||"")}</b></div><div class="usflash"></div>`;
+    splash=document.createElement("div");splash.className="ultsplash rq"+q;splash.style.setProperty("--c1",c1);splash.style.setProperty("--c2",c2);splash.style.setProperty("--d",a2+"ms");
+    splash.innerHTML=`<div class="usbg"></div><div class="usband"></div><div class="uslines"></div><img class="uspic" src="${spriteURL(u.spr,true)}" alt=""><div class="usrare"></div><div class="ustxt"><i class="usq">${esc(QN[q]||"")}</i><span>${esc(u.n)}</span><b>${esc(skName||"")}</b></div><div class="usflash"></div>`;
     bf.appendChild(splash);if(typeof SFX!=="undefined")SFX.play("ult");},a1));
   /* act 3: the attack itself */
   tms.push(setTimeout(()=>{if(splash){splash.remove();splash=null;}camZoom(bf,box,[W/2,H/2],1.25,1,Math.min(420,a3*.3),false);
@@ -6231,6 +6266,12 @@ function attack(u,targets,isSkill,ms){
     else if(kind==="sun"){list.push(fx.beam([t[0],-10],t,"#ffd34d",14,d+.3,.5),fx.ring(t[0],t[1],"#ffd34d",80,hit,.4,6));}
     else{list.push(fx.bolt(me,t,d,.55,{k:"c",c:c2,s:5*big,trail:6}),fx.ring(t[0],t[1],c2,50*big,hit,.4,5),fx.burst(t[0],t[1],12*big,hit,.45,{shapes:["s"],colors:[c1,c2,"#fff"]}));}
   });
+  {const q=rq(u);
+   if(q>=1)TS.forEach((t,i)=>list.push(fx.burst(t[0],t[1],5+q*4,.58+i*.05,.5,{shapes:["s"],colors:q>=5?HOLO:[c2,"#fff"],speed:150+q*35,size:2+q*.4})));
+   if(q>=2)TS.forEach((t,i)=>list.push(fx.ring(t[0],t[1],q>=5?HOLO[i%5]:q>=4?"#fff3c0":c2,36+q*12,.6+i*.05,.45,2+q)));
+   if(q>=3){list.push(fx.swirl(me[0],me[1],6+q*3,26+q*6,0,.5,{inward:true,colors:q>=5?HOLO:[c1,c2,"#ffd34d"],size:3}));if(isSkill)TS.forEach((t,i)=>list.push(fx.beam(me,t,q>=5?HOLO[i%5]:"#ffd34d",2+q*.6,.28+i*.05,.42)));}
+   if(q>=4){list.push(fx.lines(me[0],me[1],"#fff6c8",0,.55));if(isSkill){list.push(fx.tint("#fff3c0",.16,.42,.42));TS.forEach((t,i)=>list.push(fx.beam([t[0],-10],t,"#fff6c8",9,.44+i*.05,.34)));}}
+   if(q>=5){TS.forEach((t,i)=>list.push(fx.burst(t[0],t[1],16,.58+i*.05,.7,{shapes:["s","d"],colors:HOLO,speed:300})));if(isSkill){list.push(fx.flash(.6,"#fff",.12),fx.call(.6,shakeNow()));}}}
   if(kind==="smash"&&isSkill)list.push(fx.call(.6,shakeNow()));
   const cv=document.createElement("canvas");cv.className="ultfx atkfx";const dpr=Math.min(2,window.devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;bf.appendChild(cv);const x=cv.getContext("2d");x.scale(dpr,dpr);
   runList(cv,x,W,H,list,ms,()=>cv.remove());}
@@ -6239,7 +6280,9 @@ return {play,attack,has:id=>!!R[id],ids:()=>Object.keys(R)};
 /* preview hook for testing: open the game with ?ultdemo in the address to get window.__ultdemo(heroId) */
 if(typeof location!=="undefined"&&location.search.includes("ultdemo"))window.__ultdemo=(id)=>{const team=[id,...["squire","monk","snailpage","hare"].filter(x=>x!==id)].slice(0,4),R0={};team.forEach(h=>R0[h]=rentRec(20,3));C=null;
   withRent(R0,()=>startBattle(6,false,{mode:"puzzle",team,info:specialInfo("Ultimate preview",[["bookworm","madhare","armorsnail"]],{s:6}),mdata:{i:0}}));G.auto=false;
-  setTimeout(()=>{const u=C.heroes.find(h=>h.id===id);ULTFX.play(u,C.foes[0],3200,u.u.n);},900);};
+  G.speed=1;setTimeout(()=>{const u=C.heroes.find(h=>h.id===id);C.meter=100;if(location.search.includes("ultfilm")){C.awaiting=false;perform(u,u.u,C.foes.find(f=>!f.dead));}else ULTFX.play(u,C.foes[0],3200,u.u.n);},900);};
+if(typeof location!=="undefined"&&location.search.includes("ultdemo"))window.__ultms=id=>ultMs({side:"h",id});
+if(typeof location!=="undefined"&&location.search.includes("ultdemo"))window.__heroInfo=()=>HEROES.map(h=>({id:h.id,n:h.n,q:h.q,u:ULT[h.id].n,el:EL[h.el]}));
 
 /* ================= AMPHORA: the Greek retelling. Every mechanic is unchanged; names, lore and words are new ================= */
 (function(){

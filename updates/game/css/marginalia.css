@@ -693,3 +693,18 @@ nav .dot{position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:
 .pullrow .btn{min-width:0}
 @media (max-width:520px){.pullrow .btn.big{font-size:17px;padding:10px 6px;gap:4px;flex-wrap:wrap;justify-content:center;line-height:1.15}
   .rc .soft{font-size:11px!important}.rc img{width:54px;height:54px}}
+/* rarity of the hero shapes the ultimate's splash screen */
+.ultsplash .usrare{position:absolute;inset:0;pointer-events:none}
+.ultsplash .ustxt .usq{font-style:normal;font-family:var(--f-px);font-weight:700;letter-spacing:.25em;text-transform:uppercase;font-size:clamp(10px,1.3vw,13px);padding:1px 8px;margin-bottom:3px;color:#1a0a10;background:#c8b8a0}
+.ultsplash.rq0 .usq{display:none}
+.ultsplash.rq1 .usq{background:#d8955a}.ultsplash.rq1 .usrare{box-shadow:inset 0 0 60px rgba(216,149,90,.55)}
+.ultsplash.rq2 .usq{background:#b8ccff}.ultsplash.rq2 .usrare{box-shadow:inset 0 0 70px rgba(150,180,255,.6);background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%) -100% 0/250% 100% no-repeat;animation:usshine var(--d) ease-in-out forwards}
+.ultsplash.rq3 .usq{background:#ffd34d}.ultsplash.rq3 .usrare{box-shadow:inset 0 0 0 6px #d8aa48,inset 0 0 90px rgba(255,211,77,.65);background:linear-gradient(115deg,transparent 40%,rgba(255,240,180,.5) 50%,transparent 60%) -100% 0/250% 100% no-repeat;animation:usshine var(--d) ease-in-out forwards}
+.ultsplash.rq4 .usq{background:linear-gradient(90deg,#fff6c8,#ffd34d,#fff6c8);box-shadow:0 0 12px #fff3c0}.ultsplash.rq4 .usrare{box-shadow:inset 0 0 0 8px #f2d68a,inset 0 0 120px rgba(255,246,200,.8);background:repeating-conic-gradient(from 0deg at 50% -20%,rgba(255,246,200,.35) 0 6deg,transparent 6deg 14deg);animation:usrot var(--d) linear forwards}
+.ultsplash.rq5 .usq{background:linear-gradient(90deg,#ff6b9a,#ffd34d,#7ee0a0,#6fb6e6,#c08aff);background-size:200% 100%;animation:usholo .8s linear infinite}
+.ultsplash.rq5 .usrare{box-shadow:inset 0 0 0 8px rgba(255,255,255,.85),inset 0 0 140px rgba(192,138,255,.7);background:linear-gradient(120deg,rgba(255,107,154,.35),rgba(255,211,77,.35),rgba(126,224,160,.35),rgba(111,182,230,.35),rgba(192,138,255,.35));background-size:300% 300%;mix-blend-mode:screen;animation:usholo 1.2s linear infinite}
+.ultsplash.rq5 .ustxt b{text-shadow:0 0 18px #c08aff,0 0 30px #6fb6e6,5px 6px 0 #1a0a10}
+@keyframes usshine{to{background-position:200% 0}}
+@keyframes usrot{from{transform:rotate(-4deg) scale(1.1)}to{transform:rotate(4deg) scale(1.1)}}
+@keyframes usholo{to{background-position:200% 50%}}
+@media (prefers-reduced-motion:reduce){.ultsplash .usrare,.ultsplash .usq{animation:none}}
