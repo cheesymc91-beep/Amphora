@@ -685,5 +685,6 @@ nav .dot{position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:
 .autopull .apset{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:14px}
 .autopull .apset select,.autopull .apset input{font:14px var(--f-body);padding:2px 4px;max-width:100%}.autopull .apset input{width:84px}
 .autopull .apstat{margin-top:8px;font-size:14px}.autopull .aptally{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0}
+.aprev{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:8px 0 4px}.aprev .apwhy{color:var(--rubric)}
 .autopull .apwhy{margin-top:4px;font-weight:700;color:var(--rubric)}
 @media (prefers-reduced-motion:reduce){.autopull.on{animation:none}}

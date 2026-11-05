@@ -4577,28 +4577,28 @@ function viewWells(){
    <section class="panel framed well">${PH("Oracle of Delphi","wells","Summon heroes")}
      <div class="wart">${im("unicorn","sp side l")}${im("inkwell","sp main")}${im("illuminator","sp side")}</div>
      ${(()=>{const D=ensureDaily(),fh=HERO[D.featured];return `<div class="feat">${im(fh.id)}<div><span class="label">★ Featured today</span><b>${esc(fh.n)}</b> ${clsBadge(fh.id)}<span class="soft" style="font-size:13px">Half of all ${QN[fh.q]} summons today will be ${esc(fh.n)}.</span></div></div>`;})()}
-     <p class="explain" style="margin:0">Spend Drachmae to draw a random hero from the Oracle's smoke. A hero you already own becomes a <b>copy</b> that you use to Star up. A rare few are <b class="holo-t">Secret Rares</b>.</p>
+     <p class="explain" style="margin:0">Spend Drachmae to draw a random hero from the Oracle's smoke. A hero you already own becomes a <b>copy</b> that you use to Star up. A rare few are <b class="holo-t">Primordials</b>.</p>
      ${odds(hr)}
-     ${pity("Guaranteed Mosaic or better",G.pity.h10,10)}${pity("Guaranteed Masterwork",G.pity.hL,50)}<div class="secretpity">${pity("✦ Guaranteed Secret Rare",G.pity.hS||0,SECRET.hero.pity)}</div>
+     ${pity("Guaranteed Legendary or better",G.pity.h10,10)}${pity("Guaranteed Demigod",G.pity.hL,50)}<div class="secretpity">${pity("✦ Guaranteed Primordial",G.pity.hS||0,SECRET.hero.pity)}</div>
      <div class="pullrow"><button class="btn gold big" data-act="pullh" data-n="1" ${G.gilt<COST.hero1?"disabled":""}>Summon ×1 ${ico("c_gilt")}${COST.hero1}</button><button class="btn gold big" data-act="pullh" data-n="10" ${G.gilt<COST.hero10?"disabled":""}>Summon ×10 ${ico("c_gilt")}${COST.hero10}</button></div>
      ${apPanel("h")}
      ${G.gilt<COST.hero1?`<p class="soft" style="font-size:14px">Need more Drachmae? Clear new stages, finish Tasks, or collect from the Agora.</p>`:""}
    </section>
    <section class="panel framed well">${PH("The Forge","wells","Find equipment")}
      <div class="wart">${im("i_quill","sp side l")}${im("chest","sp main")}${im("i_seal","sp side")}</div>
-     <p class="explain" style="margin:0">Spend Bronze to open a forge of gear: Quills (ATK), Bindings (HP) and Bronze (Speed, Crit or DEF). <b>Olympian</b> pieces carry unique powers, and <b class="holo-t">Secret Rare</b> relics bend the rules of battle.</p>
+     <p class="explain" style="margin:0">Spend Bronze to open a forge of gear: Quills (ATK), Bindings (HP) and Bronze (Speed, Crit or DEF). <b>Olympian</b> pieces carry unique powers, and <b class="holo-t">Primordial</b> relics bend the rules of battle.</p>
      ${odds(gr)}
-     ${pity("Guaranteed Masterwork or better",G.pity.g10,20)}${pity("Guaranteed Olympian",G.pity.gM,100)}<div class="secretpity">${pity("✦ Guaranteed Secret Rare",G.pity.gS||0,SECRET.gear.pity)}</div>
+     ${pity("Guaranteed Demigod or better",G.pity.g10,20)}${pity("Guaranteed Olympian",G.pity.gM,100)}<div class="secretpity">${pity("✦ Guaranteed Primordial",G.pity.gS||0,SECRET.gear.pity)}</div>
      <div class="pullrow"><button class="btn gold big" data-act="pullg" data-n="1" ${G.seals<COST.gear1?"disabled":""}>Open ×1 ${ico("c_seal")}${COST.gear1}</button><button class="btn gold big" data-act="pullg" data-n="10" ${G.seals<COST.gear10?"disabled":""}>Open ×10 ${ico("c_seal")}${COST.gear10}</button></div>
      ${apPanel("g")}
    </section>
    <section class="panel" style="grid-column:1/-1">${PH("Folio of Heroes","party",`${Object.keys(G.heroes).length} of ${HEROES.length} drawn`)}
      <div class="coll">${HEROES.slice().sort((a,b)=>b.q-a.q).map(h=>{const own=G.heroes[h.id];return `<div class="q${h.q}" title="${own?esc(h.n):"Not yet summoned"}">${im(h.id,own?"sp":"sp sil")}<span>${own?esc(h.n):"???"}</span>${clsBadge(h.id)}<span class="qtag">${QN[h.q]}</span></div>`;}).join("")}</div>
    </section>
-   <section class="panel secretpanel" style="grid-column:1/-1">${PH("✦ Secret Rares","wells","1 in 400 summons · 1 in 667 forge crates")}
-     <p class="explain">The rarest things in the amphora. Each is far stronger than a Masterwork and has a power found nowhere else. Bad luck is capped: the secret pity bars guarantee one eventually.</p>
-     <div class="ginv">${HEROES.filter(h=>h.secret).map(h=>{const own=G.heroes[h.id];return `<div class="gear q5">${im(h.id,own?"sp":"sp sil")}<span class="qtag">Secret Rare hero · ${own?"owned":"not found"}</span><b>${own?esc(h.n):"???"}</b><span class="uq">✦ ${own?esc(h.pa.n)+": "+esc(h.pa.t):"Summon it to reveal its power."}</span></div>`;}).join("")}
-       ${SECRET_GEAR.map(m=>{const own=G.gear.some(x=>x.myth===m.k);return `<div class="gear q5">${im(gearSprite({slot:m.slot,q:5}),own?"sp":"sp sil")}<span class="qtag">Secret Rare ${SLOTS[m.slot].n} · ${own?"owned":"not found"}</span><b>${own?esc(m.n):"???"}</b><span class="uq">✦ ${own?esc(m.t):"Open forge crates to reveal its power."}</span></div>`;}).join("")}</div>
+   <section class="panel secretpanel" style="grid-column:1/-1">${PH("✦ Primordials","wells","1 in 400 summons · 1 in 667 forge crates")}
+     <p class="explain">The rarest things in the amphora. Each is far stronger than a Demigod and has a power found nowhere else. Bad luck is capped: the secret pity bars guarantee one eventually.</p>
+     <div class="ginv">${HEROES.filter(h=>h.secret).map(h=>{const own=G.heroes[h.id];return `<div class="gear q5">${im(h.id,own?"sp":"sp sil")}<span class="qtag">Primordial hero · ${own?"owned":"not found"}</span><b>${own?esc(h.n):"???"}</b><span class="uq">✦ ${own?esc(h.pa.n)+": "+esc(h.pa.t):"Summon it to reveal its power."}</span></div>`;}).join("")}
+       ${SECRET_GEAR.map(m=>{const own=G.gear.some(x=>x.myth===m.k);return `<div class="gear q5">${im(gearSprite({slot:m.slot,q:5}),own?"sp":"sp sil")}<span class="qtag">Primordial ${SLOTS[m.slot].n} · ${own?"owned":"not found"}</span><b>${own?esc(m.n):"???"}</b><span class="uq">✦ ${own?esc(m.t):"Open forge crates to reveal its power."}</span></div>`;}).join("")}</div>
    </section>
    <section class="panel" style="grid-column:1/-1">${PH("Olympian","gear","The rarest equipment")}
      <div class="ginv">${MYTHS.map(m=>{const g={slot:m.slot,q:4};const own=G.gear.some(x=>x.myth===m.k);return `<div class="gear q4">${im(gearSprite(g),own?"sp":"sp sil")}<span class="qtag">${SLOTS[m.slot].n} · ${own?"owned":"not found"}</span><b>${esc(m.n)}</b><span class="uq">★ ${esc(m.t)}</span></div>`;}).join("")}</div>
@@ -4622,18 +4622,19 @@ function viewReveal(){
   const sec=R.items.some(x=>x.q===5);
   if(R.phase==="shake"){const bq=Math.max(...R.items.map(x=>x.q));
     const msg=sec?"The page is… glowing?":bq>=4?"The Oracle trembles!":bq===3?"Gold light seeps through the field!":bq===2?"The smoke turns blue…":R.kind==="hero"?"Something stirs in the element…":"Breaking the wax…";
-    return `<div class="modal" role="dialog" aria-label="Summoning"><div class="panel framed ${sec?"secretglow":""}" style="max-width:420px"><div class="summon glowq${bq}">${im(R.kind==="hero"?"inkwell":"chest")}<p class="label">${msg}</p><button class="btn small" data-act="skiprev">Skip</button></div></div></div>`;}
+    return `<div class="modal" role="dialog" aria-label="Summoning"><div class="panel framed ${sec?"secretglow":""}" style="max-width:420px"><div class="summon glowq${bq}">${im(R.kind==="hero"?"inkwell":"chest")}<p class="label">${msg}</p><button class="btn small" data-act="skiprev">Skip</button>${R.auto&&AP&&!AP.done?` <button class="btn small" data-act="apstop">■ Stop auto</button>`:""}</div></div></div>`;}
   const cards=R.items.map((x,i)=>{
     if(x.kind==="hero"){const h=HERO[x.id];return `<div class="rc q${x.q}" style="animation-delay:${i*120}ms">${im(h.id)}<span class="qtag">${QN[x.q]}</span><b>${esc(h.n)}</b>${clsBadge(h.id)}${x.isNew?`<span class="new">NEW HERO!</span>`:`<span class="soft" style="font-size:12px">+1 copy (for Star up)</span>`}</div>`;}
     const g=x.g;return `<div class="rc q${x.q}" style="animation-delay:${i*120}ms">${im(gearSprite(g))}<span class="qtag">${QN[x.q]}</span><b>${esc(g.name)}</b><span class="soft" style="font-size:12px">${statTxt(g.main.k,g.main.v)}</span></div>`;}).join("");
   const best=Math.max(...R.items.map(x=>x.q));
-  const secBlock=sec?`<div class="secretreveal">${R.items.filter(x=>x.q===5).map(x=>{if(x.kind==="hero"){const h=HERO[x.id];return `<div class="sr">${im(h.id)}<div><span class="qtag holo-t">✦ Secret Rare hero ✦</span><b>${esc(h.n)}</b><span>${esc(h.pa.n)}: ${esc(h.pa.t)}</span></div></div>`;}
-      const m=MYTH[x.g.myth];return `<div class="sr">${im(gearSprite(x.g))}<div><span class="qtag holo-t">✦ Secret Rare relic ✦</span><b>${esc(m.n)}</b><span>${esc(m.t)}</span></div></div>`;}).join("")}</div>`:"";
+  const secBlock=sec?`<div class="secretreveal">${R.items.filter(x=>x.q===5).map(x=>{if(x.kind==="hero"){const h=HERO[x.id];return `<div class="sr">${im(h.id)}<div><span class="qtag holo-t">✦ Primordial hero ✦</span><b>${esc(h.n)}</b><span>${esc(h.pa.n)}: ${esc(h.pa.t)}</span></div></div>`;}
+      const m=MYTH[x.g.myth];return `<div class="sr">${im(gearSprite(x.g))}<div><span class="qtag holo-t">✦ Primordial relic ✦</span><b>${esc(m.n)}</b><span>${esc(m.t)}</span></div></div>`;}).join("")}</div>`:"";
   const can=R.kind==="hero"?G.gilt>=(R.items.length===10?COST.hero10:COST.hero1):G.seals>=(R.items.length===10?COST.gear10:COST.gear1);
   return `<div class="modal" role="dialog" aria-label="Results"><div class="panel framed">
-    <div class="ph"><h2 class="${best===5?"holo-t":""}">${best===5?"✦ SECRET RARE ✦":best===4?"Olympian!":best===3?"A Masterwork!":best===2?"A Legendary!":"The smoke settles"}</h2><span class="soft">${R.items.length} result${R.items.length>1?"s":""}</span></div>
+    <div class="ph"><h2 class="${best===5?"holo-t":""}">${best===5?"✦ PRIMORDIAL ✦":best===4?"Olympian!":best===3?"A Demigod!":best===2?"A Legendary!":"The smoke settles"}</h2><span class="soft">${R.items.length} result${R.items.length>1?"s":""}</span></div>
     ${secBlock}<div class="reveal">${cards}</div>
-    <div class="row" style="justify-content:flex-end"><button class="btn" data-act="again" data-n="${R.items.length}" ${can?"":"disabled"}>Again ×${R.items.length}</button><button class="btn main" data-act="${R.kind==="hero"?"revparty":"revgear"}">${R.kind==="hero"?"See heroes":"Equip gear"}</button><button class="btn" data-act="closerev">Close</button></div></div></div>`;
+    ${R.auto?`<div class="aprev"><span class="label">Auto ${R.kind==="hero"?"summon":"forge"} · ${fmt(AP?AP.n:0)} so far</span>${R.apWhy?`<b class="apwhy">${esc(R.apWhy)}</b>`:""}</div>`:""}
+    <div class="row" style="justify-content:flex-end">${R.auto&&AP&&!AP.done?`<button class="btn main" data-act="apstop">■ Stop auto</button>`:""}<button class="btn" data-act="again" data-n="${R.items.length}" ${can&&!(AP&&!AP.done)?"":"disabled"}>Again ×${R.items.length}</button><button class="btn main" data-act="${R.kind==="hero"?"revparty":"revgear"}">${R.kind==="hero"?"See heroes":"Equip gear"}</button><button class="btn" data-act="closerev">Close</button></div></div></div>`;
 }
 
 /* ============ help ============ */
@@ -4686,7 +4687,7 @@ const HELP={
   <h3>Talents</h3><p>When a hero reaches <b>3★</b> and again at <b>5★</b>, it unlocks a choice between two talents that depend on its class. Pick one per tier on the hero's page. You can switch at any time outside a battle, so experiment freely.</p>`},
  daily:{t:"Daily",b:()=>`<h3>Today's omens</h3><ul><li><b>Login streak</b>: visit on consecutive days and claim a reward. Day 7 pays 900 Drachmae, then the cycle repeats. Missing a day resets the streak to day 1.</li>
   <li><b>Daily bounties</b>: three small goals that change every midnight. Each pays 150 Drachmae and 120 Bronze, and finishing all three pays a 300 Drachmae bonus.</li>
-  <li><b>Featured hero</b>: every day one Mosaic or Masterwork hero is featured: half of all summons of that rarity become them.</li>
+  <li><b>Featured hero</b>: every day one Legendary or Demigod hero is featured: half of all summons of that rarity become them.</li>
   <li><b>Map surprises</b>: most days, a "!" appears on each band map you've reached: a treasure forge, a wandering pedlar, a Oracle's Riddle with a risky choice, or a Gilded Spartoi Skeleton that pays Drachmae for every hit before it flees.</li></ul>`},
  endless:{t:"Labyrinth",b:()=>`<h3>The Labyrinth</h3><p>A run mode that opens after stage 1-10. You fight floor after floor with the team you start with. <b>HP carries over</b> between floors (each win heals 25%), and fallen heroes stay down unless a blessing redraws them.</p>
   <ul><li>After every win, choose <b>1 of 3 blessings</b>: team-wide boosts or class-specific powers (only offered for classes in your team).</li><li>Every 5th floor is a boss; beat it to choose a powerful <b>relic</b>.</li>
@@ -4694,14 +4695,14 @@ const HELP={
  classes:{t:"Classes",b:()=>`<h3>Hero classes</h3><p>Every hero has one class that tells you its job in a fight. A solid team usually has a <b>Tank or Bruiser</b> in front, a <b>Healer</b>, and one or two damage heroes, then a Buffer or Controller to taste.</p>
   <div class="hcards">${Object.keys(CLS).map(k=>`<div class="hcard"><span class="cls big" style="--cc:${CLS[k].c}">${clsIco(k)}</span><div><b>${CLS[k].n}</b>${CLS[k].d}<br><i class="soft">${HEROES.filter(h=>h.cls===k&&(G.heroes[h.id]||!h.secret)).map(h=>esc(h.n)).join(", ")}</i></div></div>`).join("")}</div>
   <p>Filter your heroes by class in the Party tab. The <b>Team makeup</b> line warns you when a line-up is missing a front-liner, a healer or damage.</p>`},
- party:{t:"Heroes",b:()=>`<h3>Heroes</h3><ul><li><b>Rarity</b>: Mortal, Sketch, Mosaic, Masterwork, and the hidden <b>Secret Rare</b> (0.25% per summon, guaranteed within 200). Rarer heroes have higher stats and stronger skills.</li>
+ party:{t:"Heroes",b:()=>`<h3>Heroes</h3><ul><li><b>Rarity</b>: Mortal, Famed, Legendary, Demigod, and the hidden <b>Primordial</b> (0.25% per summon, guaranteed within 200). Rarer heroes have higher stats and stronger skills.</li>
   <li><b>Level</b>: spend Ambrosia. The cap is 50, plus 10 per extra star.</li><li><b>Stars</b>: pulling a hero you already own gives a copy. Spend copies to Star up: +15% to every stat.</li>
   <li><b>Roles</b>: tanks protect, healers heal, supports buff, strikers and mages deal damage. A mix works best.</li>
   <li><b>Unique passive</b>: every hero has a one-of-a-kind trait that is always on, from the Leonidas's growing shell to Medusa turning attackers to stone. Some help the whole team, so try combinations.</li></ul>`},
  gear:{t:"Gear",b:()=>`<h3>Equipment</h3><ul><li>Each hero has three slots: <b>Weapon</b> (ATK), <b>Armour</b> (HP) and <b>Amulet</b> (Speed, Crit or DEF).</li>
   <li>Rarer gear has a bigger main stat and more bonus stats.</li><li><b>Enhance</b> with Ambrosia, up to +10: each step adds 12% to the main stat.</li>
   <li><b>Salvage</b> spare gear for Bronze.</li><li><b>Olympian</b> (0.5%) adds a unique power, such as striking twice or reviving once.</li>
-  <li><b>Secret Rare relics</b> (0.15%, guaranteed within 300 opens) have huge stats and rule-breaking powers.</li></ul>`},
+  <li><b>Primordial relics</b> (0.15%, guaranteed within 300 opens) have huge stats and rule-breaking powers.</li></ul>`},
  wells:{t:"Summoning",b:()=>`<h3>The Temple</h3><ul><li>Each pull is random, with the odds shown on the well.</li>
   <li><b>Pity</b>: the bars count pulls toward a guaranteed rare result, so bad luck never lasts forever.</li>
   <li>Ten-pulls cost slightly less per pull than single pulls.</li></ul>`},
@@ -4743,22 +4744,31 @@ const AP_STOP={h:[["q5","a Primordial hero"],["q3","Demigod or better"],["new","
 let AP=null; /* the run in progress: {k,n,spent,tally,hits,news,salv,why,done} */
 function apCfg(k){G.autoPull=G.autoPull||{};return G.autoPull[k]=Object.assign(k==="h"?{stop:"q5",keep:0}:{stop:"q4",keep:0,salv:0},G.autoPull[k]||{});}
 function apStart(k){if(AP&&!AP.done)return;AP={k,n:0,spent:0,tally:[0,0,0,0,0,0],hits:[],news:[],salv:0,why:"",done:false};apStep();}
-function apStop(why){if(!AP||AP.done)return;AP.done=true;AP.why=why;clearTimeout(AP.t);render();}
+function apStop(why){if(!AP||AP.done)return;AP.done=true;AP.why=why;clearTimeout(AP.t);if(reveal&&reveal.auto)reveal.apWhy=why;render();}
 function apStep(){
   if(!AP||AP.done)return;
   const k=AP.k,cfg=apCfg(k),cur=k==="h"?"gilt":"seals",c1=k==="h"?COST.hero1:COST.gear1,c10=k==="h"?COST.hero10:COST.gear10;
   const room=G[cur]-Math.max(0,+cfg.keep||0),n=room>=c10?10:room>=c1?1:0;
   if(!n)return apStop(cfg.keep>0?`Reached your reserve of ${fmt(cfg.keep)} ${k==="h"?"Drachmae":"Bronze"}.`:`Out of ${k==="h"?"Drachmae":"Bronze"}.`);
   G[cur]-=n===10?c10:c1;AP.spent+=n===10?c10:c1;
-  let stop=null,sec=false;
+  let stop=null,sec=false;AP.batch=[];
   for(let i=0;i<n;i++){
-    const r=k==="h"?pullHero():pullGearOne();AP.n++;AP.tally[r.q]++;if(r.q===5)sec=true;
+    const r=k==="h"?pullHero():pullGearOne();AP.batch.push(r);AP.n++;AP.tally[r.q]++;if(r.q===5)sec=true;
     if(k==="h"){if(r.isNew)AP.news.push(r.id);if(r.q>=3||r.isNew)AP.hits.push({q:r.q,n:HERO[r.id].n,isNew:r.isNew});
       if(!stop&&((cfg.stop==="q5"&&r.q===5)||(cfg.stop==="q3"&&r.q>=3)||(cfg.stop==="new"&&r.isNew)))stop=`${HERO[r.id].n} (${QN[r.q]}${r.isNew?", new":""})`;}
     else{if(r.q<=(+cfg.salv||0)-1&&!r.g.owner){G.seals+=salvageVal(r.g);G.gear=G.gear.filter(x=>x!==r.g);AP.salv++;}
       if(r.q>=4)AP.hits.push({q:r.q,n:r.g.name});
       if(!stop&&((cfg.stop==="q5"&&r.q===5)||(cfg.stop==="q4"&&r.q>=4)))stop=`${r.g.name} (${QN[r.q]})`;}
   }
+  if(!cfg.fast){ /* the full summon show, exactly like pulling by hand */
+    const items=AP.batch,bq=Math.max(...items.map(x=>x.q)),run=AP;
+    const r=reveal={kind:k==="h"?"hero":"gear",phase:"shake",items,auto:true};SFX.play("rise",bq);render();
+    const toCards=()=>{if(run.done&&!stop)return;if(reveal===r&&r.phase==="shake"){r.phase="cards";SFX.play("reveal",bq);render();if(sec)secretFlash();}
+      if(stop)return apStop(`Stopped: you got ${stop}!`);
+      const sp=Math.min(G.speed||1,2);run.t=setTimeout(()=>{if(run.done)return;if(reveal===r)reveal=null;apStep();},(bq>=4?3200:bq===3?2300:1500)/sp);};
+    r.toCards=toCards;
+    run.t=setTimeout(toCards,(sec?2400:bq>=3?1800:bq===2?1400:1100)/Math.min(G.speed||1,2));
+    return;}
   if(sec){secretFlash();SFX.play("reveal",5);}
   if(stop){if(!sec)SFX.play("reveal",4);return apStop(`Stopped: you got ${stop}!`);}
   render();AP.t=setTimeout(apStep,Math.max(120,420/(G.speed||1)));
@@ -4771,6 +4781,7 @@ function apPanel(k){
       ${run&&!run.done?`<button class="btn main small" data-act="apstop">■ Stop</button>`:`<button class="btn gold small" data-act="apgo" data-k="${k}" ${other||G[k==="h"?"gilt":"seals"]-cfg.keep<(k==="h"?COST.hero1:COST.gear1)?"disabled":""}>▶ Start</button>`}</div>
     <div class="apset"><label>Stop on <select data-ap="${k}" data-f="stop">${AP_STOP[k].map(([v,t])=>`<option value="${v}" ${cfg.stop===v?"selected":""}>${t}</option>`).join("")}</select></label>
       <label>Keep at least <input type="number" min="0" step="100" data-ap="${k}" data-f="keep" value="${cfg.keep||0}"> ${cur}</label>
+      <label><input type="checkbox" data-ap="${k}" data-f="fast" ${cfg.fast?"":"checked"} style="width:auto"> Show summon animations</label>
       ${k==="g"?`<label>Salvage <select data-ap="g" data-f="salv">${[["0","nothing"],["1",QN[0]+" gear"],["2",QN[0]+" and "+QN[1]+" gear"]].map(([v,t])=>`<option value="${v}" ${String(cfg.salv||0)===v?"selected":""}>${t}</option>`).join("")}</select> automatically</label>`:""}</div>
     ${run?`<div class="apstat"><span class="label">${run.done?"Last run":"Running"} · ${fmt(run.n)} ${k==="h"?"summons":"pieces"} · ${fmt(run.spent)} ${cur} spent${run.salv?` · ${run.salv} salvaged`:""}</span><div class="aptally">${tl}</div>
       ${run.news.length?`<div class="soft">New: ${run.news.map(id=>esc(HERO[id].n)).join(", ")}</div>`:""}
@@ -4779,7 +4790,7 @@ function apPanel(k){
   </div>`;
 }
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.ap)return;const c=apCfg(t.dataset.ap);
-  c[t.dataset.f]=t.dataset.f==="stop"?t.value:Math.max(0,Math.floor(+t.value||0));save();render();});
+  c[t.dataset.f]=t.dataset.f==="stop"?t.value:t.dataset.f==="fast"?!t.checked:Math.max(0,Math.floor(+t.value||0));save();render();});
 document.addEventListener("click",e=>{
   SFX.unlock();
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
@@ -5085,7 +5096,7 @@ let evOpen=null;
 function merchantDeals(ev){
   const R=seeded(dayNum(dayKey())*17+ev.c*3),owned=Object.keys(G.heroes),base=Math.round(teamLv(Math.max(1,G.cleared))*.5);
   const h=owned[Math.floor(R()*owned.length)];
-  return [{k:"copy",t:`A copy of ${HERO[h].n} (for Star up)`,cost:base*2,id:h},{k:"gear",t:"A Masterwork piece of gear",cost:base*3},{k:"gilt",t:"300 Drachmae",cost:base}];
+  return [{k:"copy",t:`A copy of ${HERO[h].n} (for Star up)`,cost:base*2,id:h},{k:"gear",t:"A Demigod piece of gear",cost:base*3},{k:"gilt",t:"300 Drachmae",cost:base}];
 }
 function viewEvent(){
   const ev=evOpen;if(!ev)return "";const E=EVT[ev.type];let body="";
