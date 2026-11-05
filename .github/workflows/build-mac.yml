@@ -1,0 +1,108 @@
+name: Build Mac app
+
+# Builds Amphora for Apple Silicon and Intel Macs and attaches the .dmg files to the latest release.
+# Runs when the desktop app or this workflow changes, and can be started by hand from the Actions tab.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["desktop/**", ".github/workflows/build-mac.yml"]
+
+permissions:
+  contents: write
+
+env:
+  ELECTRON: "33.2.1"
+
+jobs:
+  mac:
+    runs-on: macos-14
+    strategy:
+      matrix:
+        arch: [arm64, x64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Electron (official build, checksum verified)
+        run: |
+          set -euo pipefail
+          base="https://github.com/electron/electron/releases/download/v${ELECTRON}"
+          f="electron-v${ELECTRON}-darwin-${{ matrix.arch }}.zip"
+          curl -fsSL -o "$f" "$base/$f"
+          curl -fsSL -o SHASUMS256.txt "$base/SHASUMS256.txt"
+          grep " \*$f\$" SHASUMS256.txt | sed 's/ \*/  /' | shasum -a 256 -c -
+          mkdir build && ditto -x -k "$f" build
+
+      - name: Assemble Amphora.app
+        run: |
+          set -euo pipefail
+          VER=$(jq -r .version updates/manifest.json)
+          echo "VER=$VER" >> "$GITHUB_ENV"
+          cd build
+          mv Electron.app Amphora.app
+          RES=Amphora.app/Contents/Resources
+          rm -f "$RES/default_app.asar"
+          mkdir -p "$RES/app"
+          cp ../desktop/main.js ../desktop/preload.js ../desktop/update.json "$RES/app/"
+          jq --arg v "$VER" '.gameVersion=$v' ../desktop/package.json > "$RES/app/package.json"
+          cp -R ../updates/game "$RES/app/game"
+          # icon
+          mkdir amphora.iconset
+          for s in 16 32 128 256 512; do
+            sips -z $s $s ../desktop/icon.png --out amphora.iconset/icon_${s}x${s}.png >/dev/null
+            d=$((s*2)); sips -z $d $d ../desktop/icon.png --out amphora.iconset/icon_${s}x${s}@2x.png >/dev/null
+          done
+          iconutil -c icns amphora.iconset -o "$RES/amphora.icns"
+          # name, id, version, icon
+          P=Amphora.app/Contents/Info.plist
+          pb() { /usr/libexec/PlistBuddy -c "$1" "$P"; }
+          pb "Set :CFBundleName Amphora"
+          pb "Delete :CFBundleDisplayName" 2>/dev/null || true
+          pb "Add :CFBundleDisplayName string Amphora"
+          pb "Set :CFBundleIdentifier com.amphora.game"
+          pb "Set :CFBundleShortVersionString $VER"
+          pb "Set :CFBundleVersion $VER"
+          pb "Set :CFBundleIconFile amphora.icns"
+          pb "Delete :LSApplicationCategoryType" 2>/dev/null || true
+          pb "Add :LSApplicationCategoryType string public.app-category.games"
+          # ad-hoc signature: required for the app to start on Apple Silicon after its contents changed
+          codesign --force --deep --sign - Amphora.app
+          codesign --verify --deep --strict Amphora.app
+          echo "Built Amphora $VER for ${{ matrix.arch }}"
+
+      - name: Smoke test (the app starts and loads the game)
+        if: matrix.arch == 'arm64'
+        run: |
+          set -uo pipefail
+          ( build/Amphora.app/Contents/MacOS/Electron > run.log 2>&1 & echo $! > pid )
+          sleep 20
+          LOG="$HOME/Library/Application Support/Amphora/update.log"
+          cat "$LOG" || true
+          kill "$(cat pid)" 2>/dev/null || true
+          grep -q "start shell" "$LOG"
+
+      - name: Make the disk image
+        run: |
+          set -euo pipefail
+          NAME="Amphora-Mac-$([ "${{ matrix.arch }}" = arm64 ] && echo AppleSilicon || echo Intel).dmg"
+          mkdir dmg && mv build/Amphora.app dmg/ && ln -s /Applications dmg/Applications
+          hdiutil create -volname "Amphora" -srcfolder dmg -ov -format UDZO "$NAME"
+          echo "DMG=$NAME" >> "$GITHUB_ENV"
+
+      - name: Attach to the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG=$(gh release view --json tagName -q .tagName 2>/dev/null || true)
+          if [ -z "$TAG" ]; then
+            TAG="v$VER"
+            gh release create "$TAG" --title "Amphora $VER" --notes "Amphora for Windows and Mac." || true
+          fi
+          gh release upload "$TAG" "$DMG" --clobber
+          echo "Uploaded $DMG to $TAG"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.DMG }}
+          path: ${{ env.DMG }}

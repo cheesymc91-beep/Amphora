@@ -1,0 +1,9 @@
+{
+  "name": "amphora",
+  "productName": "Amphora",
+  "version": "1.1.0",
+  "gameVersion": "1.0.0",
+  "description": "Amphora: an idle gacha game of Greek myth",
+  "main": "main.js",
+  "private": true
+}
