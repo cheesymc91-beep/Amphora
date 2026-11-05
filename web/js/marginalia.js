@@ -3222,6 +3222,10 @@ const ELC={verm:"#e0593e",verd:"#5dae83",lapis:"#6f8fe0",gold:"#f0c968",iron:"#8
 const BEATS={verm:"verd",verd:"lapis",lapis:"verm",gold:"iron",iron:"gold"};
 function elemMult(a,d){if(BEATS[a]===d)return 1.45;if(BEATS[d]===a&&!(a==="gold"||a==="iron"))return .7;return 1;}
 const gem=el=>`<span class="gem ${el}"></span>`;
+/* motion: the game ignores the computer's "reduce motion" setting (it switched off every animation on Macs that have it on); players choose in How to play */
+const RM=()=>!!(typeof G!=="undefined"&&G&&G.motion==="reduced");
+/* interface: "visual" (default) or "classic" */
+const VIS=()=>!(typeof G!=="undefined"&&G&&G.ui==="classic");
 const elname=el=>`<span class="elname">${gem(el)}${EL[el]}</span>`;
 const QN=["Mortal","Sketch","Mosaic","Masterwork","Olympian","Secret Rare"];
 const ROLE={tank:{hp:700,atk:44,def:46,spd:90},warrior:{hp:560,atk:62,def:32,spd:98},striker:{hp:460,atk:74,def:24,spd:112},mage:{hp:430,atk:78,def:20,spd:102},healer:{hp:490,atk:50,def:28,spd:104},support:{hp:510,atk:54,def:30,spd:106}};
@@ -4250,7 +4254,7 @@ function heroAct(target){
 
 /* ============ battle fx ============ */
 /* ultimate cut-in: the hero slides across a dark band with the move's name */
-function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return 900;const rm=[.82,.9,1,1.1,1.2,1.3][(HERO[u.id]||{}).q||0];return Math.round((G.speed>=4?1450:G.speed>=2?2200:3200)*rm);}
+function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||RM())return 900;const rm=[.82,.9,1,1.1,1.2,1.3][(HERO[u.id]||{}).q||0];return Math.round((G.speed>=4?1450:G.speed>=2?2200:3200)*rm);}
 function cutIn(u,text){if(SIM||!u||u.side!=="h")return;const bf=document.getElementById("bf");if(!bf)return;const old=bf.querySelector(".cutin");if(old)old.remove();
   const d=document.createElement("div");d.className="cutin";d.innerHTML=`<img src="${spriteURL(u.spr)}" alt=""><div><span>${esc(u.n)}</span><b>${esc(text)}</b></div>`;bf.appendChild(d);setTimeout(()=>d.remove(),1000);}
 let popQ=[],fxQ=[];
@@ -4534,22 +4538,24 @@ function renderTop(){
     <button class="cur" data-act="help" data-sec="currency" title="Ambrosia: levels heroes, enhances gear, upgrades the workshop">${ico("c_ink")}${fmt(G.ink)}</button>
     <button class="cur" data-act="help" data-sec="currency" title="Drachmae: summons heroes at the Oracle">${ico("c_gilt")}${fmt(G.gilt)}</button>
     <button class="cur" data-act="help" data-sec="currency" title="Bronze: open the Forge for gear">${ico("c_seal")}${fmt(G.seals)}</button>
+    <button class="cur snd" data-act="setui" data-v="${VIS()?"classic":"visual"}" title="Switch between the Visual and the Classic interface">${VIS()?"▦ Visual":"☰ Classic"}</button>
     <button class="cur snd" data-act="sound" title="Sound effects on/off" aria-pressed="${G.sound!==false}">${G.sound!==false?"♪ On":"♪ Off"}</button>`;
 }
 function renderNav(){
-  const tabs=[["campaign","Campaign","bonnacon"],["modes","Modes","greatblot"],["party","Party","squire"],["wells","Temple","inkwell"],["scrip","Agora","monk"]];
-  const dots={campaign:claimable(),modes:modesDot(),wells:(AP&&!AP.done)||G.gilt>=COST.hero1||G.seals>=COST.gear1,party:Object.keys(G.newHeroes||{}).length>0||Object.values(G.heroes).some(h=>h.shards>=h.stars&&h.stars<6)||Object.keys(G.heroes).some(id=>perkPending(id).length),scrip:G.pend.ink>=rates().ink*2};
+  const tabs=[["campaign","Campaign","bonnacon"],["quests","Quests","i_binding"],["modes","Modes","greatblot"],["party","Party","squire"],["wells","Temple","inkwell"],["scrip","Agora","monk"]];
+  const dots={quests:questsDot(),modes:modesDot(),wells:(AP&&!AP.done)||G.gilt>=COST.hero1||G.seals>=COST.gear1,party:Object.keys(G.newHeroes||{}).length>0||Object.values(G.heroes).some(h=>h.shards>=h.stars&&h.stars<6)||Object.keys(G.heroes).some(id=>perkPending(id).length),scrip:G.pend.ink>=rates().ink*2};
   document.getElementById("nav").innerHTML=tabs.map(([k,n,s])=>`<button data-act="tab" data-t="${k}" aria-current="${tab===k&&!C?"page":"false"}">${ico(s)}${n}${dots[k]?'<span class="dot"></span>':""}</button>`).join("");
 }
 function render(){if(SIM)return;
   if(!C&&G.seenHelp&&!G.seenBreak&&G.stats.battles>=1&&!helpSec&&!reveal){G.seenBreak=true;helpSec="break";}
   document.body.classList.toggle("vet",G.tips===false||(G.tips==null&&G.stats.battles>=25));
+  document.documentElement.classList.toggle("rm",RM());document.body.classList.toggle("vis",VIS());
   renderTop();renderNav();
   const st=document.getElementById("stage");
   if(C){const bf=document.getElementById("bf");if(!bf||bf.dataset.bid!==C.bid||C.rebuild){C.rebuild=false;buildBattle();}updateBattle();}
   else{
     popQ=[];fxQ=[];/* drop battle pop-ups still queued when a battle closes, so they don't float over other screens */
-    st.innerHTML=tab==="campaign"?viewCampaign():tab==="modes"?viewModes():tab==="party"?viewParty():tab==="wells"?viewWells():viewScrip();
+    st.innerHTML=tab==="campaign"?(VIS()?vCampaign():viewCampaign()):tab==="quests"?(VIS()?vQuests():viewQuests()):tab==="modes"?(VIS()&&!modeSel?vModes():viewModes()):tab==="party"?viewParty():tab==="wells"?(VIS()?vWells():viewWells()):tab==="scrip"&&VIS()?vScrip():viewScrip();
     flushFx();
   }
   document.getElementById("modal").innerHTML=reveal?viewReveal():evoShow?viewEvo():helpSec?viewHelp():evOpen?viewEvent():"";
@@ -4584,7 +4590,6 @@ function viewCampaign(){
   const r=rewards(selStage),tp=teamPower(),sp=stagePower(selStage),ratio=tp/sp;
   const canPrev=info.c>0,canNext=(info.c+1)*10<next;
   const verdict=ratio>=1.1?["var(--good)","Favoured: your team should win."]:ratio>=.85?["var(--gold)","Even fight: elements and skills will decide it."]:["var(--bad)","Outmatched: level up, gear up or pull new heroes first."];
-  const tasks=taskList();
   return `<div class="grid2">
   <section class="panel framed">
     <div class="chap"><div><div class="label">Band ${info.c+1} of the amphora</div><h2>${esc(info.ch.n)}</h2><div class="soft" style="font-style:italic">${esc(info.ch.sub)}</div></div></div>
@@ -4619,13 +4624,17 @@ function viewCampaign(){
     <div class="row"><button class="btn main big" data-act="fight" data-s="${selStage}">⚔ Battle</button><button class="btn gold big" data-act="push" title="Auto-battles stage after stage, trying each stage's Heroic too, until you lose a normal stage or press Stop">⏩ Push onward</button>${selStage<=G.cleared?`<button class="btn gold ${G.heroicClears[selStage]?"done":""}" data-act="fight" data-s="${selStage}" data-h="1">${G.heroicClears[selStage]?"♛ Heroic ✓":"♛ Heroic"}</button>`:""}<button class="btn" data-act="tab" data-t="party">Edit team</button></div>
     ${selStage<=G.cleared?(()=>{const hr=rewards(selStage,true);return `<p class="soft" style="font-size:14px;margin-top:6px">♛ <b>Heroic</b>: foes +60% HP and +35% ATK, an elite in every wave. Power ${fmt(stagePower(selStage,true))}. Pays ${fmt(hr.ink)} Ambrosia, ${hr.seals} Bronze${hr.gilt?` and ${hr.gilt} Drachmae the first time`:""}.${G.heroicClears[selStage]?" <b>Already conquered</b>: replays pay Ambrosia and Bronze but no more Drachmae.":""}</p>`;})():""}
   </section>
-  ${viewDaily()}
-  <section class="panel">${PH("Tasks","tasks","Rewards for learning the ropes")}
+</div></div>`;
+}
+function viewQuests(){const tasks=taskList();
+  return `<div class="grid2 qgrid">${viewDaily()}
+    <section class="panel">${PH("Tasks","tasks","Rewards for learning the ropes")}
     <div class="tasks">${tasks.map(q=>{const ok=q.ok();return `<div class="task ${ok?"done":""}"><b>${ok?"✓ ":""}${esc(q.t)}</b><span class="d">${esc(q.d)}</span>
       <span class="r">${Object.entries(q.r).map(([k,v])=>`${ico(CUR[k])}+${v}`).join(" ")}</span>
       ${ok?`<button class="btn gold small" data-act="claim" data-id="${q.id}">Claim</button>`:q.go?`<button class="btn small" data-act="tab" data-t="${q.go}">Go</button>`:""}</div>`;}).join("")}</div>
-  </section></div></div>`;
+  </section></div>`;
 }
+function questsDot(){try{const D=ensureDaily();return claimable()||!D.loginClaimed||D.bounties.some(b=>!b.c&&bountyDone(b))||(D.bounties.every(b=>b.c)&&!D.bonus);}catch(e){return claimable();}}
 function scoutReport(info){
   const tr=[...new Set(info.foes.flatMap(traitsOf))];
   const els=[...new Set(info.foes.map(k=>EN[k].el))];
@@ -4801,7 +4810,7 @@ const HELP={
   <div><span><b>Build a team.</b> In <b>Party</b>, add up to 4 heroes and level them with Ambrosia.</span></div>
   <div><span><b>Fight.</b> On the <b>Campaign</b> map, pick the glowing stage and press Battle. Battles are turn-based: choose an attack or skill, then tap a target.</span></div>
   <div><span><b>Collect.</b> The <b>Agora</b> earns resources even while you're away.</span></div></div>
-  <p>The <b>Tasks</b> list on the Campaign tab walks you through each step and pays rewards. Tap any <b>?</b> button for help.</p>`},
+  <p>The <b>Tasks</b> list on the Quests tab walks you through each step and pays rewards. Tap any <b>?</b> button for help.</p>`},
  basics:{t:"Basics",b:()=>`<h3>The game loop</h3><ul><li><b>Campaign</b>: clear stages along the map. Each band of the amphora ends in a boss. Winning gives Ambrosia and Bronze, plus Drachmae the first time.</li>
   <li><b>Party</b>: level heroes with Ambrosia, raise stars with duplicate copies, and equip gear.</li><li><b>Temple</b>: summon heroes (Drachmae) and open gear chests (Bronze).</li>
   <li><b>Agora</b>: idle income that grows as you clear stages.</li></ul>
@@ -4879,6 +4888,10 @@ function viewHelp(){
       <div class="row">${Object.keys(ART_NAMES).map(k=>`<button class="btn small" data-act="setart" data-v="${k}" aria-pressed="${ART_STYLE===k}">${ART_NAMES[k]}</button>`).join("")}</div></div>
     <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><span class="soft" style="font-size:14px">Beginner tips on every screen (they hide by themselves after 25 battles).</span>
       <div class="row"><button class="btn small" data-act="tips" data-v="1" aria-pressed="${document.body.classList.contains("vet")?"false":"true"}">Show tips</button><button class="btn small" data-act="tips" data-v="0" aria-pressed="${document.body.classList.contains("vet")?"true":"false"}">Hide tips</button></div></div>
+    <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><span class="soft" style="font-size:14px">Interface: <b>Visual</b> shows pictures, icons and meters (details on hover or long-press); <b>Classic</b> is the original text layout.</span>
+      <div class="row"><button class="btn small" data-act="setui" data-v="visual" aria-pressed="${VIS()}">Visual</button><button class="btn small" data-act="setui" data-v="classic" aria-pressed="${!VIS()}">Classic</button></div></div>
+    <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><span class="soft" style="font-size:14px">Animations in battle and menus.</span>
+      <div class="row"><button class="btn small" data-act="setmotion" data-v="full" aria-pressed="${!RM()}">Full</button><button class="btn small" data-act="setmotion" data-v="reduced" aria-pressed="${RM()}">Reduced</button></div></div>
     <div class="savebk" style="margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><div class="label">Save backup · move your progress between the browser and the desktop app</div>
       <textarea id="savecode" rows="2" spellcheck="false" placeholder="Paste a save code here, then press Load" style="width:100%;box-sizing:border-box;font:12px var(--f-px);margin:6px 0;resize:vertical"></textarea>
       <div class="row"><button class="btn small" data-act="savecopy">Copy my save code</button><button class="btn small" data-act="saveload">Load pasted code</button></div></div>
@@ -4951,6 +4964,8 @@ document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.datase
 document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;
   if(reveal){if(reveal.phase==="shake"){reveal.phase="cards";SFX.play("reveal",Math.max(...reveal.items.map(x=>x.q)));}else reveal=null;render();}
   else if(helpSec){helpSec=null;G.seenHelp=true;render();}});
+document.addEventListener("mouseover",e=>{const hc=e.target.closest&&e.target.closest(".hc.isnew");if(!hc)return;const id=hc.dataset.id;
+  if(G.newHeroes&&G.newHeroes[id]){delete G.newHeroes[id];saveSoon();}hc.classList.remove("isnew");const nb=hc.querySelector(".newb");if(nb)nb.remove();renderNav();});
 document.addEventListener("click",e=>{
   SFX.unlock();
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
@@ -4961,6 +4976,8 @@ document.addEventListener("click",e=>{
     case "help":helpSec=b.dataset.sec||"basics";break;
     case "setart":case "artstyle":{const ks=Object.keys(ART_NAMES);G.artStyle=a==="setart"?b.dataset.v:ks[(ks.indexOf(ART_STYLE)+1)%ks.length];ART_STYLE=G.artStyle;document.getElementById("logo").src=spriteURL("illuminator");if(C)C.rebuild=true;toast(`Art style: ${ART_NAMES[ART_STYLE]}.`);break;}
     case "tips":G.tips=b.dataset.v==="1";break;
+    case "setui":G.ui=b.dataset.v;window.scrollTo(0,0);break;
+    case "setmotion":G.motion=b.dataset.v;break;
     case "closehelp":helpSec=null;G.seenHelp=true;break;
     case "savecopy":{save();const code="AMPHORA1:"+btoa(unescape(encodeURIComponent(JSON.stringify(G))));const ta=document.getElementById("savecode");
       const done=()=>toast("Save code copied. Keep it somewhere safe, or paste it into the other version of the game.");
@@ -6207,7 +6224,7 @@ function moveUnit(u,me,T,kind,ms){const n=document.querySelector(`.bu[data-uid="
 /* the Cookie-Run-style sequence: 1) the camera rushes in on the hero, 2) a full-screen splash with portrait and skill name, 3) the hero's own attack plays across the field */
 function play(u,target,dur,skName){
   if(typeof SIM!=="undefined"&&SIM)return;const bf=document.getElementById("bf");if(!bf||!R[u.id])return;
-  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  if(RM())return;
   if(running)running.stop();
   const box=bf.getBoundingClientRect(),W=box.width,H=box.height;
   const me=centre(u,box)||[W*.3,H*.5],F=C.foes.filter(f=>!f.dead).map(f=>centre(f,box)).filter(Boolean),A=C.heroes.filter(h=>!h.dead).map(h=>centre(h,box)).filter(Boolean);
@@ -6242,7 +6259,7 @@ const FK={fodder:"slash",fast:"claw",caster:"magic",brute:"smash",tank:"smash",b
 const MELEE={thrust:1,slash:1,smash:1,claw:1};
 function attack(u,targets,isSkill,ms){
   if(typeof SIM!=="undefined"&&SIM)return;const bf=document.getElementById("bf");if(!bf||!targets.length)return;
-  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  if(RM())return;
   const box=bf.getBoundingClientRect(),W=box.width,H=box.height,me=centre(u,box);if(!me)return;
   const TS=targets.map(t=>centre(t,box)).filter(Boolean);if(!TS.length)return;const T=TS[0];
   let kind=u.side==="h"?(HK[u.id]||"slash"):(EN[u.key]&&FK[EN[u.key].t])||"slash";if(u.side==="h"&&!isSkill&&kind==="sun")kind="magic";
@@ -6415,6 +6432,180 @@ HELP.elements={t:"Elements",b:()=>`<h3>The five elements</h3><p>Every hero and m
 function greekMigrate(G){if(!G||G.greekV)return G;G.greekV=1;const adj=["Plain","Fine","Gilded","Masterwork"];
   (G.gear||[]).forEach(g=>{if(g.myth&&MYTH[g.myth])g.name=MYTH[g.myth].n;else if(SLOTS[g.slot]){const b=SLOTS[g.slot].bases,h=[...(g.id||"x")].reduce((a,c)=>a+c.charCodeAt(0),0);g.name=`${adj[Math.min(3,g.q)]} ${b[h%b.length]}`;}});
   G.artStyle="pottery";if(G.modes){if(G.modes.exp){G.modes.exp.day=null;(G.modes.exp.slots||[]).forEach(x=>{x.n="An errand for the gods";});}if(G.modes.rival)G.modes.rival.opp=null;}return G;}
+
+/* ================= VISUAL INTERFACE =================
+   Pictures, icons and meters instead of paragraphs. The full text sits in tooltips (hover on PC, long-press on phones).
+   Switch with the ▦/☰ button in the top bar or in How to play; the Classic views are untouched.
+   Hero and equipment stat blocks (Party tab) are the same in both. */
+const VI={
+ swords:'<path d="M4 20L18 6M15 5h4v4M7 14l3 3M20 20L6 6M5 9V5h4M17 14l-3 3" />',
+ crown:'<path d="M3 18h18M4 16l-1-9 5 4 4-6 4 6 5-4-1 9z" />',
+ bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z" />',
+ temple:'<path d="M3 9l9-6 9 6M4 9h16M6 9v9M10 9v9M14 9v9M18 9v9M3 20h18" />',
+ crate:'<path d="M3 8h18v12H3zM3 12h18M9 8V5h6v3" />',
+ up:'<path d="M12 20V5M5 12l7-7 7 7" />',
+ skull:'<path d="M5 11a7 7 0 0 1 14 0v4l-2 1v3H7v-3l-2-1z" /><circle cx="9.5" cy="12" r="1.6" /><circle cx="14.5" cy="12" r="1.6" />',
+ coins:'<ellipse cx="12" cy="6" rx="7" ry="2.6" /><path d="M5 6v4c0 1.4 3 2.6 7 2.6s7-1.2 7-2.6V6M5 10v4c0 1.4 3 2.6 7 2.6s7-1.2 7-2.6v-4M5 14v4c0 1.4 3 2.6 7 2.6s7-1.2 7-2.6v-4" />',
+ crit:'<path d="M12 2l2 6 6-2-4 5 5 3-6 1 1 6-4-5-4 5 1-6-6-1 5-3-4-5 6 2z" />',
+ stairs:'<path d="M3 20h5v-5h5v-5h5V5h3" />',
+ bang:'<circle cx="12" cy="12" r="9" /><path d="M12 7v6M12 16.5v.5" />',
+ people:'<circle cx="8" cy="8" r="3.2" /><circle cx="16.5" cy="9" r="2.6" /><path d="M2 20c0-4 2.6-6.5 6-6.5s6 2.5 6 6.5M13.5 20c0-2.6 1.2-5 3.5-5s4.5 2.4 4.5 5" />',
+ lock:'<rect x="5" y="11" width="14" height="10" rx="1.5" /><path d="M8 11V8a4 4 0 0 1 8 0v3" />',
+ clock:'<circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />',
+ flame:'<path d="M12 2c2 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 3-6 0 3 1 4 3 4 0-4-2-6 0-9z" />',
+ gift:'<path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1" />',
+ warn:'<path d="M12 3l10 18H2zM12 10v5M12 18v.5" />',
+ shield:'<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" />'
+};
+const vi=(k,cls="")=>`<svg class="vi ${cls}" viewBox="0 0 24 24" aria-hidden="true">${VI[k]||VI.bang}</svg>`;
+const vring=(p,n,txt,cls="")=>{const f=Math.max(0,Math.min(1,n?p/n:0)),C=2*Math.PI*24;
+  return `<svg class="vring ${cls}" viewBox="0 0 58 58" role="img" aria-label="${esc(txt||`${p} of ${n}`)}"><circle cx="29" cy="29" r="24" class="vr0"/><circle cx="29" cy="29" r="24" class="vr1" stroke-dasharray="${(C*f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 29 29)"/>${txt===""?"":`<text x="29" y="34" text-anchor="middle">${esc(txt==null?`${p}/${n}`:txt)}</text>`}</svg>`;};
+const vcur=(c,n,lbl)=>`<span class="vcur" title="${esc(fmt(n)+" "+lbl)}">${ico(c)}<b>${fmt(n)}</b></span>`;
+const VCUR={ink:["c_ink","Ambrosia"],seals:["c_seal","Bronze"],gilt:["c_gilt","Drachmae"]};
+const vrew=r=>Object.entries(r).filter(([k,v])=>v&&VCUR[k]).map(([k,v])=>vcur(VCUR[k][0],v,VCUR[k][1])).join("");
+const VPH=(title,sec,extra="")=>`<div class="ph"><h2>${title}</h2><div class="row">${extra}<button class="qbtn" data-act="help" data-sec="${sec}" aria-label="Explain ${esc(title)}">?</button></div></div>`;
+
+/* ---------- Campaign: visual stage briefing ---------- */
+function vCampaign(){
+  const full=viewCampaign(),i0=full.indexOf('<section class="panel framed">'),i1=full.indexOf("</section>",i0)+10;
+  const left=full.slice(i0,i1);
+  const s=selStage,info=stageInfo(s),th=stageTheme(s),r=rewards(s),tp=teamPower(),sp=stagePower(s),ratio=tp/sp,done=s<=G.cleared,hc=!!G.heroicClears[s];
+  const verdict=ratio>=1.1?["good","Favoured","Your team should win."]:ratio>=.85?["even","Even fight","Elements and skills will decide it."]:["bad","Outmatched","Level up, gear up or pull new heroes first."];
+  const nW=info.waves.length;
+  const waves=info.waves.map((ks,w)=>`<div class="vwave">${nW>1?`<span class="vwl" title="${w===nW-1?"Last wave · HP carries over between waves":"Wave "+(w+1)+" of "+nW}">${roman(w+1)}</span>`:""}<div class="vfoes">${ks.map((k,i)=>{
+      const e=EN[k],el=info.elite&&info.elite.w===w&&info.elite.i===i?info.elite.mod:null,boss=e.t==="boss",row=ks.some(x=>EN[x].t==="boss")?(boss?"back":"front"):(i<2?"front":"back");
+      const tip=`${e.n} · ${EL[e.el]} · ${row} row${el?`\n★ Elite ${ELITES[el].n}: ${ELITES[el].t}`:""}${boss&&PHASES[k]?`\n☠ At half HP, ${PHASES[k].n}: it ${PHASES[k].t}`:""}`;
+      return `<div class="vfoe ${boss?"boss":""} ${el?"elite":""}" title="${esc(tip)}">${im(k)}<span class="vgem">${gem(e.el)}</span>${el?`<span class="vel">★</span>`:""}${boss?`<span class="vcrown">☠</span>`:""}</div>`;}).join("")}</div></div>`).join("");
+  const flags=[info.elite?`<span class="vflag el" title="${esc(`Elite ${ELITES[info.elite.mod].n}: ${ELITES[info.elite.mod].t} Tougher, but this stage pays 50% more Ambrosia.`)}">★ Elite ${esc(ELITES[info.elite.mod].n)}</span>`:"",
+    info.boss&&PHASES[info.ch.boss]?`<span class="vflag bs" title="${esc(`At half HP, ${PHASES[info.ch.boss].n}: it ${PHASES[info.ch.boss].t}`)}">☠ ${esc(PHASES[info.ch.boss].n)}</span>`:""].join("");
+  const foeAv=[...new Set(info.foes)].slice(0,4).map(k=>`<span class="vav" title="${esc(EN[k].n)}">${im(k)}</span>`).join("");
+  const teamAv=G.team.map(id=>`<span class="vav" title="${esc(HERO[id].n)}">${im(id)}</span>`).join("")||`<span class="soft">No team</span>`;
+  const pct=Math.round(tp/(tp+sp)*100);
+  /* counter picks */
+  const owned=HEROES.filter(h=>G.heroes[h.id]);
+  const els=[...new Set(info.foes.map(k=>EN[k].el))],trs=[...new Set(info.foes.flatMap(traitsOf))];
+  const avs=list=>list.slice(0,4).map(h=>`<span class="vav ${G.team.includes(h.id)?"inteam":""}" title="${esc(h.n)}${G.team.includes(h.id)?" · in your team":""}">${im(h.id)}</span>`).join("");
+  const ctr=els.map(e=>{const k=Object.keys(BEATS).find(x=>BEATS[x]===e),good=owned.filter(h=>BEATS[h.el]===e),bad=G.team.filter(id=>BEATS[e]===HERO[id].el&&!(e==="gold"||e==="iron"));
+      return `<div class="vctr" title="${esc(`${EL[e]} foes are weak to ${k?EL[k]:"nothing"} heroes.${bad.length?` ${bad.map(i=>HERO[i].n).join(", ")} ${bad.length>1?"are":"is"} weak against them.`:""}`)}">${gem(e)}${k?`<span class="varr">◀</span>${gem(k)}`:""}<span class="vavs">${good.length?avs(good):`<i class="soft">none</i>`}</span>${bad.length?`<span class="vwarn">${vi("warn")}</span>`:""}</div>`;}).join("")
+    +trs.map(t=>{const T=TRAITS[t],c=owned.filter(COUNTER[t]);return `<div class="vctr tr" title="${esc(`${T.n}: ${T.t} Counter: ${T.c}`)}">${vi("warn")}<span class="vtn">${esc(T.n)}</span><span class="vavs">${c.length?avs(c):`<i class="soft">none</i>`}</span></div>`;}).join("");
+  const hr=done?rewards(s,true):null;
+  const heroTip=done?`Heroic: foes +60% HP and +35% ATK, an elite in every wave. Power ${fmt(stagePower(s,true))}. Pays ${fmt(hr.ink)} Ambrosia, ${hr.seals} Bronze${hr.gilt&&!hc?` and ${hr.gilt} Drachmae the first time`:""}.`:"";
+  const right=`<section class="panel vbrief">
+    <div class="vbanner" style="background-image:url('${stageBG(s)}')">
+      <div class="vbt"><span class="vbn">${info.c+1}-${info.i}</span><b>${esc(th.n)}</b></div>
+      <div class="vpills"><span class="vpill ${done?"on":""}" title="${done?"Normal: cleared":"Normal: not cleared"}">${done?"✓":"○"} Normal</span><span class="vpill h ${hc?"on":""}" title="${hc?"Heroic: conquered":done?"Heroic: not yet beaten":"Heroic: locked until you clear Normal"}">♛ Heroic</span>${info.boss?`<span class="vpill b">☠ Boss</span>`:""}</div>
+      <button class="qbtn vbq" data-act="help" data-sec="basics" aria-label="Explain the stage">?</button>
+    </div>
+    <div class="vfoesbox">${waves}${flags?`<div class="vflags">${flags}</div>`:""}</div>
+    <div class="vvs" title="${esc(harmonyTxt(harmony(G.team)))}"><div class="vside">${teamAv}</div><div class="vmeter"><div class="vbar"><i style="width:${pct}%"></i></div><div class="vnums"><b>${fmt(tp)}</b><span class="vchip ${verdict[0]}" title="${verdict[2]}">${verdict[1]}</span><b>${fmt(sp)}</b></div></div><div class="vside r">${foeAv}</div></div>
+    <details class="vctrs" open><summary>Counter picks</summary><div class="vctrl">${ctr||`<span class="soft">Nothing special</span>`}</div></details>
+    <div class="vrewards"><div class="vtile" title="${fmt(r.ink)} Ambrosia for every win">${ico("c_ink")}<b>${fmt(r.ink)}</b></div><div class="vtile" title="${r.seals} Bronze for every win">${ico("c_seal")}<b>${r.seals}</b></div>${r.gilt?`<div class="vtile first" title="${r.gilt} Drachmae, first clear only">${ico("c_gilt")}<b>${r.gilt}</b><span>1st</span></div>`:""}</div>
+    <div class="vbtns"><button class="btn main big" data-act="fight" data-s="${s}">⚔ Battle</button><button class="btn gold big" data-act="push" title="Auto-battles stage after stage, trying each stage's Heroic too, until you lose a normal stage or press Stop">⏩ Push</button>${done?`<button class="btn gold ${hc?"done":""}" data-act="fight" data-s="${s}" data-h="1" title="${esc(heroTip)}">${hc?"♛ ✓":"♛ Heroic"}</button>`:""}<button class="btn" data-act="tab" data-t="party" title="Edit team">${vi("people")}</button></div>
+  </section>`;
+  return `<div class="grid2 vis">${left}<div class="stack">${right}</div></div>`;
+}
+
+/* ---------- Quests tab ---------- */
+const VB={wins:"swords",heroic:"crown",ults:"bolt",pullh:"temple",pullg:"crate",lvls:"up",kills:"skull",collect:"coins",crits:"crit",floors:"stairs",event:"bang"};
+const VT={campaign:"swords",party:"people",wells:"temple",scrip:"coins",modes:"stairs"};
+function vQuests(){
+  const D=ensureDaily(),day=(D.streak-1)%7,fh=HERO[D.featured],tasks=taskList(),allDone=D.bounties.every(b=>b.c);
+  const meds=STREAK.map((r,i)=>{const got=i<day||(i===day&&D.loginClaimed),today=i===day;
+    return `<div class="vmed ${got?"got":""} ${today?"today":""} ${i===6?"big":""}" title="Day ${i+1}: ${r.gilt?r.gilt+" Drachmae":r.seals+" Bronze"}${got?" · claimed":""}"><span class="vmn">${roman(i+1)}</span>${ico(r.gilt?"c_gilt":"c_seal")}<b>${r.gilt||r.seals}</b>${got?`<i class="vtick">✓</i>`:""}</div>`;}).join("");
+  const bounties=D.bounties.map((b,i)=>{const B=BOUNTY.find(x=>x.k===b.k),ok=bountyDone(b),cls=b.k.startsWith("cls")?b.k.slice(3).toLowerCase():null;
+    const icon=cls&&CLS[cls]?`<span class="vbi" style="color:${CLS[cls].c}">${clsIco(cls)}</span>`:`<span class="vbi">${vi(VB[b.k])}</span>`;
+    return `<div class="vbounty ${b.c?"claimed":ok?"ready":""}" title="${esc(B.t)}">${b.c?vring(1,1,"✓","done"):vring(b.p,B.n)}${icon}<b class="vbtt">${esc(B.t)}</b><span class="vrw">${vrew(BOUNTY_R)}</span>
+      ${b.c?`<span class="vdone">Done</span>`:`<button class="btn small ${ok?"gold":""}" data-act="bclaim" data-i="${i}" ${ok?"":"disabled"}>Claim</button>`}</div>`;}).join("");
+  const dots=D.bounties.map(b=>`<i class="${b.c?"on":""}"></i>`).join("");
+  const path=tasks.map(q=>{const ok=q.ok();return `<div class="vstep ${ok?"ok":""}" title="${esc(q.d)}"><span class="vsi">${vi(VT[q.go]||"bang")}</span><b>${esc(q.t)}</b><span class="vrw">${vrew(q.r)}</span>
+      ${ok?`<button class="btn gold small" data-act="claim" data-id="${q.id}">Claim</button>`:q.go?`<button class="btn small" data-act="tab" data-t="${q.go}">Go</button>`:""}</div>`;}).join("")
+    +`<div class="vstep next" title="New tasks appear as you finish these"><span class="vsi">${vi("lock")}</span><b>Next</b></div>`;
+  return `<div class="vqw">
+  <section class="panel vomens">${VPH("Today's omens","daily",`<span class="vstreak" title="Login streak. Missing a day resets it to day I.">${vi("flame")} Day ${D.streak}</span>`)}
+    <div class="vmeds">${meds}</div>
+    ${D.loginClaimed?`<p class="vsoft">${vi("clock")} Day VII pays 900 Drachmae</p>`:`<button class="btn gold big" data-act="loginclaim">Claim day ${roman(day+1)}</button>`}
+  </section>
+  <div class="vqrow">
+  <section class="panel vbounties">${VPH("Daily bounties","daily",`<span class="vsoft" title="Bounties change every midnight">${vi("clock")} midnight</span>`)}
+    ${bounties}
+    <div class="vbonus" title="Finish all three for a 300 Drachmae bonus"><span class="vdots">${dots}</span>${allDone&&!D.bonus?`<button class="btn gold" data-act="bbonus">Bonus ${ico("c_gilt")}300</button>`:D.bonus?`<span class="vdone">Bonus claimed</span>`:`<span>All three: ${ico("c_gilt")}<b>300</b></span>`}</div>
+  </section>
+  <section class="panel vfeat">
+    <span class="label">Featured in the Oracle</span>
+    <div class="vfa q${fh.q}">${im(fh.id)}</div>
+    <b class="vfn">${esc(fh.n)}</b>
+    <div class="vtags"><span class="qtag q${fh.q}">${QN[fh.q]}</span>${elname(fh.el)}${clsBadge(fh.id)}</div>
+    <span class="vsoft" title="Half of all ${QN[fh.q]} summons today are ${esc(fh.n)}">½ of ${QN[fh.q]} summons</span>
+    <button class="btn gold" data-act="tab" data-t="wells">To the Temple</button>
+  </section>
+  </div>
+  <section class="panel vtasks">${VPH("The hero's path","tasks")}
+    <div class="vpath">${path}</div>
+  </section></div>`;
+}
+
+/* ---------- Temple ---------- */
+function vOdds(a){
+  return `<div class="vodds" role="img" aria-label="${esc(a.map(([q,p])=>QN[q]+" "+p+"%").join(", "))}">${a.slice().reverse().map(([q,p])=>`<i class="q${q}" style="flex:${Math.max(p,1.6)}" title="${QN[q]}: ${p}%"></i>`).join("")}</div>
+  <div class="voleg">${a.slice().reverse().map(([q,p])=>`<span class="q${q}" title="${QN[q]}"><i></i>${p}%</span>`).join("")}</div>`;}
+function vDial(lbl,cur,max,cls=""){return `<div class="vdial ${cls}" title="${esc(lbl)}: ${max-cur} summons left (${cur}/${max})">${vring(cur,max,String(max-cur))}<span>${esc(lbl)}</span></div>`;}
+function vWells(){
+  const hr=[[5,SECRET.hero.rate],[4,HERO_OLY.rate],[3,3],[2,13],[1,32],[0,51]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
+  const D=ensureDaily(),fh=HERO[D.featured];
+  const full=viewWells(),rest=full.slice(full.indexOf('<section class="panel" style="grid-column:1/-1">'),full.lastIndexOf("</div>"));
+  return `<div class="wells vis">
+   <section class="panel framed valtar oracle">${VPH("Oracle of Delphi","wells")}
+     <div class="vhero q${fh.q}" title="Featured today: half of all ${QN[fh.q]} summons are ${esc(fh.n)}">
+       <div class="vrays"></div>${im(fh.id)}
+       <div class="vhi"><span class="label">★ Featured</span><b>${esc(fh.n)}</b><div class="vtags"><span class="qtag q${fh.q}">${QN[fh.q]}</span>${elname(fh.el)}${clsBadge(fh.id)}</div></div>
+     </div>
+     ${vOdds(hr)}
+     <div class="vdials">${vDial("Legendary+",G.pity.h10,10)}${vDial("Demigod",G.pity.hL,50)}${vDial("Olympian",G.pity.hO||0,HERO_OLY.pity,"q4")}<div class="secretpity">${vDial("✦ Primordial",G.pity.hS||0,SECRET.hero.pity,"q5")}</div></div>
+     <div class="pullrow"><button class="btn gold big" data-act="pullh" data-n="1" ${G.gilt<COST.hero1?"disabled":""}>×1 ${ico("c_gilt")}${COST.hero1}</button><button class="btn gold big" data-act="pullh" data-n="10" ${G.gilt<COST.hero10?"disabled":""}>×10 ${ico("c_gilt")}${COST.hero10}</button></div>
+     ${apPanel("h")}
+   </section>
+   <section class="panel framed valtar forge">${VPH("The Forge","wells")}
+     <div class="vhero forgeart" title="Spend Bronze to open forge crates of gear"><div class="vrays"></div>${im("i_quill","sp side l")}${im("chest","sp main")}${im("i_seal","sp side")}</div>
+     ${vOdds(gr)}
+     <div class="vdials">${vDial("Demigod+",G.pity.g10,20)}${vDial("Olympian",G.pity.gM,100,"q4")}<div class="secretpity">${vDial("✦ Primordial",G.pity.gS||0,SECRET.gear.pity,"q5")}</div></div>
+     <div class="pullrow"><button class="btn gold big" data-act="pullg" data-n="1" ${G.seals<COST.gear1?"disabled":""}>×1 ${ico("c_seal")}${COST.gear1}</button><button class="btn gold big" data-act="pullg" data-n="10" ${G.seals<COST.gear10?"disabled":""}>×10 ${ico("c_seal")}${COST.gear10}</button></div>
+     ${apPanel("g")}
+   </section>
+   ${rest}</div>`;
+}
+
+/* ---------- Modes: picture tiles ---------- */
+const VMBG={exped:["#3a5a7a","#1a2a3a"],puzzle:["#8a6a2a","#3a2a10"],illum:["#2a7a8a","#103038"],trials:["#5a4a9a","#1e1838"],endless:["#4a3a2a","#1a120a"],rival:["#b07a1a","#4a2a08"],draft:["#2a6aa0","#0c2440"],raid:["#8a2a2a","#2a0808"],siege:["#7a5a3a","#2a1a0a"]};
+function vModes(){
+  return `<section class="panel framed">${VPH("Game modes","modes")}
+   <div class="vmodes">${MODES.map(m=>{const ok=modeOpen(m),c=VMBG[m.k]||["#555","#222"],st=ok?modeStatus(m.k):"";
+     return `<button class="vmode ${ok?"":"locked"}" data-act="msel" data-k="${m.k}" ${ok?"":"disabled"} title="${esc(m.d)}" style="--m1:${c[0]};--m2:${c[1]}">
+       <span class="vmart">${im(m.spr,"sp",["raid","siege"].includes(m.k)?"transform:scaleX(-1)":"")}</span>
+       <span class="vmtag">${esc(m.tag)}</span>
+       ${ok?(st?`<span class="vmst ${/ready|Free/.test(st)?"hot":""}">${st}</span>`:""):`<span class="vmst lk">${vi("lock")} ${Math.floor((m.unlock-1)/10)+1}-${(m.unlock-1)%10+1}</span>`}
+       <b class="vmn">${esc(m.n)}</b></button>`;}).join("")}</div></section>`;
+}
+
+/* ---------- Agora: merchant stalls ---------- */
+const VAW={ink:"#b8862a",seals:"#9a5a2a",gilt:"#6a7488"};
+function vScrip(){
+  const r=rates(),p=G.pend,fill=Math.min(1,p.ink/(r.ink*CAP_H));
+  return `<section class="panel framed vagora">${VPH("The Agora","idle",`<span class="vsoft" title="Your merchants work even while the game is closed. The shelves hold ${CAP_H} hours of work.">${vi("clock")} ${CAP_H} h shelves</span>`)}
+    <div class="vstalls">${Object.keys(UPG).map(k=>{const u=UPG[k],c=u.cur,nm=VCUR[c][1];
+      const rate=c==="ink"?fmt(r[c]):r[c].toFixed(1);
+      const extra=c==="gilt"?` · about ${(r.gilt/(COST.hero10/10)).toFixed(1)} summons/hour`:c==="seals"?` · about ${(r.seals/(COST.gear10/10)).toFixed(1)} gear pulls/hour`:"";
+      return `<div class="vstall" style="--aw:${VAW[c]}">
+        <svg class="vawn" viewBox="0 0 300 34" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0h300v18${" q-18.75 16 -37.5 0".repeat(8)}z"/></svg>
+        <div class="vsp">${im(u.monk,"sp mk2")}${im(u.item,"sp it")}</div>
+        <b class="vsn">${esc(u.n)}</b>
+        <div class="vamt" title="${esc(nm)} waiting to be collected">${ico(CUR[c])}<span id="p_${c}">${fmt(p[c])}</span></div>
+        <span class="vrate" title="${esc(rate+" "+nm+" per hour"+extra)}">+${rate}/h</span>
+        <div class="vpips" title="${esc(`Workshop level ${G.scrip[k]}/${UPG_MAX}: ${u.d}`)}">${Array.from({length:UPG_MAX},(_,i)=>`<i class="${i<G.scrip[k]?"on":""}"></i>`).join("")}</div>
+        ${G.scrip[k]>=UPG_MAX?`<span class="vdone">Max level</span>`:`<button class="btn" data-act="upg" data-k="${k}" ${G.ink<upgCost(k)?"disabled":""} title="${esc(u.d)}">${vi("up")} ${ico("c_ink")}${fmt(upgCost(k))}</button>`}
+      </div>`;}).join("")}</div>
+    <div class="vshelf"><div class="vjar" title="Shelves fill up in ${CAP_H} hours; collect before they are full"><span class="bar"><i id="pfill" style="width:${fill*100}%"></i></span><span class="label" id="pcap">Shelves ${Math.round(fill*100)}% full</span></div><button class="btn main big" data-act="collect">${vi("coins")} Collect</button></div>
+  </section>`;
+}
 
 /* ============ loop & boot ============ */
 let lastT=Date.now();

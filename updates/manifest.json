@@ -1,17 +1,17 @@
 {
- "version": "1.2.0",
+ "version": "1.3.0",
  "shell": "1.1.0",
- "notes": "Rarer heroes, grander abilities: every rarity tier adds a flourish to ultimates (and from Demigod up, to skills), and attacks, skills and ultimates look more spectacular the rarer the hero.",
+ "notes": "New Visual interface (switch back to Classic with the button in the top bar), Quests now have their own tab, the NEW mark on a hero disappears when you hover over it, and animations now play on Macs that have Reduce motion turned on (choose Full or Reduced animations in How to play).",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "af6307f4b8d8fcb6615e2a7d6d5f1a8bc3e22d3a70635bbb0f2f308daaf3e094",
+  "css/marginalia.css": "97239c1b1d33b361af9560a30d7a9c4b35f94f63f1d0ece5b474042b3b1ed03e",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "56438699b03a08641bf2766a62910115f31e403a25720dccc1ad617d1d1d855a",
-  "js/marginalia.js": "eb3318a2418f6f46234d1c0e0a36411b00f36bb4136611f93d439d27b371ee53"
+  "index.html": "0e81ad7f2486a9a654ac8cfdb9dcea6a89e71aa8753b797b95bf53e50c69e2a0",
+  "js/marginalia.js": "b32c3f279c9ad040e91f3ccaa17c77f4aca9dc9b10c63320167ccd9041ce09c2"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
