@@ -1,0 +1,17 @@
+{
+ "version": "1.0.0",
+ "shell": "1.1.0",
+ "notes": "First release",
+ "base": "game/",
+ "files": {
+  "css/marginalia.css": "f47439d5185ca1942dd2c68a51ed0b81bff283210b48da923111358b5305da74",
+  "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
+  "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
+  "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
+  "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
+  "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
+  "index.html": "b6737801796ab3c7a9f2d72899ae091bbaf2508f30c4a99949b9d440336053d1",
+  "js/marginalia.js": "84b00a8d11332308538a212da9997f4f234f5d5136f153f20a4f96d2f193957b"
+ },
+ "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
+}
