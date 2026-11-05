@@ -4622,7 +4622,7 @@ function viewReveal(){
   const sec=R.items.some(x=>x.q===5);
   if(R.phase==="shake"){const bq=Math.max(...R.items.map(x=>x.q));
     const msg=sec?"The page is… glowing?":bq>=4?"The Oracle trembles!":bq===3?"Gold light seeps through the field!":bq===2?"The smoke turns blue…":R.kind==="hero"?"Something stirs in the element…":"Breaking the wax…";
-    return `<div class="modal" role="dialog" aria-label="Summoning"><div class="panel framed ${sec?"secretglow":""}" style="max-width:420px"><div class="summon glowq${bq}">${im(R.kind==="hero"?"inkwell":"chest")}<p class="label">${msg}</p><button class="btn small" data-act="skiprev">Skip</button>${R.auto&&AP&&!AP.done?` <button class="btn small" data-act="apstop">■ Stop auto</button>`:""}</div></div></div>`;}
+    return `<div class="modal" role="dialog" aria-label="Summoning"><div class="panel framed ${sec?"secretglow":""}" style="max-width:420px"><div class="summon glowq${bq}">${im(R.kind==="hero"?"inkwell":"chest")}<p class="label">${msg}</p><button class="btn small" data-act="skiprev">Skip</button>${R.auto&&AP&&!AP.done?` <button class="btn small" data-act="apstop">■ Stop auto</button> <button class="btn small" data-act="aphide">Hide animations</button>`:""}</div></div></div>`;}
   const cards=R.items.map((x,i)=>{
     if(x.kind==="hero"){const h=HERO[x.id];return `<div class="rc q${x.q}" style="animation-delay:${i*120}ms">${im(h.id)}<span class="qtag">${QN[x.q]}</span><b>${esc(h.n)}</b>${clsBadge(h.id)}${x.isNew?`<span class="new">NEW HERO!</span>`:`<span class="soft" style="font-size:12px">+1 copy (for Star up)</span>`}</div>`;}
     const g=x.g;return `<div class="rc q${x.q}" style="animation-delay:${i*120}ms">${im(gearSprite(g))}<span class="qtag">${QN[x.q]}</span><b>${esc(g.name)}</b><span class="soft" style="font-size:12px">${statTxt(g.main.k,g.main.v)}</span></div>`;}).join("");
@@ -4634,7 +4634,7 @@ function viewReveal(){
     <div class="ph"><h2 class="${best===5?"holo-t":""}">${best===5?"✦ PRIMORDIAL ✦":best===4?"Olympian!":best===3?"A Demigod!":best===2?"A Legendary!":"The smoke settles"}</h2><span class="soft">${R.items.length} result${R.items.length>1?"s":""}</span></div>
     ${secBlock}<div class="reveal">${cards}</div>
     ${R.auto?`<div class="aprev"><span class="label">Auto ${R.kind==="hero"?"summon":"forge"} · ${fmt(AP?AP.n:0)} so far</span>${R.apWhy?`<b class="apwhy">${esc(R.apWhy)}</b>`:""}</div>`:""}
-    <div class="row" style="justify-content:flex-end">${R.auto&&AP&&!AP.done?`<button class="btn main" data-act="apstop">■ Stop auto</button>`:""}<button class="btn" data-act="again" data-n="${R.items.length}" ${can&&!(AP&&!AP.done)?"":"disabled"}>Again ×${R.items.length}</button><button class="btn main" data-act="${R.kind==="hero"?"revparty":"revgear"}">${R.kind==="hero"?"See heroes":"Equip gear"}</button><button class="btn" data-act="closerev">Close</button></div></div></div>`;
+    <div class="row" style="justify-content:flex-end">${R.auto&&AP&&!AP.done?`<button class="btn main" data-act="apstop">■ Stop auto</button><button class="btn" data-act="aphide">Hide animations</button>`:""}<button class="btn" data-act="again" data-n="${R.items.length}" ${can&&!(AP&&!AP.done)?"":"disabled"}>Again ×${R.items.length}</button><button class="btn main" data-act="${R.kind==="hero"?"revparty":"revgear"}">${R.kind==="hero"?"See heroes":"Equip gear"}</button><button class="btn" data-act="closerev">Close</button></div></div></div>`;
 }
 
 /* ============ help ============ */
@@ -4733,8 +4733,8 @@ function viewHelp(){
 function secretFlash(){const f=document.createElement("div");f.className="secretflash";document.body.appendChild(f);setTimeout(()=>f.remove(),2200);}
 function doPull(kind,n){
   const cost=kind==="hero"?(n===10?COST.hero10:COST.hero1):(n===10?COST.gear10:COST.gear1);
-  if(kind==="hero"){if(G.gilt<cost)return toast("Not enough Drachmae.");G.gilt-=cost;reveal={kind,phase:"shake",items:Array.from({length:n},pullHero)};}
-  else{if(G.seals<cost)return toast("Not enough Bronze.");G.seals-=cost;reveal={kind,phase:"shake",items:Array.from({length:n},pullGearOne)};}
+  if(kind==="hero"){if(G.gilt<cost)return toast("Not enough Drachmae.");G.gilt-=cost;reveal={kind,phase:"shake",t0:Date.now(),items:Array.from({length:n},pullHero)};}
+  else{if(G.seals<cost)return toast("Not enough Bronze.");G.seals-=cost;reveal={kind,phase:"shake",t0:Date.now(),items:Array.from({length:n},pullGearOne)};}
   const r=reveal,sec=r.items.some(x=>x.q===5),bq=Math.max(...r.items.map(x=>x.q));SFX.play("rise",bq);
   setTimeout(()=>{if(reveal===r&&r.phase==="shake"){r.phase="cards";SFX.play("reveal",bq);render();if(sec)secretFlash();}},sec?2400:bq>=3?1800:bq===2?1400:1100);
 }
@@ -4744,7 +4744,7 @@ const AP_STOP={h:[["q5","a Primordial hero"],["q3","Demigod or better"],["new","
 let AP=null; /* the run in progress: {k,n,spent,tally,hits,news,salv,why,done} */
 function apCfg(k){G.autoPull=G.autoPull||{};return G.autoPull[k]=Object.assign(k==="h"?{stop:"q5",keep:0}:{stop:"q4",keep:0,salv:0},G.autoPull[k]||{});}
 function apStart(k){if(AP&&!AP.done)return;AP={k,n:0,spent:0,tally:[0,0,0,0,0,0],hits:[],news:[],salv:0,why:"",done:false};apStep();}
-function apStop(why){if(!AP||AP.done)return;AP.done=true;AP.why=why;clearTimeout(AP.t);if(reveal&&reveal.auto)reveal.apWhy=why;render();}
+function apStop(why){if(!AP||AP.done)return;AP.done=true;AP.why=why;clearTimeout(AP.t);if(reveal&&reveal.auto){reveal.apWhy=why;if(reveal.phase==="shake")reveal.phase="cards";}render();}
 function apStep(){
   if(!AP||AP.done)return;
   const k=AP.k,cfg=apCfg(k),cur=k==="h"?"gilt":"seals",c1=k==="h"?COST.hero1:COST.gear1,c10=k==="h"?COST.hero10:COST.gear10;
@@ -4762,7 +4762,7 @@ function apStep(){
   }
   if(!cfg.fast){ /* the full summon show, exactly like pulling by hand */
     const items=AP.batch,bq=Math.max(...items.map(x=>x.q)),run=AP;
-    const r=reveal={kind:k==="h"?"hero":"gear",phase:"shake",items,auto:true};SFX.play("rise",bq);render();
+    const r=reveal={kind:k==="h"?"hero":"gear",phase:"shake",items,auto:true,t0:Date.now()};SFX.play("rise",bq);render();
     const toCards=()=>{if(run.done&&!stop)return;if(reveal===r&&r.phase==="shake"){r.phase="cards";SFX.play("reveal",bq);render();if(sec)secretFlash();}
       if(stop)return apStop(`Stopped: you got ${stop}!`);
       const sp=Math.min(G.speed||1,2);run.t=setTimeout(()=>{if(run.done)return;if(reveal===r)reveal=null;apStep();},(bq>=4?3200:bq===3?2300:1500)/sp);};
@@ -4791,6 +4791,9 @@ function apPanel(k){
 }
 document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.ap)return;const c=apCfg(t.dataset.ap);
   c[t.dataset.f]=t.dataset.f==="stop"?t.value:t.dataset.f==="fast"?!t.checked:Math.max(0,Math.floor(+t.value||0));save();render();});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;
+  if(reveal){if(reveal.phase==="shake"){reveal.phase="cards";SFX.play("reveal",Math.max(...reveal.items.map(x=>x.q)));}else reveal=null;render();}
+  else if(helpSec){helpSec=null;G.seenHelp=true;render();}});
 document.addEventListener("click",e=>{
   SFX.unlock();
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
@@ -4875,6 +4878,7 @@ document.addEventListener("click",e=>{
     case "pullh":doPull("hero",+b.dataset.n);break;
     case "apgo":apStart(b.dataset.k);break;
     case "apstop":apStop("Stopped by you.");break;
+    case "aphide":if(AP){apCfg(AP.k).fast=true;}reveal=null;toast("Auto summon keeps running in the background. Its progress is shown in the Temple.");break;
     case "pullg":doPull("gear",+b.dataset.n);break;
     case "again":doPull(reveal.kind,+b.dataset.n);break;
     case "skiprev":if(reveal&&reveal.phase==="shake"){reveal.phase="cards";SFX.play("reveal",Math.max(...reveal.items.map(x=>x.q)));}break;
@@ -6048,6 +6052,7 @@ function greekMigrate(G){if(!G||G.greekV)return G;G.greekV=1;const adj=["Plain",
 /* ============ loop & boot ============ */
 let lastT=Date.now();
 function tick(){
+  if(reveal&&reveal.phase==="shake"&&Date.now()-(reveal.t0||0)>6000){reveal.phase="cards";render();} /* a summon animation can never get stuck */
   const now=Date.now(),dt=(now-lastT)/1000;lastT=now;accrue(dt);
   if(!C&&tab==="modes")modesTick();
   if(!C&&tab==="scrip"&&document.getElementById("pfill")){const r=rates(),p=G.pend,f=Math.min(1,p.ink/(r.ink*CAP_H));

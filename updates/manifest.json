@@ -1,7 +1,7 @@
 {
- "version": "1.0.4",
+ "version": "1.0.5",
  "shell": "1.1.0",
- "notes": "Phone app: fits iPhone notches and home-screen mode; summon buttons and results fit small screens.",
+ "notes": "Fix: stopping auto summon during the animation could freeze the screen and block all buttons. New: Hide animations button, and Esc closes summon results and help.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "56f5669ef436c08150f6034e1a544a3f3f3a5984bd93de80f47f793ef4efe323",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "9a4551eeabdaf9ecc118ff071ab11cf82b30164e6be82002260121325c22affc",
-  "js/marginalia.js": "8c480297209b0c6c4761a9c76e735b59b3ed4ea7cfdf679b740404fcc849b6fd"
+  "index.html": "e7952dc285dfd46f197e1da7980c8af20fa685af767d04bd785d88f25a57c59a",
+  "js/marginalia.js": "eadb3d95c6610776c36d76ee3d7ba0b34a83e161c1d46a2a88443b2efb02a441"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
