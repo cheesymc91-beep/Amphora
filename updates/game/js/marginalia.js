@@ -3211,7 +3211,7 @@ const uid=()=>Math.random().toString(36).slice(2,10);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function fmt(n){n=Math.floor(n);if(n<10000)return n.toLocaleString("en-US");const u=["K","M","B","T","Qa","Qi"];let i=-1;while(n>=1000&&i<u.length-1){n/=1000;i++;}return n.toFixed(n<100?1:0)+u[i];}
 function seeded(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-const roman=n=>{const m=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let s="";for(const[v,r]of m)while(n>=v){s+=r;n-=v;}return s;};
+const roman=n=>{const m=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let s="";for(const[v,r]of m)while(n>=v){s+=r;n-=v;}return s;};
 const im=(key,cls="sp",style="",bare)=>`<img class="${cls}" src="${spriteURL(key,bare||cls.includes("sil"))}" alt="" ${style?`style="${style}"`:""}>`;
 const ico=k=>im(k,"ico");
 const CUR={ink:"c_ink",gilt:"c_gilt",seals:"c_seal"};
@@ -4570,7 +4570,8 @@ function viewCampaign(){
   const bossK=info.ch.boss,bp=MAPP[9];
   const leaderAt=next>base&&next<=base+10?MAPP[next-base-1]:null;
   const decoSpots=[[16,40],[46,54],[88,86],[64,58]];
-  const deco=info.ch.pool.map((k,i)=>`<div class="deco" style="left:${decoSpots[i][0]}%;top:${decoSpots[i][1]}%">${im(k,"sp","transform:scaleX(-1)",true)}</div>`).join("");
+  const dpool=info.ch.pool.length>decoSpots.length?decoSpots.map((_,j)=>info.ch.pool[(info.c*7+j*5)%info.ch.pool.length]):info.ch.pool;
+  const deco=dpool.map((k,i)=>`<div class="deco" style="left:${decoSpots[i][0]}%;top:${decoSpots[i][1]}%">${im(k,"sp","transform:scaleX(-1)",true)}</div>`).join("");
   const r=rewards(selStage),tp=teamPower(),sp=stagePower(selStage),ratio=tp/sp;
   const canPrev=info.c>0,canNext=(info.c+1)*10<next;
   const verdict=ratio>=1.1?["var(--good)","Favoured: your team should win."]:ratio>=.85?["var(--gold)","Even fight: elements and skills will decide it."]:["var(--bad)","Outmatched: level up, gear up or pull new heroes first."];

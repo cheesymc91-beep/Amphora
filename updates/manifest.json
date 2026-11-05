@@ -1,7 +1,7 @@
 {
- "version": "1.1.0",
+ "version": "1.1.1",
  "shell": "1.1.0",
- "notes": "19 new heroes: the Olympians (Hades, Athena, Ares, Hephaestus, Aphrodite, Dionysus), Primordials Gaia and Nyx, Achilles, Hecate, Nemesis, Perseus, Cassandra, Orpheus, Hector, Icarus, Daedalus, Arachne and Jason, with 13 new bonds.",
+ "notes": "Fix: the Campaign map froze past stage 80 (Tartarus), for example after fleeing a battle. Tartarus bands now get proper Roman numerals.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "56f5669ef436c08150f6034e1a544a3f3f3a5984bd93de80f47f793ef4efe323",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "9608796c724bc9ff41a752961f6799a232a6c252cf8a603a1c3d8063c641d750",
-  "js/marginalia.js": "c600f91b1a25ece6b8f73089023b5f12a04b8d615419fd8e2ca4ba18dd8a6275"
+  "index.html": "6671f04f20b3108340be34006b81947e24f3745c0ffb8a9aae0dd4048d2a0b2a",
+  "js/marginalia.js": "317d9e02f336431381ef76dffd9ff0b488f6db4d0828fb1f10ea402cd3105057"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
