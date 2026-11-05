@@ -1,7 +1,7 @@
 {
- "version": "1.0.0",
+ "version": "1.0.1",
  "shell": "1.1.0",
- "notes": "First release",
+ "notes": "Update system test: the game itself is unchanged.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "f47439d5185ca1942dd2c68a51ed0b81bff283210b48da923111358b5305da74",
