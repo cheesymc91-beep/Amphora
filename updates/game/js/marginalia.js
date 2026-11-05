@@ -4382,7 +4382,7 @@ function renderTop(){
 }
 function renderNav(){
   const tabs=[["campaign","Campaign","bonnacon"],["modes","Modes","greatblot"],["party","Party","squire"],["wells","Temple","inkwell"],["scrip","Agora","monk"]];
-  const dots={campaign:claimable(),modes:modesDot(),wells:G.gilt>=COST.hero1||G.seals>=COST.gear1,party:Object.keys(G.newHeroes||{}).length>0||Object.values(G.heroes).some(h=>h.shards>=h.stars&&h.stars<6)||Object.keys(G.heroes).some(id=>perkPending(id).length),scrip:G.pend.ink>=rates().ink*2};
+  const dots={campaign:claimable(),modes:modesDot(),wells:(AP&&!AP.done)||G.gilt>=COST.hero1||G.seals>=COST.gear1,party:Object.keys(G.newHeroes||{}).length>0||Object.values(G.heroes).some(h=>h.shards>=h.stars&&h.stars<6)||Object.keys(G.heroes).some(id=>perkPending(id).length),scrip:G.pend.ink>=rates().ink*2};
   document.getElementById("nav").innerHTML=tabs.map(([k,n,s])=>`<button data-act="tab" data-t="${k}" aria-current="${tab===k&&!C?"page":"false"}">${ico(s)}${n}${dots[k]?'<span class="dot"></span>':""}</button>`).join("");
 }
 function render(){if(SIM)return;
@@ -4581,6 +4581,7 @@ function viewWells(){
      ${odds(hr)}
      ${pity("Guaranteed Mosaic or better",G.pity.h10,10)}${pity("Guaranteed Masterwork",G.pity.hL,50)}<div class="secretpity">${pity("✦ Guaranteed Secret Rare",G.pity.hS||0,SECRET.hero.pity)}</div>
      <div class="pullrow"><button class="btn gold big" data-act="pullh" data-n="1" ${G.gilt<COST.hero1?"disabled":""}>Summon ×1 ${ico("c_gilt")}${COST.hero1}</button><button class="btn gold big" data-act="pullh" data-n="10" ${G.gilt<COST.hero10?"disabled":""}>Summon ×10 ${ico("c_gilt")}${COST.hero10}</button></div>
+     ${apPanel("h")}
      ${G.gilt<COST.hero1?`<p class="soft" style="font-size:14px">Need more Drachmae? Clear new stages, finish Tasks, or collect from the Agora.</p>`:""}
    </section>
    <section class="panel framed well">${PH("The Forge","wells","Find equipment")}
@@ -4589,6 +4590,7 @@ function viewWells(){
      ${odds(gr)}
      ${pity("Guaranteed Masterwork or better",G.pity.g10,20)}${pity("Guaranteed Olympian",G.pity.gM,100)}<div class="secretpity">${pity("✦ Guaranteed Secret Rare",G.pity.gS||0,SECRET.gear.pity)}</div>
      <div class="pullrow"><button class="btn gold big" data-act="pullg" data-n="1" ${G.seals<COST.gear1?"disabled":""}>Open ×1 ${ico("c_seal")}${COST.gear1}</button><button class="btn gold big" data-act="pullg" data-n="10" ${G.seals<COST.gear10?"disabled":""}>Open ×10 ${ico("c_seal")}${COST.gear10}</button></div>
+     ${apPanel("g")}
    </section>
    <section class="panel" style="grid-column:1/-1">${PH("Folio of Heroes","party",`${Object.keys(G.heroes).length} of ${HEROES.length} drawn`)}
      <div class="coll">${HEROES.slice().sort((a,b)=>b.q-a.q).map(h=>{const own=G.heroes[h.id];return `<div class="q${h.q}" title="${own?esc(h.n):"Not yet summoned"}">${im(h.id,own?"sp":"sp sil")}<span>${own?esc(h.n):"???"}</span>${clsBadge(h.id)}<span class="qtag">${QN[h.q]}</span></div>`;}).join("")}</div>
@@ -4735,6 +4737,49 @@ function doPull(kind,n){
   const r=reveal,sec=r.items.some(x=>x.q===5),bq=Math.max(...r.items.map(x=>x.q));SFX.play("rise",bq);
   setTimeout(()=>{if(reveal===r&&r.phase==="shake"){r.phase="cards";SFX.play("reveal",bq);render();if(sec)secretFlash();}},sec?2400:bq>=3?1800:bq===2?1400:1100);
 }
+/* ---- Auto summon: keeps summoning (x10 when affordable, else x1) until a stop rule, the reserve, or Stop ---- */
+const AP_STOP={h:[["q5","a Primordial hero"],["q3","Demigod or better"],["new","any new hero"],["none","never (until out of Drachmae)"]],
+  g:[["q5","a Primordial piece"],["q4","Olympian or better"],["none","never (until out of Bronze)"]]};
+let AP=null; /* the run in progress: {k,n,spent,tally,hits,news,salv,why,done} */
+function apCfg(k){G.autoPull=G.autoPull||{};return G.autoPull[k]=Object.assign(k==="h"?{stop:"q5",keep:0}:{stop:"q4",keep:0,salv:0},G.autoPull[k]||{});}
+function apStart(k){if(AP&&!AP.done)return;AP={k,n:0,spent:0,tally:[0,0,0,0,0,0],hits:[],news:[],salv:0,why:"",done:false};apStep();}
+function apStop(why){if(!AP||AP.done)return;AP.done=true;AP.why=why;clearTimeout(AP.t);render();}
+function apStep(){
+  if(!AP||AP.done)return;
+  const k=AP.k,cfg=apCfg(k),cur=k==="h"?"gilt":"seals",c1=k==="h"?COST.hero1:COST.gear1,c10=k==="h"?COST.hero10:COST.gear10;
+  const room=G[cur]-Math.max(0,+cfg.keep||0),n=room>=c10?10:room>=c1?1:0;
+  if(!n)return apStop(cfg.keep>0?`Reached your reserve of ${fmt(cfg.keep)} ${k==="h"?"Drachmae":"Bronze"}.`:`Out of ${k==="h"?"Drachmae":"Bronze"}.`);
+  G[cur]-=n===10?c10:c1;AP.spent+=n===10?c10:c1;
+  let stop=null,sec=false;
+  for(let i=0;i<n;i++){
+    const r=k==="h"?pullHero():pullGearOne();AP.n++;AP.tally[r.q]++;if(r.q===5)sec=true;
+    if(k==="h"){if(r.isNew)AP.news.push(r.id);if(r.q>=3||r.isNew)AP.hits.push({q:r.q,n:HERO[r.id].n,isNew:r.isNew});
+      if(!stop&&((cfg.stop==="q5"&&r.q===5)||(cfg.stop==="q3"&&r.q>=3)||(cfg.stop==="new"&&r.isNew)))stop=`${HERO[r.id].n} (${QN[r.q]}${r.isNew?", new":""})`;}
+    else{if(r.q<=(+cfg.salv||0)-1&&!r.g.owner){G.seals+=salvageVal(r.g);G.gear=G.gear.filter(x=>x!==r.g);AP.salv++;}
+      if(r.q>=4)AP.hits.push({q:r.q,n:r.g.name});
+      if(!stop&&((cfg.stop==="q5"&&r.q===5)||(cfg.stop==="q4"&&r.q>=4)))stop=`${r.g.name} (${QN[r.q]})`;}
+  }
+  if(sec){secretFlash();SFX.play("reveal",5);}
+  if(stop){if(!sec)SFX.play("reveal",4);return apStop(`Stopped: you got ${stop}!`);}
+  render();AP.t=setTimeout(apStep,Math.max(120,420/(G.speed||1)));
+}
+function apPanel(k){
+  const cfg=apCfg(k),run=AP&&AP.k===k?AP:null,other=AP&&!AP.done&&AP.k!==k,cur=k==="h"?"Drachmae":"Bronze";
+  const tl=run?run.tally.map((v,q)=>v?`<span class="q${q}"><span class="qtag">${QN[q]}</span> ${v}</span>`:"").filter(Boolean).join(" "):"";
+  return `<div class="autopull ${run&&!run.done?"on":""}">
+    <div class="aph"><b>Auto ${k==="h"?"summon":"forge"}</b>
+      ${run&&!run.done?`<button class="btn main small" data-act="apstop">■ Stop</button>`:`<button class="btn gold small" data-act="apgo" data-k="${k}" ${other||G[k==="h"?"gilt":"seals"]-cfg.keep<(k==="h"?COST.hero1:COST.gear1)?"disabled":""}>▶ Start</button>`}</div>
+    <div class="apset"><label>Stop on <select data-ap="${k}" data-f="stop">${AP_STOP[k].map(([v,t])=>`<option value="${v}" ${cfg.stop===v?"selected":""}>${t}</option>`).join("")}</select></label>
+      <label>Keep at least <input type="number" min="0" step="100" data-ap="${k}" data-f="keep" value="${cfg.keep||0}"> ${cur}</label>
+      ${k==="g"?`<label>Salvage <select data-ap="g" data-f="salv">${[["0","nothing"],["1",QN[0]+" gear"],["2",QN[0]+" and "+QN[1]+" gear"]].map(([v,t])=>`<option value="${v}" ${String(cfg.salv||0)===v?"selected":""}>${t}</option>`).join("")}</select> automatically</label>`:""}</div>
+    ${run?`<div class="apstat"><span class="label">${run.done?"Last run":"Running"} · ${fmt(run.n)} ${k==="h"?"summons":"pieces"} · ${fmt(run.spent)} ${cur} spent${run.salv?` · ${run.salv} salvaged`:""}</span><div class="aptally">${tl}</div>
+      ${run.news.length?`<div class="soft">New: ${run.news.map(id=>esc(HERO[id].n)).join(", ")}</div>`:""}
+      ${run.hits.filter(h=>h.q>=(k==="h"?3:4)).length?`<div class="soft">Best: ${run.hits.filter(h=>h.q>=(k==="h"?3:4)).slice(-6).map(h=>`<b class="q${h.q}t">${esc(h.n)}</b>`).join(", ")}</div>`:""}
+      ${run.done&&run.why?`<div class="apwhy">${esc(run.why)}</div>`:""}</div>`:""}
+  </div>`;
+}
+document.addEventListener("change",e=>{const t=e.target;if(!t.dataset||!t.dataset.ap)return;const c=apCfg(t.dataset.ap);
+  c[t.dataset.f]=t.dataset.f==="stop"?t.value:Math.max(0,Math.floor(+t.value||0));save();render();});
 document.addEventListener("click",e=>{
   SFX.unlock();
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
@@ -4817,6 +4862,8 @@ document.addEventListener("click",e=>{
     case "autoeq":{const id=partySel;Object.keys(SLOTS).forEach(k=>{const cur=G.heroes[id].gear[k]&&gearById(G.heroes[id].gear[k]);
       const best=G.gear.filter(g=>g.slot===k&&(!g.owner||g.owner===id)).sort((x,y)=>gearScore(y)-gearScore(x))[0];if(best&&best!==cur)equip(id,best.id);});break;}
     case "pullh":doPull("hero",+b.dataset.n);break;
+    case "apgo":apStart(b.dataset.k);break;
+    case "apstop":apStop("Stopped by you.");break;
     case "pullg":doPull("gear",+b.dataset.n);break;
     case "again":doPull(reveal.kind,+b.dataset.n);break;
     case "skiprev":if(reveal&&reveal.phase==="shake"){reveal.phase="cards";SFX.play("reveal",Math.max(...reveal.items.map(x=>x.q)));}break;

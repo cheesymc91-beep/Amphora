@@ -1,17 +1,17 @@
 {
- "version": "1.0.1",
+ "version": "1.0.2",
  "shell": "1.1.0",
- "notes": "Update system test: the game itself is unchanged.",
+ "notes": "Auto summon and auto forge in the Temple: keep summoning until you hit a rare, reach your reserve, or press Stop.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "f47439d5185ca1942dd2c68a51ed0b81bff283210b48da923111358b5305da74",
+  "css/marginalia.css": "430f41c0747c68f06da498e87134cfabddc04ade64399ba7d24eb8a2b2e4faeb",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "b6737801796ab3c7a9f2d72899ae091bbaf2508f30c4a99949b9d440336053d1",
-  "js/marginalia.js": "84b00a8d11332308538a212da9997f4f234f5d5136f153f20a4f96d2f193957b"
+  "index.html": "118e462c9baf3a6a1b87c50f4a9aa71361a013841a7cb41dc1928ee78c25ba92",
+  "js/marginalia.js": "d2d4d4c07d7201211679642d4adf98625b951970877d3ae1f964b25e8f7e9c7a"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
