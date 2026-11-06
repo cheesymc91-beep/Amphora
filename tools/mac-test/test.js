@@ -4,9 +4,10 @@ const { _electron } = require("playwright-core");
 const fs = require("fs"), path = require("path");
 (async () => {
   const [appPath, label, flag] = process.argv.slice(2);
-  const args = flag === "--reduce" ? ["--force-prefers-reduced-motion"] : [];
+  const args = [];
   const app = await _electron.launch({ executablePath: path.join(appPath, "Contents/MacOS/Electron"), args });
   const pg = await app.firstWindow();
+  if (flag === "--reduce") await pg.emulateMedia({ reducedMotion: "reduce" });
   await pg.waitForLoadState("load"); await pg.waitForTimeout(1500);
   await pg.evaluate(s => localStorage.setItem("marginalia-v1", s), fs.readFileSync(__dirname + "/save.json", "utf8"));
   await pg.reload(); await pg.waitForTimeout(2000);

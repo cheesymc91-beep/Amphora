@@ -46,6 +46,11 @@ jobs:
           clean; node test.js ../../old/Amphora.app old-reduce --reduce
           clean; node test.js ../../new/Amphora.app new-normal
           clean; node test.js ../../new/Amphora.app new-reduce --reduce
+          echo "--- now with the Mac's own Reduce motion switched on ---"
+          defaults write com.apple.universalaccess reduceMotion -bool true || true
+          defaults read com.apple.universalaccess reduceMotion || true
+          clean; node test.js ../../old/Amphora.app old-macreduce
+          clean; node test.js ../../new/Amphora.app new-macreduce
       - uses: actions/upload-artifact@v4
         if: always()
         with:
