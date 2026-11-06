@@ -1,0 +1,55 @@
+name: Mac animation test
+
+# Starts the real Mac app (old 1.2.0 and new 1.3.0 game) with and without "Reduce motion"
+# and records whether battle animations play. Screenshots and results are attached to the run.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["tools/mac-test/**", ".github/workflows/mac-anim-test.yml"]
+
+env:
+  ELECTRON: "33.2.1"
+
+jobs:
+  test:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Download Electron
+        run: |
+          set -euo pipefail
+          f="electron-v${ELECTRON}-darwin-arm64.zip"
+          curl -fsSL -o "$f" "https://github.com/electron/electron/releases/download/v${ELECTRON}/$f"
+          for v in old new; do mkdir -p $v && ditto -x -k "$f" $v && mv $v/Electron.app $v/Amphora.app; done
+      - name: Assemble the two apps
+        run: |
+          set -euo pipefail
+          mkdir -p oldgame && git archive 0801ea7 updates/game | tar -x -C oldgame
+          for v in old new; do
+            RES=$v/Amphora.app/Contents/Resources; rm -f $RES/default_app.asar; mkdir -p $RES/app
+            cp desktop/main.js desktop/preload.js $RES/app/
+            echo '{}' > $RES/app/update.json   # no auto-update during the test
+            if [ $v = old ]; then cp -R oldgame/updates/game $RES/app/game; GV=1.2.0; else cp -R updates/game $RES/app/game; GV=1.3.0; fi
+            jq --arg v "$GV" '.gameVersion=$v' desktop/package.json > $RES/app/package.json
+            codesign --force --deep --sign - $v/Amphora.app
+          done
+      - name: Is Reduce motion on for this Mac?
+        run: defaults read com.apple.universalaccess reduceMotion || echo "not set (off)"
+      - name: Run the tests
+        run: |
+          set -uo pipefail
+          cd tools/mac-test && npm i --no-save playwright-core@1.48.2 >/dev/null
+          clean() { rm -rf "$HOME/Library/Application Support/Amphora"; }
+          clean; node test.js ../../old/Amphora.app old-normal
+          clean; node test.js ../../old/Amphora.app old-reduce --reduce
+          clean; node test.js ../../new/Amphora.app new-normal
+          clean; node test.js ../../new/Amphora.app new-reduce --reduce
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mac-animation-test
+          path: |
+            tools/mac-test/shot-*.png
+            tools/mac-test/result-*.json
