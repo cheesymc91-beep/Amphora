@@ -1,7 +1,7 @@
 {
- "version": "1.3.0",
+ "version": "1.4.0",
  "shell": "1.1.0",
- "notes": "New Visual interface (switch back to Classic with the button in the top bar), Quests now have their own tab, the NEW mark on a hero disappears when you hover over it, and animations now play on Macs that have Reduce motion turned on (choose Full or Reduced animations in How to play).",
+ "notes": "Every hero's ultimate is now its own show: a signature prop from their myth (Leonidas' shield, the Argo, Medusa's gaze, Zeus' storm and 47 more), their own way of moving, and enemies that react (turned to stone, into pigs, put to sleep, dragged under by Hades...).",
  "base": "game/",
  "files": {
   "css/marginalia.css": "97239c1b1d33b361af9560a30d7a9c4b35f94f63f1d0ece5b474042b3b1ed03e",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "0e81ad7f2486a9a654ac8cfdb9dcea6a89e71aa8753b797b95bf53e50c69e2a0",
-  "js/marginalia.js": "b32c3f279c9ad040e91f3ccaa17c77f4aca9dc9b10c63320167ccd9041ce09c2"
+  "index.html": "2ac15629dbb04977e3e75fbdf486703a3db381c04d58070da60fda0c973591c5",
+  "js/marginalia.js": "0b7cac03e10769117e940fe6780e37651e18976e4e28eec309c111e60e155a02"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
