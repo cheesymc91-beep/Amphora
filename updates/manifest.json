@@ -1,17 +1,17 @@
 {
- "version": "1.4.0",
+ "version": "1.5.0",
  "shell": "1.1.0",
- "notes": "Every hero's ultimate is now its own show: a signature prop from their myth (Leonidas' shield, the Argo, Medusa's gaze, Zeus' storm and 47 more), their own way of moving, and enemies that react (turned to stone, into pigs, put to sleep, dragged under by Hades...).",
+ "notes": "The rarer the hero, the crazier the ultimate. Legendary: cinema bars and camera punches. Demigod: a charge-up and black-and-white impact frames. Olympian: Olympus opens over the whole game window, a golden pillar of light slams down, the screen tilts and splits colour. Primordial: the whole game is pulled into a cosmic void, the screen cracks, a black hole, a supernova, enemies float off the ground, the screen shatters. New sounds for the big moments.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "97239c1b1d33b361af9560a30d7a9c4b35f94f63f1d0ece5b474042b3b1ed03e",
+  "css/marginalia.css": "1480bdece6311e1b691ead363460648e44eaacd3a9af4d6f7787b308091bdcb1",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "2ac15629dbb04977e3e75fbdf486703a3db381c04d58070da60fda0c973591c5",
-  "js/marginalia.js": "0b7cac03e10769117e940fe6780e37651e18976e4e28eec309c111e60e155a02"
+  "index.html": "7cd229444610023dc981573dcc5a83e38f21a2aa97e87859d2f4181750003666",
+  "js/marginalia.js": "9fc05abe873ec9c964847be798c12b8c07820ef9a17041cf848e76c5f36d0979"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

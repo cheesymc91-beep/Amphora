@@ -891,4 +891,5 @@ html.rm .vhero .vrays{animation:none}
  .vbanner{height:130px}.vbt b{font-size:22px}
  .vmeds{gap:4px}.vmed .ico{width:28px;height:28px}.vmed{font-size:12px}
 }
+.ultscreen{position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:9000;pointer-events:none}
 
