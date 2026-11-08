@@ -1,7 +1,7 @@
 {
- "version": "1.5.0",
+ "version": "1.6.0",
  "shell": "1.1.0",
- "notes": "The rarer the hero, the crazier the ultimate. Legendary: cinema bars and camera punches. Demigod: a charge-up and black-and-white impact frames. Olympian: Olympus opens over the whole game window, a golden pillar of light slams down, the screen tilts and splits colour. Primordial: the whole game is pulled into a cosmic void, the screen cracks, a black hole, a supernova, enemies float off the ground, the screen shatters. New sounds for the big moments.",
+ "notes": "Every ultimate has its own sound: each hero plays a personal theme tune when their portrait appears (in the scale of their element, fuller and grander the rarer the hero), and their own sound effects follow the show: Hephaestus' anvil rings three times, Orpheus plays his lyre, Circe's victims oink, Zeus' thunder cracks with every bolt, Kronos' clock ticks, and so on.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "1480bdece6311e1b691ead363460648e44eaacd3a9af4d6f7787b308091bdcb1",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "7cd229444610023dc981573dcc5a83e38f21a2aa97e87859d2f4181750003666",
-  "js/marginalia.js": "9fc05abe873ec9c964847be798c12b8c07820ef9a17041cf848e76c5f36d0979"
+  "index.html": "b4c7f01da532c44029747a4db5ca686effd22aa0fe0ebd6c4828d8f97ea1e5e9",
+  "js/marginalia.js": "01070f833df361aa219f4fb1dff6469cf681680dd6ed1b63a5f3ab589204199a"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
