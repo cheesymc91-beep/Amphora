@@ -1,17 +1,17 @@
 {
- "version": "1.6.0",
+ "version": "1.7.0",
  "shell": "1.1.0",
- "notes": "Every ultimate has its own sound: each hero plays a personal theme tune when their portrait appears (in the scale of their element, fuller and grander the rarer the hero), and their own sound effects follow the show: Hephaestus' anvil rings three times, Orpheus plays his lyre, Circe's victims oink, Zeus' thunder cracks with every bolt, Kronos' clock ticks, and so on.",
+ "notes": "Balance update (Phoenix toned down, healers and weak heroes stronger) plus: Oracle's Favour wishlist and Charon's obols, Apotheosis for Mortal and Famed heroes, a myth for every hero with a mythic look, the Potter's Workshop and museum, weekly Festivals, Return to Chaos, the Odyssey, your own polis, a bestiary, achievements and titles, a team card, campfire chats, music, 8x speed and shorter ultimates after the first time.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "1480bdece6311e1b691ead363460648e44eaacd3a9af4d6f7787b308091bdcb1",
+  "css/marginalia.css": "ddc1b19ddec7361bd023c80275d556077ddef1a902f980e257f4bb1582ea5dbb",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "b4c7f01da532c44029747a4db5ca686effd22aa0fe0ebd6c4828d8f97ea1e5e9",
-  "js/marginalia.js": "01070f833df361aa219f4fb1dff6469cf681680dd6ed1b63a5f3ab589204199a"
+  "index.html": "7140a69a4ec007dbf15b489c05fcea0d0673fcaaa1390d3514e255ed5c10357d",
+  "js/marginalia.js": "888f9ceea5bc50a261d055a627087235ec0f16f42ec434f2f9bfd61256fe17cf"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

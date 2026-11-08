@@ -3212,7 +3212,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 function fmt(n){n=Math.floor(n);if(n<10000)return n.toLocaleString("en-US");const u=["K","M","B","T","Qa","Qi"];let i=-1;while(n>=1000&&i<u.length-1){n/=1000;i++;}return n.toFixed(n<100?1:0)+u[i];}
 function seeded(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const roman=n=>{const m=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let s="";for(const[v,r]of m)while(n>=v){s+=r;n-=v;}return s;};
-const im=(key,cls="sp",style="",bare)=>`<img class="${cls}" src="${spriteURL(key,bare||cls.includes("sil"))}" alt="" ${style?`style="${style}"`:""}>`;
+const im=(key,cls="sp",style="",bare)=>{const sk=!cls.includes("sil")&&typeof skinCss==="function"?skinCss(key):"";style=(style||"")+sk;return `<img class="${cls}" src="${spriteURL(key,bare||cls.includes("sil"))}" alt="" ${style?`style="${style}"`:""}>`;};
 const ico=k=>im(k,"ico");
 const CUR={ink:"c_ink",gilt:"c_gilt",seals:"c_seal"};
 
@@ -3230,7 +3230,8 @@ const elname=el=>`<span class="elname">${gem(el)}${EL[el]}</span>`;
 const QN=["Mortal","Sketch","Mosaic","Masterwork","Olympian","Secret Rare"];
 const ROLE={tank:{hp:700,atk:44,def:46,spd:90},warrior:{hp:560,atk:62,def:32,spd:98},striker:{hp:460,atk:74,def:24,spd:112},mage:{hp:430,atk:78,def:20,spd:102},healer:{hp:490,atk:50,def:28,spd:104},support:{hp:510,atk:54,def:30,spd:106}};
 const ROLE_TXT={tank:"Tank: soaks hits and protects allies",warrior:"Warrior: sturdy all-round fighter",striker:"Striker: fast, hard-hitting",mage:"Mage: hits many foes at once",healer:"Healer: keeps the team alive",support:"Support: buffs the whole team"};
-const RMULT=[1,1.12,1.26,1.42,1.56,1.62];
+/* 1.7 balance: Mortal and Famed heroes closer to the rest; Primordial a touch lower */
+const RMULT=[1.1,1.19,1.27,1.42,1.56,1.6];
 const D=(m,tg="one")=>({t:"dmg",m,tg});
 /* ===== BREAK: every foe carries a shield of weak points. Hits from a hero whose ink or class it is weak to chip it; at 0 it is Broken ===== */
 const BRK={sh:{fodder:2,fast:2,caster:2,brute:2,tank:3,boss:4},dmg:1,meter:15};
@@ -3331,7 +3332,7 @@ const PASSIVE={
  basilisk:{k:"stoneglare",n:"Stone Glare",t:"Foes that attack it have a 25% chance to be turned to stone (stunned). Bosses resist."},
  unicorn:{k:"pureheart",n:"Pure Heart",t:"Heals for 10% of the damage it deals and can never be stunned."},
  queen:{k:"topsy",n:"Topsy-Turvy Court",t:"30% chance to act again right after it defeats a foe."},
- phoenix:{k:"phoenix",n:"Rewritten in Ash",t:"When it falls, it is reborn at 50% HP, up to twice per battle. Each rebirth gives it +30% ATK for the rest of the battle."},
+ phoenix:{k:"phoenix",n:"Rewritten in Ash",t:"When it falls, it is reborn once per battle at 40% HP, with +25% ATK for the rest of the battle."},
  ouroboros:{k:"endless",n:"Endless",t:"Immune to stuns, debuffs and Miasma. At the start of each of its turns it heals 8% of its max HP and every ally 3% of theirs."},
  mouser:{k:"pounce",n:"Pounce",t:"Its first hit on each foe deals +60% damage."},
  acolyte:{k:"votive",n:"Votive Flame",t:"Every time she acts, the Glory meter fills by an extra 8%."},
@@ -3556,18 +3557,18 @@ const perkPending=id=>{const o=G.heroes[id];if(!o)return [];const out=[];for(let
 const EVO=[{n:"",m:1},{n:"Gilded",m:1.08},{n:"Radiant",m:1.08*1.12}];
 const evoOf=o=>o.stars>=6?2:o.stars>=3?1:0;
 /* balance: heroes and foes both grow exponentially so neither side runs away */
-const BAL={dmg:2.6,heal:1.8,fHp:1.12,fAtk:.9,heroG:1.06,foeG:1.085,foeBase:1.4,defExp:.5,costBase:50,costG:1.105,idleBase:1200,idleG:1.06};
-const levelCost=l=>Math.round(BAL.costBase*Math.pow(BAL.costG,l-1));
+const BAL={healerMul:1.3,healerShield:.3,dmg:2.6,heal:1.8,fHp:1.12,fAtk:.9,heroG:1.06,foeG:1.085,foeBase:1.4,defExp:.5,costBase:50,costG:1.105,idleBase:1200,idleG:1.06};
+const levelCost=l=>Math.round(BAL.costBase*Math.pow(BAL.costG,l-1)*(typeof erosMul==="function"&&!SIM?erosMul():1));
 const gearStatVal=g=>g.main.v*(1+.12*g.plus);
 function heroStats(id,aAtk=0,aDef=0){
-  const d=HERO[id],o=rec(id),b=ROLE[d.role],rm=RMULT[d.q];
+  const d=HERO[id],o=rec(id),b=ROLE[d.role],rm=RMULT[typeof heroQ==="function"?heroQ(id):d.q],mb=typeof moreStat==="function"?moreStat(id):{hp:0,atk:0};
   const lg=Math.pow(BAL.heroG,o.lvl-1),sg=(1+.15*(o.stars-1))*EVO[evoOf(o)].m;
   const pct={hpPct:0,atkPct:0,defPct:0};let spd=b.spd+(o.lvl-1)*.25,crit=5,critDmg=0;const myth=new Set();
   Object.values(o.gear).forEach(gid=>{const g=gid&&gearById(gid);if(!g)return;
     const add=(k,v)=>{if(k in pct)pct[k]+=v;else if(k==="spd")spd+=v;else if(k==="crit")crit+=v;else if(k==="critDmg")critDmg+=v/100;};
     add(g.main.k,gearStatVal(g));g.subs.forEach(s=>add(s.k,s.v));if(g.myth)myth.add(g.myth);});
   Object.values(o.perks||{}).forEach(pk=>{const P=PERKS[pk];if(!P)return;if(P.k in pct)pct[P.k]+=P.v;else if(P.k==="spd")spd+=P.v;else if(P.k==="crit")crit+=P.v;else critDmg+=P.v/100;});
-  return {hp:Math.round(b.hp*rm*lg*sg*(1+pct.hpPct/100)),atk:Math.round(b.atk*rm*lg*sg*(1+pct.atkPct/100+aAtk)),def:Math.round(b.def*rm*Math.pow(lg,BAL.defExp)*sg*(1+pct.defPct/100+aDef)),
+  return {hp:Math.round(b.hp*rm*lg*sg*(1+pct.hpPct/100+mb.hp)),atk:Math.round(b.atk*rm*lg*sg*(1+pct.atkPct/100+aAtk+mb.atk)),def:Math.round(b.def*rm*Math.pow(lg,BAL.defExp)*sg*(1+pct.defPct/100+aDef)),
     spd:Math.round(spd),crit:Math.round(crit),critDmg,myth};
 }
 const powerOf=s=>Math.round(s.hp*.1+s.atk*1.6+s.def*1.2+s.spd+(s.crit||5)*3);
@@ -3610,9 +3611,10 @@ function pullHero(){
   else{const r2=Math.random()*100;q=r2<3?3:r2<16?2:r2<48?1:0;}
   if(q>=2)G.pity.h10=0;if(q>=3)G.pity.hL=0;if(q===4)G.pity.hO=0;if(q===5){G.pity.hS=0;G.stats.secrets=(G.stats.secrets||0)+1;}
   const fd=G.daily&&G.daily.featured&&HERO[G.daily.featured];
-  const h=fd&&fd.q===q&&roll(50)?fd:pick(HEROES.filter(x=>x.q===q));let isNew=false;track("pullh");
+  const fp=typeof festPatron==="function"?festPatron():null;
+  const h=fp&&fp.q===q&&roll(33)?fp:fd&&fd.q===q&&roll(50)?fd:pick(HEROES.filter(x=>x.q===q));let isNew=false;track("pullh");
   if(G.heroes[h.id])G.heroes[h.id].shards++;else{G.heroes[h.id]=newHeroRec();isNew=true;G.newHeroes=G.newHeroes||{};G.newHeroes[h.id]=1;}
-  return {kind:"hero",id:h.id,q,isNew};
+  const res={kind:"hero",id:h.id,q,isNew};if(typeof onPull==="function")onPull(res);return res;
 }
 function pullGearOne(){
   G.pity.g10++;G.pity.gM++;G.pity.gS=(G.pity.gS||0)+1;
@@ -3758,8 +3760,9 @@ const PHASES={bonnacon:{n:"Boiling Fury",t:"+30% ATK and calls a Mad Satyr to th
 const warded=u=>hasM(u,"ward")||u.elite==="warded"||u.pa.k==="endless";
 function mkHeroUnit(id,aura,row){
   const d=HERO[id],s=heroStats(id,aura.atk,aura.def);s.hp=Math.round(s.hp*(1+(aura.hp||0)));
-  return {uid:UID++,side:"h",id,spr:id,n:d.n,el:d.el,row,hp:s.hp,maxhp:s.hp,atk:s.atk,def:s.def,spd:s.spd+(d.pa.k==="courier"?15:0),crit:s.crit+(aura.crit||0),critDmg:s.critDmg,
+  const U={uid:UID++,side:"h",id,spr:id,n:d.n,el:d.el,row,hp:s.hp,maxhp:s.hp,atk:s.atk,def:s.def,spd:s.spd+(d.pa.k==="courier"?15:0),crit:s.crit+(aura.crit||0),critDmg:s.critDmg,
     myth:[...s.myth],evo:evoOf(rec(id)),pa:d.pa,b:d.b,s:d.s,u:ULT[id],cd:Math.ceil(d.s.cd/2),st:[],shield:0,dead:false,revived:false,stacks:0,attacks:0,hitSince:false,firstHit:true,prayed:false};
+  if(typeof apoUnit==="function")apoUnit(U);return U;
 }
 function mkFoeUnit(key,s,o={}){
   const e=EN[key],st=foeStats(key,s);let hp=st.hp,atk=st.atk,spd=st.spd;
@@ -3831,7 +3834,7 @@ function spawnWave(w){
     return mkFoeUnit(k,C.s,{heroic:C.heroic,elite:el,row,born:C.round});});
   C.foes.forEach(f=>{if(f.key==="goldworm"){f.maxhp=f.hp=Math.round(f.hp*2.5);f.atk=Math.round(f.atk*.25);}
     if(C.pageBuff){f.maxhp=f.hp=Math.round(f.hp*1.3);}if(C.sceptre)addSt(f,"atkDown",.2,3);});
-  C.wave=w;C.rebuild=true;
+  C.wave=w;C.rebuild=true;if(typeof onFoeSeen==="function")keys.forEach(onFoeSeen);
   if(C.mode&&typeof MODE_SPAWN!=="undefined"&&MODE_SPAWN[C.mode])MODE_SPAWN[C.mode](C.foes,w);
   if(C.heroes.some(h=>!h.dead&&h.pa.k==="siren")){const f=C.foes.filter(x=>!warded(x)).sort((a,b)=>b.spd-a.spd)[0];if(f&&(!f.boss||roll(40))){addSt(f,"sleep",1,1);}}
 }
@@ -3844,7 +3847,7 @@ const rage=u=>(u.tr&&u.tr.includes("enrage")?.12*Math.max(0,C.round-(u.born||0)-
 function eff(u,k){
   if(k==="atk"){let b=1+stv(u,"atkUp")-stv(u,"atkDown");
     if(u.pa.k==="vengeful")b+=.3*(u.side==="h"?C.heroes:C.foes).filter(x=>x.dead&&x!==u).length;
-    if(u.pa.k==="phoenix")b+=.3*(u.rises||0);
+    if(u.pa.k==="phoenix")b+=.25*(u.rises||0);
     if(u.pa.k==="chesteyes")b+=.08*(u.stacks||0);
     if(u.blood)b+=.15*u.blood;
     if(u.pa.k==="warlust")b+=.4*(1-u.hp/u.maxhp);
@@ -3980,7 +3983,7 @@ function perform(u,sk,target){
   if(ult)C.meter=0;
   render();
   const hitsFoe=sk.fx.some(f=>f.t==="dmg"),aoe=sk.fx.some(f=>f.t==="dmg"&&f.tg!=="one");
-  const uMs=ult?ultMs(u):0;if(ult){if(uMs>900)ULTFX.play(u,target,uMs,sk.n);else ultBanner(sk.n,u);}else if(skill)banner(sk.n,u.side);
+  const uMs=ult?ultMs(u):0;if(ult&&u.side==="h"&&!SIM){G.seenUlt=G.seenUlt||{};G.seenUlt[u.id]=1;}if(ult){if(uMs>900)ULTFX.play(u,target,uMs,sk.n);else ultBanner(sk.n,u);}else if(skill)banner(sk.n,u.side);
   const aMs=(skill?560:440)/(G.speed||1);
   if(!ult&&!SIM&&typeof ULTFX!=="undefined"&&ULTFX.attack&&hitsFoe){const tg=(aoe?foesOf(u):[target]).filter(Boolean);ULTFX.attack(u,tg,skill,aMs);}
   else if(hitsFoe){
@@ -4155,7 +4158,7 @@ function hurt(t,d,src,o={}){
   if(t.hp<=0){
     const allies=t.side==="h"?C.heroes:C.foes;
     if(hasM(t,"ages")&&C.round<=2){t.hp=1;pop(t,"The Styx protects!","heal");}
-    else if(t.pa.k==="phoenix"&&(t.rises||0)<2){t.rises=(t.rises||0)+1;t.hp=Math.round(t.maxhp*.5);t.st=[];pop(t,"Reborn!","heal");fx(t,"glow");blog(`${t.n} is reborn from the ash! (${t.rises}/2)`);
+    else if(t.pa.k==="phoenix"&&(t.rises||0)<1){t.rises=(t.rises||0)+1;t.hp=Math.round(t.maxhp*.4);t.st=[];pop(t,"Reborn!","heal");fx(t,"glow");blog(`${t.n} is reborn from the ash!`);
       if(F(t,"rebirthHeal"))allies.filter(x=>!x.dead&&x!==t).forEach(x=>heal(t,x,x.maxhp*.15));}
     else if(F(t,"laststand")&&!t.lastUsed){t.lastUsed=true;t.hp=1;pop(t,"Last stand!","heal");fx(t,"glow");}
     else if(hasM(t,"revive")&&!t.revived){t.revived=true;t.hp=Math.round(t.maxhp*.4);pop(t,"The Fleece!","heal");}
@@ -4163,7 +4166,7 @@ function hurt(t,d,src,o={}){
     else if(t.side==="h"&&!C.saintUsed&&!t.wasRevived&&allies.some(x=>!x.dead&&x!==t&&F(x,"saint"))){C.saintUsed=true;t.wasRevived=true;t.hp=Math.round(t.maxhp*.3);t.st=[];pop(t,"Blessed!","heal");fx(t,"glow");}
     else if(t.side==="h"&&!C.gaiaUsed&&!t.wasRevived&&allies.some(x=>!x.dead&&x!==t&&x.pa.k==="motherofall")){C.gaiaUsed=true;t.wasRevived=true;t.hp=Math.round(t.maxhp*.4);t.st=[];pop(t,"Gaia restores!","heal");fx(t,"glow");}
     else if(t.side==="h"&&!C.featherUsed&&allies.some(x=>F(x,"feather"))){C.featherUsed=true;t.hp=Math.round(t.maxhp*.5);t.st=[];pop(t,"Phoenix Feather!","heal");fx(t,"glow");}
-    else{t.hp=0;t.dead=true;t.st=[];t.shield=0;fx(t,"splat");SFX.play("kill");
+    else{t.hp=0;t.dead=true;t.st=[];t.shield=0;if(t.side!=="h"&&typeof onFoeKill==="function")onFoeKill(t);fx(t,"splat");SFX.play("kill");
       if(t.side==="f")track("kills");
       if(t.side==="h"&&HERO[t.id])say(t,FALL[HERO[t.id].cls]);
       if(src&&!o.noKill&&src.side!==t.side&&F(src,"bloodlust")&&!src.dead){src.blood=(src.blood||0)+1;pop(src,"Bloodlust!","info");}
@@ -4183,9 +4186,10 @@ function hurt(t,d,src,o={}){
   return d;
 }
 function heal(a,t,amt){
-  if(t.dead)return;if(a&&a.pa&&a.pa.k==="piety")amt*=1+.6*(1-a.hp/a.maxhp);if(a&&a.healMul)amt*=a.healMul;let v=Math.round(amt);if(v<=0)return;
+  if(t.dead)return;const hcls=a&&a.side==="h"&&HERO[a.id]&&HERO[a.id].cls==="healer";if(hcls)amt*=BAL.healerMul;if(a&&a.pa&&a.pa.k==="piety")amt*=1+.6*(1-a.hp/a.maxhp);if(a&&a.healMul)amt*=a.healMul;let v=Math.round(amt);if(v<=0)return;
   const over=t.hp+v-t.maxhp;t.hp=Math.min(t.maxhp,t.hp+v);pop(t,"+"+v,"heal");fx(t,"glow");SFX.play("heal");
   if(over>0&&a&&((a.pa&&a.pa.k==="overdose")||F(a,"overflow"))){t.shield+=Math.round(over);}
+  else if(over>0&&hcls){t.shield=Math.min(Math.round(t.maxhp*BAL.healerShield),t.shield+Math.round(over));}  /* healers: overhealing becomes a shield */
   if(a&&F(a,"healShield")&&a!==t)t.shield+=Math.round(v*.3);
   if(a&&F(a,"purify")){const i=t.st.findIndex(x=>["atkDown","defDown","spdDown","blot","stun","sleep","beguile","mark"].includes(x.k));if(i>=0)t.st.splice(i,1);}
 }
@@ -4240,7 +4244,7 @@ function finish(win){
     if(C.heroic){if(r.first)G.heroicClears[C.s]=1;track("heroic");}else if(r.first)G.firstClears[C.s]=1;
     G.cleared=Math.max(G.cleared,C.s);G.stats.wins++;winTrack();C.result={win,...r};}
   else C.result={win};
-  if(C.result.win){const al=C.heroes.filter(x=>!x.dead);if(al.length)C.mvp=pick(al).id;}
+  if(C.result.win){const al=C.heroes.filter(x=>!x.dead);if(al.length)C.mvp=pick(al).id;if(typeof onWin==="function")onWin();}
   if(typeof SFX!=="undefined")SFX.play(C.result.win?"win":"lose");
   setTimeout(render,450);render();
 }
@@ -4254,7 +4258,10 @@ function heroAct(target){
 
 /* ============ battle fx ============ */
 /* ultimate cut-in: the hero slides across a dark band with the move's name */
-function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||RM())return 900;const rm=[.72,.85,1.05,1.4,1.85,2.4][(HERO[u.id]||{}).q||0];return Math.round((G.speed>=4?1450:G.speed>=2?2200:3200)*rm);}
+/* ultimate length: full the first time a player sees each hero's ultimate, then a shorter cut (setting in How to play) */
+function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||RM())return 900;let q=(HERO[u.id]||{}).q||0;
+  const base=G.speed>=8?1000:G.speed>=4?1450:G.speed>=2?2200:3200,mode=G.ultLen||"first";q=typeof heroQ==="function"?heroQ(u.id):q;const full=mode==="full"||(mode==="first"&&!(G.seenUlt||{})[u.id]);
+  return Math.round(base*(full?[.72,.85,1.05,1.4,1.85,2.4]:[.55,.6,.66,.74,.84,.95])[q]);}
 function cutIn(u,text){if(SIM||!u||u.side!=="h")return;const bf=document.getElementById("bf");if(!bf)return;const old=bf.querySelector(".cutin");if(old)old.remove();
   const d=document.createElement("div");d.className="cutin";d.innerHTML=`<img src="${spriteURL(u.spr)}" alt=""><div><span>${esc(u.n)}</span><b>${esc(text)}</b></div>`;bf.appendChild(d);setTimeout(()=>d.remove(),1000);}
 let popQ=[],fxQ=[];
@@ -4303,7 +4310,7 @@ function buildBattle(){
   const unitHTML=u=>{const [x,y]=pos[u.uid];
     return `<div class="bu ${u.side} ${u.boss?"boss":""} ${u.elite?"elite":""} ${u.evo?"evo"+u.evo:""}" data-uid="${u.uid}" style="left:${x}%;top:${y}%">
       ${u.side==="f"?`<div class="int"></div>`:""}<div class="mk"></div><div class="bhp"><s></s><i></i></div><div class="bhn"></div>${u.side==="f"?`<div class="brk"></div>`:""}<div class="bst"></div>
-      <div class="shk"><div class="lng"><button class="spr" data-act="unit" data-uid="${u.uid}" aria-label="${esc(u.n)}"><span class="flip"><img class="sp" src="${spriteURL(u.spr,true)}" alt=""></span></button></div></div>
+      <div class="shk"><div class="lng"><button class="spr" data-act="unit" data-uid="${u.uid}" aria-label="${esc(u.n)}"><span class="flip"><img class="sp" src="${spriteURL(u.spr,true)}" alt="" ${u.side==="h"&&typeof skinCss==="function"&&skinCss(u.id)?`style="${skinCss(u.id)}"`:""}></span></button></div></div>
       <div class="bnm"><span class="nm">${esc(u.n)}</span><span class="bsk"></span></div></div>`;};
   const W=C.info.waves.length;
   st.innerHTML=`<div class="bwrap">
@@ -4538,6 +4545,7 @@ function renderTop(){
     <button class="cur" data-act="help" data-sec="currency" title="Ambrosia: levels heroes, enhances gear, upgrades the workshop">${ico("c_ink")}${fmt(G.ink)}</button>
     <button class="cur" data-act="help" data-sec="currency" title="Drachmae: summons heroes at the Oracle">${ico("c_gilt")}${fmt(G.gilt)}</button>
     <button class="cur" data-act="help" data-sec="currency" title="Bronze: open the Forge for gear">${ico("c_seal")}${fmt(G.seals)}</button>
+    <button class="cur snd" data-act="music" title="Music on or off">${G.music===false?"♫ off":"♫"}</button>
     <button class="cur snd" data-act="setui" data-v="${VIS()?"classic":"visual"}" title="Switch between the Visual and the Classic interface">${VIS()?"▦ Visual":"☰ Classic"}</button>
     <button class="cur snd" data-act="sound" title="Sound effects on/off" aria-pressed="${G.sound!==false}">${G.sound!==false?"♪ On":"♪ Off"}</button>`;
 }
@@ -4556,6 +4564,7 @@ function render(){if(SIM)return;
   else{
     popQ=[];fxQ=[];/* drop battle pop-ups still queued when a battle closes, so they don't float over other screens */
     st.innerHTML=tab==="campaign"?(VIS()?vCampaign():viewCampaign()):tab==="quests"?(VIS()?vQuests():viewQuests()):tab==="modes"?(VIS()&&!modeSel?vModes():viewModes()):tab==="party"?viewParty():tab==="wells"?(VIS()?vWells():viewWells()):tab==="scrip"&&VIS()?vScrip():viewScrip();
+  try{if(typeof afterRender==="function")afterRender();}catch(e){}
     flushFx();
   }
   document.getElementById("modal").innerHTML=reveal?viewReveal():evoShow?viewEvo():helpSec?viewHelp():evOpen?viewEvent():"";
@@ -4627,7 +4636,7 @@ function viewCampaign(){
 </div></div>`;
 }
 function viewQuests(){const tasks=taskList();
-  return `<div class="grid2 qgrid">${viewDaily()}
+  return `<div class="grid2 qgrid">${viewDaily()}${typeof achPanel==="function"?achPanel():""}
     <section class="panel">${PH("Tasks","tasks","Rewards for learning the ropes")}
     <div class="tasks">${tasks.map(q=>{const ok=q.ok();return `<div class="task ${ok?"done":""}"><b>${ok?"✓ ":""}${esc(q.t)}</b><span class="d">${esc(q.d)}</span>
       <span class="r">${Object.entries(q.r).map(([k,v])=>`${ico(CUR[k])}+${v}`).join(" ")}</span>
@@ -4688,6 +4697,7 @@ function viewParty(){
      ${filt}
      <div class="roster">${roster}</div>
    </section>
+   ${typeof partyExtra==="function"?partyExtra():""}
    <section class="panel"><details class="codex"><summary>${PH("Book of Bonds ▾","synergy",`${Object.keys(G.syn||{}).length} of ${SYN.length} discovered`)}</summary>
      <p class="explain" style="margin:0 0 8px">Some heroes work better together. Field a hidden pair in the same team to discover their synergy (+50 Drachmae the first time).</p>
      <div class="syncodex">${SYN.map(x=>{const k=G.syn&&G.syn[x.id];return k?`<div class="syn"><span class="sp2">${im(x.a)}${im(x.b)}</span><div><b>${esc(x.n)}</b><span>${esc(x.t)}</span></div></div>`
@@ -4729,6 +4739,7 @@ function viewParty(){
      <div class="gslots">${Object.keys(SLOTS).map(k=>{const g=o.gear[k]&&gearById(o.gear[k]);return `<button class="gs ${g?"":"empty"} ${slot===k?"pick":""}" data-act="gslot" data-k="${k}">${im(g?gearSprite(g):SLOTS[k].spr)}<span class="label">${SLOTS[k].n}</span>${g?`<b class="qtag q${g.q}" style="text-transform:none;font-size:13px">${esc(g.name)}${g.plus?" +"+g.plus:""}</b>`:`<span class="soft">${SLOTS[k].what}</span>`}</button>`;}).join("")}</div>
      <div class="row" style="margin-top:8px"><button class="btn small" data-act="autoeq">Auto-equip best</button>${eqG?`<button class="btn small" data-act="uneq" data-k="${slot}">Unequip</button>`:""}</div>
      ${eqG?`<div style="margin-top:8px">${gearCard(eqG,eqG.plus<10?`<button class="btn small" data-act="enh" data-id="${eqG.id}" ${G.ink<enhanceCost(eqG)?"disabled":""}>Enhance to +${eqG.plus+1} ${ico("c_ink")}${fmt(enhanceCost(eqG))}</button><span class="soft" style="font-size:13px">each + raises the main stat by 12%</span>`:`<span class="label">Fully enhanced</span>`)}</div>`:""}
+     ${typeof heroExtra==="function"?heroExtra(id):""}
    </section>
    <section class="panel" style="grid-column:1/-1">${PH("Satchel","gear",`${G.gear.length} piece${G.gear.length===1?"":"s"} of equipment`)}
      <div class="row">${["",...Object.keys(SLOTS)].map(k=>`<button class="btn small" data-act="gslot" data-k="${k}" aria-pressed="${(slot||"")===k}">${k?SLOTS[k].n+"s":"All"}</button>`).join("")}<button class="btn small" data-act="salvageall">Salvage spare Mortal gear ${ico("c_seal")}</button></div>
@@ -4758,7 +4769,7 @@ function viewWells(){
      <div class="pullrow"><button class="btn gold big" data-act="pullg" data-n="1" ${G.seals<COST.gear1?"disabled":""}>Open ×1 ${ico("c_seal")}${COST.gear1}</button><button class="btn gold big" data-act="pullg" data-n="10" ${G.seals<COST.gear10?"disabled":""}>Open ×10 ${ico("c_seal")}${COST.gear10}</button></div>
      ${apPanel("g")}
    </section>
-   <section class="panel" style="grid-column:1/-1">${PH("Folio of Heroes","party",`${Object.keys(G.heroes).length} of ${HEROES.length} drawn`)}
+   ${typeof favourPanel==="function"?favourPanel():""}<section class="panel" style="grid-column:1/-1">${PH("Folio of Heroes","party",`${Object.keys(G.heroes).length} of ${HEROES.length} drawn`)}
      <div class="coll">${HEROES.slice().sort((a,b)=>b.q-a.q).map(h=>{const own=G.heroes[h.id];return `<div class="q${h.q}" title="${own?esc(h.n):"Not yet summoned"}">${im(h.id,own?"sp":"sp sil")}<span>${own?esc(h.n):"???"}</span>${clsBadge(h.id)}<span class="qtag">${QN[h.q]}</span></div>`;}).join("")}</div>
    </section>
    <section class="panel secretpanel" style="grid-column:1/-1">${PH("✦ Primordials","wells","1 in 400 summons · 1 in 667 forge crates")}
@@ -4781,7 +4792,7 @@ function viewScrip(){
       <span class="label">Workshop level ${G.scrip[k]}/${UPG_MAX} · ${u.d}</span>
       ${G.scrip[k]>=UPG_MAX?`<span class="label">Fully upgraded</span>`:`<button class="btn" data-act="upg" data-k="${k}" ${G.ink<upgCost(k)?"disabled":""}>Upgrade ${ico("c_ink")}${fmt(upgCost(k))}</button>`}</div>`;}).join("")}</div>
     <div class="shelf"><span class="label" id="pcap">Shelves ${Math.round(fill*100)}% full</span><button class="btn main big" data-act="collect">Collect everything</button><span class="bar"><i id="pfill" style="width:${fill*100}%"></i></span></div>
-  </section>`;
+  </section>${typeof cityPanel==="function"?cityPanel():""}`;
 }
 function viewReveal(){
   const R=reveal;
@@ -4890,6 +4901,8 @@ function viewHelp(){
       <div class="row"><button class="btn small" data-act="tips" data-v="1" aria-pressed="${document.body.classList.contains("vet")?"false":"true"}">Show tips</button><button class="btn small" data-act="tips" data-v="0" aria-pressed="${document.body.classList.contains("vet")?"true":"false"}">Hide tips</button></div></div>
     <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><span class="soft" style="font-size:14px">Interface: <b>Visual</b> shows pictures, icons and meters (details on hover or long-press); <b>Classic</b> is the original text layout.</span>
       <div class="row"><button class="btn small" data-act="setui" data-v="visual" aria-pressed="${VIS()}">Visual</button><button class="btn small" data-act="setui" data-v="classic" aria-pressed="${!VIS()}">Classic</button></div></div>
+    <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><span class="soft" style="font-size:14px">Ultimates: the full show, or a shorter cut once you have seen a hero's ultimate.</span>
+      <div class="row"><button class="btn small" data-act="ultlen" data-v="first" aria-pressed="${(G.ultLen||"first")==="first"}">Full once, then short</button><button class="btn small" data-act="ultlen" data-v="full" aria-pressed="${G.ultLen==="full"}">Always full</button><button class="btn small" data-act="ultlen" data-v="short" aria-pressed="${G.ultLen==="short"}">Always short</button></div></div>
     <div class="row" style="justify-content:space-between;margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><span class="soft" style="font-size:14px">Animations in battle and menus.</span>
       <div class="row"><button class="btn small" data-act="setmotion" data-v="full" aria-pressed="${!RM()}">Full</button><button class="btn small" data-act="setmotion" data-v="reduced" aria-pressed="${RM()}">Reduced</button></div></div>
     <div class="savebk" style="margin-top:16px;padding-top:10px;border-top:1px solid var(--rule-hi)"><div class="label">Save backup · move your progress between the browser and the desktop app</div>
@@ -5000,7 +5013,8 @@ document.addEventListener("click",e=>{
     case "leave":{pushing=false;clearTimeout(pushT);const m=C&&C.mode;if(C&&C.mode==="run"&&!C.over){runAfter(false);toast("You fled the Labyrinth. The run is over; floor rewards you earned are kept.");}
       if(C&&!C.over&&m&&MODE_FLEE[m])MODE_FLEE[m]();C=null;tab=m&&MODE_FIN[m]?"modes":"campaign";break;}
     case "auto":G.auto=!G.auto;if(C&&C.awaiting&&G.auto){const u=find(C.cur),x=aiChoose(u);return perform(u,x.sk,x.t);}break;
-    case "speed":G.speed=G.speed===1?2:G.speed===2?4:1;break;
+    case "speed":G.speed=G.speed===1?2:G.speed===2?4:G.speed===4?8:1;break;
+    case "ultlen":G.ultLen=b.dataset.v;break;
     case "pick":if(!C||!C.awaiting)return;C.pick=b.dataset.p;break;
     case "cast":if(!C||!C.awaiting)return;return heroAct(null);
     case "unit":{if(!C)return;const t=find(+b.dataset.uid);if(!t)return;
@@ -5118,6 +5132,7 @@ const SFX=(()=>{
       if(name==="hit"){if(now-lastHit<45)return;lastHit=now;}if(name==="heal"){if(now-lastHeal<120)return;lastHeal=now;}
       if(ac.state==="suspended")ac.resume();try{P[name](t,arg);}catch(e){}},
     custom(fn){if(SIM||!on())return;if(ac.state==="suspended")ac.resume();try{fn(API,ac.currentTime+.005);if(window.__sfxN!=null)window.__sfxN++;}catch(e){if(window.__sfxErr)window.__sfxErr.push(String(e&&e.message||e));}},
+    audio(){ctx();return ac?{ac,master}:null;},
     unlock(){ctx();if(ac&&ac.state==="suspended")ac.resume();}};
 })();
 
@@ -5646,6 +5661,10 @@ HEROES.forEach(h=>{const F=FLOURISH[h.q];if(!F)return;const U=ULT[h.id];if(!U||U
   U.fx=U.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot"||f.t==="shield")?Object.assign({},f,{m:Math.round(f.m*(1+F.pow)*100)/100}):f).concat(F.ult.map(f=>Object.assign({rider:true},f)));
   U.flourish={q:h.q,pow:F.pow};
   if(F.skill&&h.s&&!h.s.flourish){h.s.fx=h.s.fx.concat(F.skill.map(f=>Object.assign({rider:true},f)));h.s.flourish={q:h.q};}});
+/* 1.7 balance: lift the weakest kits (damage, healing, Miasma and shields in basic attack, skill and ultimate) */
+const KIT_BOOST={rabbit:1.45,scribe:1.35,siren:1.6,mouser:1.3,hare:1.3,lion:1.3,icarus:1.2,owl:1.25,fox:1.25,stag:1.35,jason:1.2,perseus:1.25,monk:1.15,daedalus:1.15,nemesis:1.15};
+Object.entries(KIT_BOOST).forEach(([id,k])=>{const h=HERO[id];if(!h)return;
+  [h.b,h.s,ULT[id]].forEach(x=>{if(x&&x.fx)x.fx=x.fx.map(f=>(["dmg","heal","blot","shield"].includes(f.t)&&typeof f.m==="number"&&!f.rider)?Object.assign({},f,{m:Math.round(f.m*k*100)/100}):f);});});
 
 /* ================= MODES: eight extra ways to play, all built on the campaign's battle engine ================= */
 const MODE_START={},MODE_SPAWN={},MODE_FIN={},MODE_RES={},MODE_FLEE={},MODE_CAPMSG={};
@@ -5679,7 +5698,7 @@ const MODES=[
  {k:"raid",n:"Titan Raid",spr:"greatblot",unlock:20,tag:"Weekly boss",d:"A colossal weekly boss with a twist. 3 tries a day, 8 rounds each: deal damage, fill the weekly bar."},
  {k:"siege",n:"Thermopylae",spr:"elephant",unlock:25,tag:"Defence",d:"Hold the hot gates for 10 waves. Each wave must fall in 6 rounds or it breaks through the pass. Buy defences between waves."}
 ];
-const modeOpen=m=>G.cleared>=m.unlock;
+const modeOpen=m=>Math.max(G.cleared,G.bestEver||0)>=m.unlock;
 
 /* ===================== 1. EXPEDITIONS (idle) ===================== */
 const EXP_PLACES=["the slopes of Olympus","the oracle at Dodona","the docks of Piraeus","the olive groves of Attica","the gates of Thebes","the cave of the Cyclops","the forge of Hephaestus","the vineyards of Naxos","the agora of Corinth","the isle of Delos","the cliffs of Ithaca","the temple of Poseidon"];
@@ -5999,7 +6018,7 @@ function viewSiege(){const S=sgState(),R=S.run,d=dailyUse("siege"),left=SG_TRIES
    <div class="row" style="margin-top:8px"><button class="btn main big" data-act="sgfight" ${R.team.some(id=>R.hp[id]>0)?"":"disabled"}>⚔ Wave ${R.wave}</button><button class="btn small" data-act="sgquit">Abandon siege</button></div></section>`;}
 
 /* ===================== the Modes tab ===================== */
-function modeStatus(k){
+function modeStatus(k){if(typeof MORE_STATUS!=="undefined"&&MORE_STATUS[k])return MORE_STATUS[k]();
   if(k==="exped"){const E=expState(),n=E.slots.filter(s=>Date.now()>=s.end).length;return n?`${n} ready to claim!`:`${E.slots.length}/${expSlots()} away`;}
   if(k==="puzzle"){const P=puzState();return `${PUZ.reduce((a,_,i)=>a+(P[i]||0),0)}/${PUZ.length*3} ★`;}
   if(k==="illum"){return `${IL_PLAYS-dailyUse("illum").used} plays left`;}
@@ -6013,7 +6032,7 @@ function modeStatus(k){
 function modesDot(){try{if(!G||!G.modes)return G.cleared>=3;const E=G.modes.exp;return !!(E&&E.slots.some(s=>Date.now()>=s.end))||(G.cleared>=3&&(!E||E.slots.length===0));}catch(e){return false;}}
 function viewModes(){
   if(modeSel){const m=MODES.find(x=>x.k===modeSel);if(!m||!modeOpen(m))modeSel=null;}
-  if(modeSel){const v={exped:viewExped,puzzle:viewPuzzle,illum:viewIllum,trials:viewTrials,endless:viewRun,rival:viewRival,draft:viewDraft,raid:viewRaid,siege:viewSiege}[modeSel];
+  if(modeSel){const v=Object.assign({exped:viewExped,puzzle:viewPuzzle,illum:viewIllum,trials:viewTrials,endless:viewRun,rival:viewRival,draft:viewDraft,raid:viewRaid,siege:viewSiege},typeof MORE_VIEW!=="undefined"?MORE_VIEW:{})[modeSel];
     return `<div class="modewrap"><div class="row"><button class="btn small" data-act="mback">‹ All modes</button></div>${v()}</div>`;}
   return `<section class="panel framed">${PH("Game modes","modes","More ways to play")}
    <p class="explain">The campaign is the heart of the amphora. These side quests use the same battles, heroes and gear, and pay Ambrosia, Bronze and Drachmae of their own. New modes open as you clear more stages.</p>
@@ -6023,6 +6042,7 @@ function viewModes(){
 function modesTick(){
   document.querySelectorAll(".xtime[data-end]").forEach(el=>{const e=+el.dataset.end,ms=e-Date.now();if(ms<=0&&!el.dataset.done){el.dataset.done=1;render();}else el.textContent="Back in "+fmtDur(ms);});}
 function modeAct(a,b){
+  if(typeof MORE_ACT!=="undefined"&&MORE_ACT[a]){const r=MORE_ACT[a](b);return r;}
   switch(a){
     case "msel":modeSel=b.dataset.k;window.scrollTo(0,0);if(modeSel==="illum"&&ILL&&ILL.over)ILL=null;break;
     case "mback":modeSel=null;break;
@@ -6114,7 +6134,7 @@ const shakeNow=k=>()=>{const w=document.querySelector(".bwrap");if(w){w.classLis
 /* ---- the recipes: me = caster centre, F = foe centres, A = ally centres, T = main target ---- */
 /* ---- rarity flourishes: the rarer the hero, the richer the show ---- */
 const HOLO=["#ff6b9a","#ffd34d","#7ee0a0","#6fb6e6","#c08aff"];
-const rq=u=>u&&u.side==="h"&&typeof HERO!=="undefined"&&HERO[u.id]?HERO[u.id].q:0;
+const rq=u=>u&&u.side==="h"&&typeof HERO!=="undefined"&&HERO[u.id]?(typeof heroQ==="function"?heroQ(u.id):HERO[u.id].q):0;
 const rays=(X,Y,n,cols,t0,d,len=900,w=.07,al=.55)=>({t0,d,draw(x,p){x.globalAlpha=bell(p)*al;x.globalCompositeOperation="lighter";for(let i=0;i<n;i++){const a=i/n*TAU+p*.9;x.fillStyle=cols[i%cols.length];x.beginPath();x.moveTo(X,Y);x.arc(X,Y,len,a-w,a+w);x.closePath();x.fill();}x.globalCompositeOperation="source-over";}});
 function rarityUlt(q,e){const L=[],W=e.W,H=e.H;
   /* a frame around the hero's own show, kept to the opening so it never covers the signature effect */
@@ -7160,7 +7180,7 @@ function vQuests(){
   </div>
   <section class="panel vtasks">${VPH("The hero's path","tasks")}
     <div class="vpath">${path}</div>
-  </section></div>`;
+  </section>${typeof achPanel==="function"?achPanel():""}</div>`;
 }
 
 /* ---------- Temple ---------- */
@@ -7190,11 +7210,11 @@ function vWells(){
      <div class="pullrow"><button class="btn gold big" data-act="pullg" data-n="1" ${G.seals<COST.gear1?"disabled":""}>×1 ${ico("c_seal")}${COST.gear1}</button><button class="btn gold big" data-act="pullg" data-n="10" ${G.seals<COST.gear10?"disabled":""}>×10 ${ico("c_seal")}${COST.gear10}</button></div>
      ${apPanel("g")}
    </section>
-   ${rest}</div>`;
+   ${typeof favourPanel==="function"?favourPanel():""}${rest}</div>`;
 }
 
 /* ---------- Modes: picture tiles ---------- */
-const VMBG={exped:["#3a5a7a","#1a2a3a"],puzzle:["#8a6a2a","#3a2a10"],illum:["#2a7a8a","#103038"],trials:["#5a4a9a","#1e1838"],endless:["#4a3a2a","#1a120a"],rival:["#b07a1a","#4a2a08"],draft:["#2a6aa0","#0c2440"],raid:["#8a2a2a","#2a0808"],siege:["#7a5a3a","#2a1a0a"]};
+const VMBG={odyssey:["#2a6aa0","#0a2038"],pottery:["#b8763a","#4a2a10"],festival:["#8a6ab0","#2a1a40"],bestiary:["#5a7a3a","#1a2a10"],chaos:["#3a1a5a","#05020f"],exped:["#3a5a7a","#1a2a3a"],puzzle:["#8a6a2a","#3a2a10"],illum:["#2a7a8a","#103038"],trials:["#5a4a9a","#1e1838"],endless:["#4a3a2a","#1a120a"],rival:["#b07a1a","#4a2a08"],draft:["#2a6aa0","#0c2440"],raid:["#8a2a2a","#2a0808"],siege:["#7a5a3a","#2a1a0a"]};
 function vModes(){
   return `<section class="panel framed">${VPH("Game modes","modes")}
    <div class="vmodes">${MODES.map(m=>{const ok=modeOpen(m),c=VMBG[m.k]||["#555","#222"],st=ok?modeStatus(m.k):"";
@@ -7223,8 +7243,425 @@ function vScrip(){
         ${G.scrip[k]>=UPG_MAX?`<span class="vdone">Max level</span>`:`<button class="btn" data-act="upg" data-k="${k}" ${G.ink<upgCost(k)?"disabled":""} title="${esc(u.d)}">${vi("up")} ${ico("c_ink")}${fmt(upgCost(k))}</button>`}
       </div>`;}).join("")}</div>
     <div class="vshelf"><div class="vjar" title="Shelves fill up in ${CAP_H} hours; collect before they are full"><span class="bar"><i id="pfill" style="width:${fill*100}%"></i></span><span class="label" id="pcap">Shelves ${Math.round(fill*100)}% full</span></div><button class="btn main big" data-act="collect">${vi("coins")} Collect</button></div>
-  </section>`;
+  </section>${typeof cityPanel==="function"?cityPanel():""}`;
 }
+
+/* ===================== 1.7: MORE TO DO =====================
+   Oracle's Favour (wishlist + Charon's obols), Apotheosis, hero myths and mythic looks.
+   Hooks in m_game.js call these with typeof checks, so the battle simulator works without this file. */
+const MORE_ACT={},MORE_VIEW={},MORE_STATUS={};
+const QNAMES=["Mortal","Famed","Legendary","Demigod","Olympian","Primordial"];
+const nowDay=()=>dayNum(dayKey());
+/* ---------- stat bonuses from the new systems (never for borrowed or rival heroes) ---------- */
+const EPITHET={tank:"the Unbroken",bruiser:"the Undaunted",dps:"the Swift",mage:"the Wise",healer:"the Merciful",buffer:"the Radiant",control:"the Enchanting"};
+function isApo(id){return !!(typeof G!=="undefined"&&G&&G.apo&&G.apo[id]&&!RENT);}
+function heroQ(id){const h=HERO[id];if(!h)return 0;return isApo(id)?Math.min(h.q+2,3):h.q;}
+function moreStat(id){const o={hp:0,atk:0};if(typeof G==="undefined"||!G||RENT)return o;
+  if(G.myth&&G.myth[id]>=3){o.hp+=.08;o.atk+=.08;}
+  const B=(G.chaos&&G.chaos.bless)||{};o.hp+=.05*(B.gaia||0);o.atk+=.05*(B.uranus||0);
+  const Ct=G.city||{};o.hp+=.02*(Ct.walls||0);o.atk+=.02*(Ct.gym||0);
+  o.atk+=potteryBonus(id);return o;}
+function apoUnit(u){if(!isApo(u.id))return;const k=1.2,sc=x=>x?Object.assign({},x,{fx:x.fx.map(f=>(["dmg","heal","blot","shield"].includes(f.t)&&typeof f.m==="number")?Object.assign({},f,{m:Math.round(f.m*k*100)/100}):f)}):x;
+  u.s=sc(u.s);u.u=sc(u.u);u.n=HERO[u.id].n+" "+EPITHET[HERO[u.id].cls];u.apo=true;}
+/* ---------- mythic look: a recoloured hero, switchable once their myth is complete ---------- */
+function skinCss(key){if(typeof G==="undefined"||!G||!HERO[key])return "";let f="";
+  if(G.skin&&G.skin[key])f+=`hue-rotate(${(hashK(key)%260)+50}deg) saturate(1.35) `;
+  if(isApo(key))f+="drop-shadow(0 0 5px #fff3c0) ";return f?`filter:${f.trim()};`:"";}
+
+/* ======================= ORACLE'S FAVOUR ======================= */
+const FAV_COST=[10,20,40,80,160],OBOL=[1,2,4,8,15,25],SHARD_COST=[3,5,8,12,20];
+let wishPick=false;
+function onPull(res){if(typeof SIM!=="undefined"&&SIM)return;if(!res||res.kind!=="hero")return;G.fav=(G.fav||0)+1+(((G.city||{}).oracle||0)>0&&G.stats.pulls%Math.max(2,10-(G.city.oracle||0))===0?1:0);
+  if(!res.isNew)G.obols=(G.obols||0)+OBOL[res.q];}
+function favourPanel(){const W=G.wish||[],fav=G.fav||0,ob=G.obols||0;
+  const slot=i=>{const id=W[i];if(!id)return `<button class="wslot empty" data-act="wishpick">＋<span>Add a hero</span></button>`;const h=HERO[id],c=FAV_COST[h.q],own=!!G.heroes[id];
+    return `<div class="wslot q${h.q}">${im(id)}<b>${esc(h.n)}</b><span class="qtag q${h.q}">${QNAMES[h.q]}</span>
+      <button class="btn gold small" data-act="wishclaim" data-id="${id}" ${fav<c?"disabled":""} title="${own?"You have this hero: you get 5 copies instead":"Join your heroes"}">${own?"5 copies":"Claim"} · ${c} favour</button>
+      <button class="btn small" data-act="wishdrop" data-i="${i}" aria-label="Remove ${esc(h.n)} from the wishlist">✕</button></div>`;};
+  const picker=wishPick?`<div class="wpick"><p class="soft" style="margin:0 0 6px">Pick up to 3 heroes. Primordials cannot be wished for.</p>${HEROES.filter(h=>!h.secret).map(h=>`<button class="wph q${h.q} ${W.includes(h.id)?"on":""}" data-act="wishset" data-id="${h.id}" title="${esc(h.n)} · ${QNAMES[h.q]}">${im(h.id)}<span>${esc(h.n)}</span></button>`).join("")}</div>`:"";
+  const shop=W.filter(id=>G.heroes[id]).map(id=>{const q=HERO[id].q,c=SHARD_COST[q];return `<button class="btn small" data-act="obshard" data-id="${id}" ${ob<c?"disabled":""}>1 copy of ${esc(HERO[id].n)} · ${c} obols</button>`;}).join("");
+  return `<section class="panel favour" style="grid-column:1/-1">${PH("Oracle's Favour","wells",`${fav} favour · ${ob} obols`)}
+    <p class="explain">Every summon earns 1 favour. Spend it to claim a hero from your wishlist outright. Every duplicate you summon also drops Charon's obols (more for rarer heroes), which buy copies of wished heroes you already have.</p>
+    <div class="wrow">${[0,1,2].map(slot).join("")}</div>
+    <div class="row" style="margin-top:8px"><button class="btn small" data-act="wishpick">${wishPick?"Done":"Edit wishlist"}</button></div>${picker}
+    <h3 style="margin:12px 0 4px">Charon's stall</h3><div class="row">${shop||`<span class="soft">Wish for a hero you own to buy copies of them here.</span>`}
+      <button class="btn small" data-act="obfav" ${ob<15?"disabled":""}>+10 favour · 15 obols</button><button class="btn small" data-act="obgilt" ${ob<20?"disabled":""}>+600 Drachmae · 20 obols</button></div></section>`;}
+Object.assign(MORE_ACT,{
+  wishpick(){wishPick=!wishPick;},
+  wishset(b){const W=G.wish=G.wish||[],id=b.dataset.id;if(W.includes(id))G.wish=W.filter(x=>x!==id);else if(W.length<3)W.push(id);else toast("The wishlist holds 3 heroes. Remove one first.");},
+  wishdrop(b){(G.wish=G.wish||[]).splice(+b.dataset.i,1);},
+  wishclaim(b){const id=b.dataset.id,h=HERO[id];if(!h||(G.wish||[]).indexOf(id)<0)return;const c=FAV_COST[h.q];if((G.fav||0)<c)return;G.fav-=c;
+    if(G.heroes[id]){G.heroes[id].shards+=5;toast(`The Oracle grants 5 copies of ${h.n}.`);}else{G.heroes[id]=newHeroRec();G.newHeroes=G.newHeroes||{};G.newHeroes[id]=1;toast(`${h.n} answers the Oracle's call!`);}
+    G.wish=G.wish.filter(x=>x!==id);SFX.play("star");},
+  obshard(b){const id=b.dataset.id,c=SHARD_COST[HERO[id].q];if(!G.heroes[id]||(G.obols||0)<c)return;G.obols-=c;G.heroes[id].shards++;SFX.play("coin");},
+  obfav(){if((G.obols||0)<15)return;G.obols-=15;G.fav=(G.fav||0)+10;SFX.play("coin");},
+  obgilt(){if((G.obols||0)<20)return;G.obols-=20;G.gilt+=600;SFX.play("coin");}
+});
+
+/* ======================= APOTHEOSIS ======================= */
+const APO_LVL=30,APO_SHARDS=5,APO_GILT=800;
+function apoPanel(id){const h=HERO[id],o=G.heroes[id];if(h.q>1)return "";
+  if(isApo(id))return `<div class="apo done"><h3>✦ Ascended</h3><p><b>${esc(h.n)} ${EPITHET[h.cls]}</b> now fights as a ${QNAMES[heroQ(id)]}: that rarity's stats and ultimate show, and +20% power on skill and ultimate.</p></div>`;
+  const ok=[o.lvl>=APO_LVL,o.shards>=APO_SHARDS,G.gilt>=APO_GILT],all=ok.every(Boolean);
+  return `<div class="apo"><h3>Apotheosis</h3><p class="soft">Mortal and Famed heroes can rise to godhood: they fight as a ${QNAMES[Math.min(h.q+2,3)]} from then on, with a new title, that rarity's stats and ultimate show, and +20% skill and ultimate power.</p>
+    <ul class="req"><li class="${ok[0]?"ok":""}">Level ${APO_LVL} (now ${o.lvl})</li><li class="${ok[1]?"ok":""}">${APO_SHARDS} copies (you have ${o.shards})</li><li class="${ok[2]?"ok":""}">${APO_GILT} Drachmae</li><li>Win the Trial of Apotheosis with ${esc(h.n)} in the team</li></ul>
+    <button class="btn gold" data-act="apogo" data-id="${id}" ${all?"":"disabled"}>⚔ Begin the Trial</button></div>`;}
+function apoWaves(id){const ci=(hashK(id)+3)%CH.length,ch=CH[ci],p=ch.pool;return [[p[0],p[1],p[2]],[p[3%p.length],ch.boss]];}
+MORE_ACT.apogo=b=>{const id=b.dataset.id,o=G.heroes[id];if(!o||o.lvl<APO_LVL||o.shards<APO_SHARDS||G.gilt<APO_GILT)return;
+  const team=[id,...myTeam().filter(x=>x!==id)].slice(0,4),s=Math.max(6,refS()+2);C=null;
+  startBattle(s,false,{mode:"apo",team,info:specialInfo(`Trial of Apotheosis · ${HERO[id].n}`,apoWaves(id),{s}),mdata:{id},log:`${HERO[id].n} climbs toward Olympus. Win, and they rise.`});return false;};
+MODE_FIN.apo=win=>{const id=C.mdata.id,alive=C.heroes.some(u=>u.id===id&&!u.dead);if(!win)return {};const o=G.heroes[id];
+  if(o.shards<APO_SHARDS||G.gilt<APO_GILT)return {};o.shards-=APO_SHARDS;G.gilt-=APO_GILT;G.apo=G.apo||{};G.apo[id]=1;achCheck();return {ascended:id,alive};};
+MODE_RES.apo=r=>r.ascended?resBox(`${esc(HERO[r.ascended].n)} ${EPITHET[HERO[r.ascended].cls]}!`,true,`<p>The gods make room on Olympus. ${esc(HERO[r.ascended].n)} now fights as a ${QNAMES[heroQ(r.ascended)]}.</p>`,`<button class="btn main" data-act="toparty">To the Party</button>`)
+  :resBox("The trial goes on",false,`<p class="soft">Nothing was spent. Level up or change the team and try again.</p>`,`<button class="btn main" data-act="toparty">To the Party</button>`);
+MORE_ACT.toparty=()=>{C=null;tab="party";};
+
+/* ======================= HERO HMYTH ======================= */
+/* [title, part I, part II, part III] */
+const HMYTH={
+ squire:["The First Phalanx","Barely of age, the hoplite is handed a bronze shield and told to hold the line.","Raiders hit the farms outside the walls. The hoplite stands where older men run.","The city's champion falls. Someone has to take the front of the phalanx."],
+ monk:["Voice of Delphi","Smoke rises from the tripod. The priestess hears Apollo's voice for the first time.","Pilgrims are robbed on the Sacred Way. The god wants them protected.","The Python's brood returns to Delphi. The priestess must hold the shrine."],
+ hare:["The Wild Revel","A satyr wakes up in a vineyard with no memory and a lot of energy.","The revel spills into a village that is less than pleased.","Pentheus' guards come to end the revel. The satyr has other plans."],
+ snailpage:["Ants into Men","Zeus turns the ants of Aegina into a people: the Myrmidons.","The young warriors are tested on the shores of Thessaly.","At Troy they guard Achilles' tent while the Trojans storm the camp."],
+ scribe:["Daughter of Nereus","One of fifty sisters, the Nereid answers a sailor's prayer.","A sea monster hunts the sisters' coral gardens.","Thetis calls her sisters to Troy to mourn, and to fight."],
+ rabbit:["Daughters of Ares","The Amazon proves herself in the riding games of Themiscyra.","Greek raiders come for the queen's girdle.","The Amazons ride to Troy to stand with Priam."],
+ wodewose:["The God of Panic","Pan plays his pipes in Arcadia. The nymphs are not impressed.","He chases Syrinx to the river, where she turns into reeds.","At Marathon, his cry sends the Persian army running."],
+ owl:["Wisdom's Eyes","The owl perches on Athena's shoulder and sees everything.","A thief creeps into the Parthenon at night.","Athena sends the owl to guide her heroes through the dark."],
+ lion:["Herald of the Deep","Triton raises his conch over a stormy sea.","The Argonauts are stranded in Lake Tritonis. He shows them the way out.","Poseidon's enemies rise from the deep. The conch calls the tide to war."],
+ ape:["The Wise Centaur","On Mount Pelion, Chiron teaches medicine to young heroes.","His pupil Asclepius is hunted by those who fear his gift.","A poisoned arrow from Heracles' quiver. Chiron gives up his immortality."],
+ snailknight:["Three Hundred","Leonidas leads his three hundred north to the hot gates.","Xerxes demands their weapons. \"Come and take them.\"","The Immortals advance at dawn on the third day."],
+ blemmye:["The Swiftest","Abandoned on a mountain, Atalanta is raised by a she-bear.","The Calydonian Boar ravages the land. She draws first blood.","A footrace for her hand, and three golden apples."],
+ cyno:["The Long Way Home","Troy has fallen. Odysseus sets sail for Ithaca.","The Cyclops' cave: \"Nobody\" is the answer.","Home at last, with a bow only he can string."],
+ rubricator:["Witch of Colchis","Medea meets a Greek stranger who wants her father's fleece.","She lulls the dragon that guards the fleece to sleep.","Betrayed in Corinth, Medea calls on Helios' chariot."],
+ stag:["Rod and Serpent","Asclepius learns healing from Chiron and the snakes.","A plague in Rome: he comes as a serpent to end it.","He raises the dead, and Hades complains to Zeus."],
+ illuminator:["Lord of Light","Apollo is born on Delos as the island blooms gold.","He hunts the Python at Delphi with a thousand arrows.","Niobe mocks his mother. His arrows answer."],
+ manticore:["The Fire Thief","Prometheus shapes humans from clay.","He steals fire from Olympus in a fennel stalk.","Chained to the Caucasus, he waits for Heracles."],
+ basilisk:["The Gorgon","Medusa, once a priestess, is cursed by Athena.","Heroes come to her island for a trophy. They stay as statues.","Perseus comes with a mirrored shield."],
+ unicorn:["The Labours","Heracles strangles the Nemean Lion.","Two heads grow back for every one he cuts from the Hydra.","Cerberus himself, dragged up from the Underworld."],
+ queen:["The Uninvited","Eris is left off the guest list for the wedding of Peleus and Thetis.","She rolls a golden apple into the hall: \"To the fairest.\"","Three goddesses quarrel, and Troy will burn for it."],
+ mouser:["The Dolphin's Friend","A shipwrecked boy is carried ashore by a dolphin.","Pirates throw the singer Arion overboard. The dolphins catch him.","The pod rides to war beside Poseidon."],
+ acolyte:["The Mysteries","The torchbearer leads the procession to Eleusis.","Demeter searches for her daughter by torchlight.","The torch must not go out in the Underworld."],
+ fox:["The Witch of Aeaea","Circe brews her potions on a quiet island.","Sailors arrive. They leave as pigs.","Odysseus comes with Hermes' herb in his pocket."],
+ siren:["The Song","The Siren sings from the rocks, and ships come closer.","Orpheus' lyre drowns out her song.","Odysseus, tied to the mast, listens, and the Sirens rage."],
+ pelican:["Queen of the Dead","Persephone picks a narcissus, and the earth opens.","Six pomegranate seeds tie her to the Underworld.","Every spring she returns, and the world flowers."],
+ gryphon:["The Messenger","A day old, Hermes steals Apollo's cattle.","He lulls hundred-eyed Argus to sleep.","He guides souls to the Underworld, and back out again."],
+ elephant:["The Bronze Giant","Hephaestus forges Talos to guard Crete.","Talos hurls rocks at every ship that comes near.","Medea's spell looses the single nail in his heel."],
+ sagittary:["The Huntress","Artemis asks Zeus for a bow and eternal freedom.","Actaeon sees what he should not have seen.","The giant Orion grows too proud."],
+ phoenix:["Ash and Fire","Every five hundred years, the Phoenix builds its pyre.","It flies the ashes of its parent to Heliopolis.","Burned to nothing, it rises again."],
+ ouroboros:["The Devourer","Kronos takes the sickle from Gaia and overthrows Uranus.","Fearing a prophecy, he swallows his children.","Zeus returns, and the Titanomachy begins."],
+ firsthand:["King of the Gods","Hidden in a cave on Crete, Zeus grows up.","He frees his siblings from Kronos' belly.","The war of Titans and gods shakes the heavens."],
+ wyvern:["Earth-Shaker","Poseidon draws the sea as his share of the world.","He strikes the rock of Athens and loses the city to Athena.","Odysseus has blinded his son. The sea remembers."],
+ hades:["Lord of the Dead","Hades draws the Underworld as his share.","Orpheus comes singing for his wife.","Heracles comes for Cerberus. Hades is not amused."],
+ athena:["Grey-Eyed","Athena springs from Zeus' head, fully armed.","Arachne challenges her at the loom.","She guides Odysseus home through every trial."],
+ ares:["God of War","Ares rides out in his chariot with Fear and Terror.","Diomedes, guided by Athena, wounds him.","The Aloadae giants trap him in a bronze jar."],
+ hephaestus:["The Smith","Thrown from Olympus, Hephaestus lands on Lemnos.","He forges a golden throne that traps Hera.","He forges a shield for Achilles."],
+ aphrodite:["Foam-Born","Aphrodite rises from the sea foam at Cyprus.","Paris gives her the golden apple.","At Troy, she carries Paris from the battlefield."],
+ dionysus:["The Twice-Born","Dionysus is born from Zeus' thigh.","Pirates kidnap him. Vines grow over their mast.","Pentheus of Thebes forbids his rites."],
+ gaia:["Mother Earth","Gaia rises from Chaos and gives birth to the sky.","She hands Kronos the sickle.","Her giants rise against Olympus."],
+ nyx:["Night","Nyx rides across the sky in her dark chariot.","Even Zeus fears to anger her.","Her children, Sleep and Death, go to war."],
+ achilles:["Wrath","Thetis dips Achilles in the Styx, all but his heel.","He sulks in his tent while the Greeks lose.","Patroclus falls. Achilles meets Hector at the gates."],
+ hecate:["Queen of Crossroads","Hecate lights the way where three roads meet.","With her torches she helps Demeter search.","She teaches Medea the old magic."],
+ nemesis:["Retribution","Nemesis watches for mortals who grow too proud.","Narcissus spurns everyone. She shows him a pool.","Croesus thinks himself the happiest of men."],
+ perseus:["The Gorgon-Slayer","Perseus and his mother wash ashore in a chest.","Hermes and Athena lend him sandals, a sickle and a shield.","On the way home, a sea monster and Andromeda."],
+ cassandra:["Unheeded","Apollo gives Cassandra the gift of prophecy.","She refuses him; no one will ever believe her.","\"Beware the horse!\" No one listens."],
+ orpheus:["The Singer","Orpheus' lyre charms rocks and trees.","His song drowns out the Sirens.","He walks into the Underworld for Eurydice. Don't look back."],
+ hector:["Breaker of Horses","Hector leads the defence of Troy.","He pushes the Greeks back to their ships.","Achilles waits outside the Scaean Gate."],
+ icarus:["Too Close to the Sun","Daedalus and Icarus are trapped on Crete.","Wings of feather and wax. \"Not too high, not too low.\"","The sun is so beautiful up close."],
+ daedalus:["The Master Builder","Daedalus builds the Labyrinth for Minos.","Trapped in his own maze, he builds wings.","Minos follows him to Sicily with a puzzle."],
+ arachne:["The Weaver","Arachne weaves better than anyone in Lydia, and says so.","She challenges Athena to a contest.","Turned into a spider, she weaves on."],
+ jason:["The Golden Fleece","Jason arrives in Iolcus with one sandal.","He gathers the Argonauts and sets sail.","In Colchis, fire-breathing bulls and dragon's teeth."]
+};
+const mythPart=id=>(G.myth&&G.myth[id])||0;
+function mythWaves(id,part){const ci=(hashK(id)+part*3)%CH.length,ch=CH[ci],p=ch.pool,R=seeded(hashK(id)+part*17),pk=()=>p[Math.floor(R()*p.length)];
+  return part===1?[[pk(),pk(),pk()]]:part===2?[[pk(),pk()],[pk(),pk(),pk()]]:[[pk(),pk(),pk()],[pk(),ch.boss]];}
+function mythPanel(id){const M=HMYTH[id];if(!M)return "";const p=mythPart(id),h=HERO[id];
+  return `<div class="myth"><h3>Myth: ${esc(M[0])} <span class="soft">${p}/3</span></h3>
+    <ol>${[1,2,3].map(i=>`<li class="${p>=i?"done":p+1===i?"next":""}">${p+1>=i?esc(M[i]):"🔒 A later chapter"}</li>`).join("")}</ol>
+    ${p<3?`<button class="btn main" data-act="mythgo" data-id="${id}">⚔ Play chapter ${roman(p+1)}</button><span class="soft" style="font-size:13px"> ${esc(h.n)} joins your team for it. ${p===2?"Finishing the myth: +8% HP and ATK and a mythic look.":""}</span>`
+      :`<p><b>Myth complete:</b> +8% HP and ATK.</p><button class="btn small" data-act="skin" data-id="${id}" aria-pressed="${!!(G.skin||{})[id]}">${(G.skin||{})[id]?"Mythic look: on":"Mythic look: off"}</button>`}</div>`;}
+MORE_ACT.mythgo=b=>{const id=b.dataset.id,part=mythPart(id)+1;if(part>3||!G.heroes[id])return;
+  const team=[id,...myTeam().filter(x=>x!==id)].slice(0,4),s=Math.max(4,refS()-4+part*2);C=null;
+  startBattle(s,false,{mode:"myth",team,info:specialInfo(`${HMYTH[id][0]} · ${roman(part)}`,mythWaves(id,part),{s}),mdata:{id,part},log:HMYTH[id][part]});return false;};
+MODE_FIN.myth=win=>{const {id,part}=C.mdata;if(!win)return {};G.myth=G.myth||{};const first=(G.myth[id]||0)<part;if(first)G.myth[id]=part;
+  const r={gilt:first?Math.round((60+part*40)*theatreMul()):0,seals:first?40+part*20:10};give(r);if(first&&part===3){G.skin=G.skin||{};G.skin[id]=1;}achCheck();return {r,id,part,first};};
+MODE_RES.myth=r=>r.id?resBox(r.part===3&&r.first?`${esc(HMYTH[r.id][0])}: complete!`:`Chapter ${roman(r.part)} won`,true,`${r.part===3&&r.first?`<p>${esc(HERO[r.id].n)} gains +8% HP and ATK and a mythic look.</p>`:""}${rwHTML(r.r)}`,`<button class="btn main" data-act="toparty">To the Party</button>`)
+  :resBox("The story isn't over",false,`<p class="soft">Try the chapter again with a stronger team.</p>`,`<button class="btn main" data-act="toparty">To the Party</button>`);
+MORE_ACT.skin=b=>{G.skin=G.skin||{};const id=b.dataset.id;if(mythPart(id)<3)return;G.skin[id]=!G.skin[id];};
+/* the hero panel gets myth + apotheosis */
+function heroExtra(id){return `<div class="heroextra">${mythPanel(id)}${apoPanel(id)}</div>`;}
+
+/* ======================= POTTER'S WORKSHOP & MUSEUM ======================= */
+const POT_SHAPES={amphora:"Amphora",krater:"Krater",kylix:"Kylix",hydria:"Hydria",lekythos:"Lekythos"},POT_STYLES={black:"Black-figure",red:"Red-figure"},
+  POT_BORDERS={meander:"Meander",waves:"Waves",laurel:"Laurel",tongues:"Tongues",festival:"Festival garland"},POT_COST=60;
+let potDraft={shape:"amphora",style:"black",border:"meander",figs:[]};
+const museumCap=()=>6+2*((G.city||{}).potters||0);
+function potteryBonus(id){const V=(typeof G!=="undefined"&&G&&G.museum)||[];if(!V.length)return 0;let b=0;
+  V.forEach(v=>{if(v.figs.includes(id))b+=.02;});b=Math.min(.06,b);
+  const el=HERO[id]&&HERO[id].el;let sets=0;V.forEach(v=>{if(v.figs.length===3&&v.figs.every(f=>HERO[f]&&HERO[f].el===el))sets++;});return b+Math.min(.03,.01*sets);}
+const SIL={};
+function silhouette(id,col,cb){const key=id+col;if(SIL[key])return cb(SIL[key]);const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;const x=c.getContext("2d");
+  x.drawImage(img,0,0);x.globalCompositeOperation="source-in";x.fillStyle=col;x.fillRect(0,0,c.width,c.height);SIL[key]=c;cb(c);};img.src=spriteURL(id,true);}
+function drawVase(cv,v){const x=cv.getContext("2d"),W=cv.width,H=cv.height;x.clearRect(0,0,W,H);
+  const ground=v.style==="black"?"#c8763a":"#1a1410",ink=v.style==="black"?"#1a1410":"#c8763a",line=v.style==="black"?"#f3d9b0":"#1a1410";
+  const S={amphora:[.42,.18,.3,.48,.36,.12],krater:[.46,.4,.46,.42,.3,.16],kylix:[.48,.62,.2,.3,.14,.2],hydria:[.4,.22,.36,.44,.34,.1],lekythos:[.26,.12,.24,.3,.2,.16]}[v.shape]||[.42,.18,.3,.48,.36,.12];
+  const cx=W/2,top=H*.08,bot=H*.94,mw=W*S[0],nw=W*S[5],bodyTop=H*S[1];
+  x.beginPath();x.moveTo(cx-nw,top);x.lineTo(cx+nw,top);x.quadraticCurveTo(cx+nw*.8,bodyTop,cx+mw,bodyTop+H*S[2]*.5);x.quadraticCurveTo(cx+mw*1.08,H*.62,cx+W*S[4]*.5,bot-H*.06);x.lineTo(cx+W*.14,bot);x.lineTo(cx-W*.14,bot);x.lineTo(cx-W*S[4]*.5,bot-H*.06);
+  x.quadraticCurveTo(cx-mw*1.08,H*.62,cx-mw,bodyTop+H*S[2]*.5);x.quadraticCurveTo(cx-nw*.8,bodyTop,cx-nw,top);x.closePath();
+  x.fillStyle=v.style==="black"?"#c8763a":"#1a1410";x.fill();x.save();x.clip();
+  /* bands */
+  const band=(y,h)=>{x.fillStyle=v.style==="black"?"#1a1410":"#c8763a";x.fillRect(0,y,W,2);x.fillRect(0,y+h-2,W,2);drawBorder(x,v.border,y+2,h-4,W,v.style==="black"?"#1a1410":"#c8763a");};
+  band(bodyTop+H*.02,H*.06);band(H*.74,H*.06);
+  if(v.style==="red"){x.fillStyle="#1a1410";x.fillRect(0,0,W,H);band(bodyTop+H*.02,H*.06);band(H*.74,H*.06);}
+  x.restore();
+  /* handles */
+  x.strokeStyle=v.style==="black"?"#1a1410":"#1a1410";x.lineWidth=W*.03;if(v.shape!=="lekythos"){[-1,1].forEach(k=>{x.beginPath();x.moveTo(cx+k*nw*.9,top+H*.05);x.quadraticCurveTo(cx+k*mw*1.25,top+H*.02,cx+k*mw*.95,bodyTop+H*.12);x.stroke();});}
+  /* figures in the main band */
+  const figs=v.figs.slice(0,3),y0=H*.38,fh=H*.32,fw=fh;figs.forEach((id,i)=>{const fx=cx+(i-(figs.length-1)/2)*fw*.95;silhouette(id,ink,c=>{x.save();x.beginPath();x.rect(0,bodyTop+H*.09,W,H*.74-bodyTop-H*.09);x.clip();x.drawImage(c,fx-fw/2,y0,fw,fw);x.restore();});});
+  x.fillStyle=line;x.font=`700 ${Math.max(9,W*.05)}px Georgia,serif`;x.textAlign="center";if(v.name)x.fillText(v.name,cx,H*.71);}
+function drawBorder(x,k,y,h,W,col){x.save();x.strokeStyle=col;x.fillStyle=col;x.lineWidth=Math.max(1.5,h*.12);const n=Math.ceil(W/h);
+  for(let i=0;i<n;i++){const X=i*h;if(k==="meander"){x.beginPath();x.moveTo(X,y+h);x.lineTo(X,y);x.lineTo(X+h*.8,y);x.lineTo(X+h*.8,y+h*.65);x.lineTo(X+h*.35,y+h*.65);x.lineTo(X+h*.35,y+h*.35);x.stroke();}
+    else if(k==="waves"){x.beginPath();x.moveTo(X,y+h);x.quadraticCurveTo(X+h*.2,y,X+h*.6,y+h*.3);x.quadraticCurveTo(X+h*.8,y+h*.6,X+h*.5,y+h*.7);x.stroke();}
+    else if(k==="laurel"){x.beginPath();x.ellipse(X+h*.3,y+h*.35,h*.25,h*.12,-.5,0,TAU_);x.fill();x.beginPath();x.ellipse(X+h*.7,y+h*.65,h*.25,h*.12,.5,0,TAU_);x.fill();}
+    else if(k==="festival"){x.beginPath();x.arc(X+h/2,y,h*.5,0,Math.PI);x.stroke();x.beginPath();x.arc(X+h/2,y+h*.5,h*.12,0,TAU_);x.fill();}
+    else{x.beginPath();x.moveTo(X+h*.1,y);x.quadraticCurveTo(X+h*.5,y+h*1.4,X+h*.9,y);x.fill();}}x.restore();}
+const TAU_=Math.PI*2;
+function viewPottery(){const d=potDraft,owned=HEROES.filter(h=>G.heroes[h.id]),V=G.museum||[],cap=museumCap(),borders=Object.keys(POT_BORDERS).filter(k=>k!=="festival"||(G.unlocks||{}).festBorder);
+  const opt=(k,map,cur)=>Object.entries(map).filter(([kk])=>k!=="border"||borders.includes(kk)).map(([kk,n])=>`<button class="btn small" data-act="potset" data-k="${k}" data-v="${kk}" aria-pressed="${cur===kk}">${n}</button>`).join("");
+  return `<section class="panel framed">${PH("Potter's Workshop","modes",`${V.length}/${cap} in the museum`)}
+   <p class="explain">Paint an amphora with up to three of your heroes and put it in your museum. Every hero shown on a museum piece gets +2% ATK (up to +6%), and a piece with three heroes of one element gives that whole element +1% ATK (up to +3%).</p>
+   <div class="potwrap"><canvas class="vase big" width="300" height="360" data-draft="1" aria-label="Your amphora"></canvas>
+    <div class="potctl"><span class="label">Shape</span><div class="row">${opt("shape",POT_SHAPES,d.shape)}</div>
+     <span class="label">Style</span><div class="row">${opt("style",POT_STYLES,d.style)}</div>
+     <span class="label">Border</span><div class="row">${opt("border",POT_BORDERS,d.border)}</div>
+     <span class="label">Figures (${d.figs.length}/3)</span><div class="potfigs">${owned.map(h=>`<button class="wph q${h.q} ${d.figs.includes(h.id)?"on":""}" data-act="potfig" data-id="${h.id}" title="${esc(h.n)}">${im(h.id)}<span>${esc(h.n)}</span></button>`).join("")}</div>
+     <button class="btn gold big" data-act="potfire" ${!d.figs.length||G.seals<POT_COST||V.length>=cap?"disabled":""}>🔥 Fire in the kiln · ${ico("c_seal")}${POT_COST}</button>${V.length>=cap?`<span class="soft"> The museum is full. Remove a piece or build the Potters' Quarter in your polis.</span>`:""}</div></div></section>
+   <section class="panel">${PH("Museum","modes")}<div class="museum">${V.length?V.map((v,i)=>`<figure><canvas class="vase" width="150" height="180" data-i="${i}"></canvas><figcaption>${esc(v.name)}<br><button class="btn small" data-act="potdel" data-i="${i}">Remove</button></figcaption></figure>`).join(""):`<p class="soft">Your museum is empty. Fire your first amphora above.</p>`}</div></section>`;}
+Object.assign(MORE_ACT,{
+  potset(b){potDraft[b.dataset.k]=b.dataset.v;},
+  potfig(b){const f=potDraft.figs,id=b.dataset.id;if(f.includes(id))potDraft.figs=f.filter(x=>x!==id);else if(f.length<3)f.push(id);},
+  potfire(){const d=potDraft;if(!d.figs.length||G.seals<POT_COST)return;G.museum=G.museum||[];if(G.museum.length>=museumCap())return;G.seals-=POT_COST;
+    G.museum.push({shape:d.shape,style:d.style,border:d.border,figs:d.figs.slice(),name:`${POT_SHAPES[d.shape]} of ${d.figs.map(f=>HERO[f].n.split(" ").pop()).join(" & ")}`,day:dayKey()});potDraft.figs=[];SFX.play("star");achCheck();toast("Fired! It's in your museum.");},
+  potdel(b){(G.museum||[]).splice(+b.dataset.i,1);}
+});
+
+/* ======================= FESTIVALS ======================= */
+const FESTS=[
+ {k:"panath",n:"Great Panathenaia",patron:"athena",ci:1,t:"Athens honours Athena with games, a procession and a new robe for her statue.",title:"Panathenaic Victor"},
+ {k:"dionysia",n:"City Dionysia",patron:"dionysus",ci:7,t:"Plays, masks and wine for Dionysus in the great theatre.",title:"Crowned at the Dionysia"},
+ {k:"olympia",n:"Olympic Festival",patron:"ares",ci:4,t:"Runners, wrestlers and chariots compete at Olympia, under Zeus' eye.",title:"Olympic Champion"},
+ {k:"anthest",n:"Anthesteria",patron:"hades",ci:5,t:"New wine is opened and the spirits of the dead walk for three days.",title:"Friend of the Shades"}];
+const festNow=()=>FESTS[((weekNum()%FESTS.length)+FESTS.length)%FESTS.length];
+function festState(){const f=festNow(),w=weekNum();G.fest=G.fest||{};if(G.fest.week!==w)G.fest={week:w,k:f.k,laurels:0,done:{},bought:{}};return G.fest;}
+const festPatron=()=>HERO[festNow().patron];
+function festLeft(){const days=7-((dayNum(dayKey())+3)%7);return days;}
+function festWaves(i){const f=festNow(),ch=CH[f.ci%CH.length],p=ch.pool,R=seeded(weekNum()*31+i*7),pk=()=>p[Math.floor(R()*p.length)];return i<5?(i<3?[[pk(),pk(),pk()]]:[[pk(),pk()],[pk(),pk(),pk()]]):[[pk(),pk(),pk()],[pk(),ch.boss]];}
+function festShop(){const f=festNow(),ph=festPatron();return [
+  {k:"hero",n:G.heroes[ph.id]?`3 copies of ${ph.n}`:`${ph.n} joins you`,c:G.heroes[ph.id]?40:150},{k:"gilt",n:"1,000 Drachmae",c:25},{k:"title",n:`Title: ${f.title}`,c:60,once:true},{k:"border",n:"Pottery border: Festival garland",c:35,once:true}];}
+function viewFestival(){const f=festNow(),S=festState(),ph=festPatron(),d=dailyUse("fest"),left=3-d.used;
+  return `<section class="panel framed fest">${PH(f.n,"modes",`${festLeft()} day${festLeft()>1?"s":""} left · ${S.laurels} laurels`)}
+   <div class="festhead">${im(ph.id)}<div><p>${esc(f.t)}</p><p class="soft">Patron: <b>${esc(ph.n)}</b>, featured in the Oracle this week (a third of all ${QNAMES[ph.q]} summons). Every battle you win this week earns 1 laurel. Laurels and this festival's prizes last only until it ends.</p></div></div>
+   <h3>Festival contests</h3><div class="feststages">${[1,2,3,4,5].map(i=>{const done=S.done[i];return `<div class="fstage ${done?"done":""}"><b>${roman(i)}</b><span>${done?"✓ Won":"First win: 20 laurels"}</span><button class="btn small ${done?"":"main"}" data-act="festgo" data-i="${i}" ${done&&left<=0?"disabled":""}>${done?`Replay (${left} left today)`:"⚔ Fight"}</button></div>`;}).join("")}</div>
+   <h3>Prizes</h3><div class="row">${festShop().map(x=>{const got=x.once&&S.bought[x.k];return `<button class="btn ${got?"":"gold"}" data-act="festbuy" data-k="${x.k}" ${got||S.laurels<x.c?"disabled":""}>${esc(x.n)} · ${got?"owned":x.c+" 🌿"}</button>`;}).join("")}</div></section>`;}
+MORE_ACT.festgo=b=>{const i=+b.dataset.i,S=festState();if(S.done[i]){const d=dailyUse("fest");if(d.used>=3)return;d.used++;}const s=Math.max(5,refS()-4+i*2);C=null;
+  startBattle(s,false,{mode:"fest",info:specialInfo(`${festNow().n} · Contest ${roman(i)}`,festWaves(i),{s}),mdata:{i},log:"The crowd roars."});return false;};
+MODE_FIN.fest=win=>{if(!win)return {};const S=festState(),i=C.mdata.i,first=!S.done[i];S.done[i]=1;const l=first?20:5;S.laurels+=l;G.stats.laurels=(G.stats.laurels||0)+l;achCheck();return {l,first};};
+MODE_RES.fest=r=>r.l?resBox("Victory!",true,`<p>+${r.l} laurels 🌿</p>`,`<button class="btn main" data-act="mreturn">Back to the festival</button>`):resBox("Defeated",false,"<p class='soft'>Try again with a stronger team.</p>",`<button class="btn main" data-act="mreturn">Back to the festival</button>`);
+MORE_ACT.festbuy=b=>{const S=festState(),x=festShop().find(y=>y.k===b.dataset.k);if(!x||S.laurels<x.c||(x.once&&S.bought[x.k]))return;S.laurels-=x.c;if(x.once)S.bought[x.k]=1;
+  const ph=festPatron();if(x.k==="hero"){if(G.heroes[ph.id])G.heroes[ph.id].shards+=3;else{G.heroes[ph.id]=newHeroRec();G.newHeroes=G.newHeroes||{};G.newHeroes[ph.id]=1;}}
+  else if(x.k==="gilt")G.gilt+=1000;else if(x.k==="title"){G.titles=G.titles||{};G.titles[festNow().title]=1;}else if(x.k==="border"){G.unlocks=G.unlocks||{};G.unlocks.festBorder=1;}SFX.play("coin");};
+function onWin(){if(typeof SIM!=="undefined"&&SIM)return;try{const S=festState();if(C&&C.mode!=="fest"){S.laurels++;G.stats.laurels=(G.stats.laurels||0)+1;}achCheck();}catch(e){}}
+
+/* ======================= RETURN TO CHAOS (prestige) ======================= */
+const CHAOS_MIN=40;
+const CHB={gaia:{n:"Gift of Gaia",t:"+5% HP for every hero"},uranus:{n:"Gift of Uranus",t:"+5% ATK for every hero"},chronos:{n:"Gift of Chronos",t:"+20% Ambrosia from the Agora"},
+  erebus:{n:"Gift of Erebus",t:"+15% Ambrosia from battles"},eros:{n:"Gift of Eros",t:"−5% level-up cost (up to −40%)"},tyche:{n:"Gift of Tyche",t:"+10% Bronze and Drachmae from the Agora"}};
+const blessR=k=>((G.chaos||{}).bless||{})[k]||0,blessCost=r=>5*(r+1);
+const chaosGain=()=>G.cleared<CHAOS_MIN?0:Math.floor(Math.pow((G.cleared-30)/5,1.5)*3);
+let chaosArm=0;
+function viewChaos(){const X=G.chaos||{},gain=chaosGain();
+  return `<section class="panel framed chaos">${PH("Return to Chaos","modes",`${X.essence||0} essence · ${X.count||0} return${X.count===1?"":"s"}`)}
+   <p class="explain">Give your progress back to Chaos and start the campaign again, stronger. You <b>keep</b> your heroes, stars, gear, talents, Drachmae, Bronze, myths, museum and polis. You <b>lose</b> campaign progress, hero levels and level perks, and your Ambrosia. Game modes stay open. In return you get Primordial essence for permanent blessings.</p>
+   <div class="chaosnow"><span>Return now for <b>${gain}</b> essence</span>${G.cleared<CHAOS_MIN?`<span class="soft">Clear stage ${Math.floor((CHAOS_MIN-1)/10)+1}-${(CHAOS_MIN-1)%10+1} first.</span>`:`<button class="btn ${chaosArm>Date.now()?"main":"gold"}" data-act="chaosgo">${chaosArm>Date.now()?"Press again to confirm":"Return to Chaos"}</button>`}</div>
+   <h3>Blessings</h3><div class="bless">${Object.entries(CHB).map(([k,B])=>{const r=blessR(k),c=blessCost(r),mx=r>=10||(k==="eros"&&r>=8);return `<div class="bl"><b>${esc(B.n)}</b><span>${esc(B.t)}</span><span class="pips">${Array.from({length:k==="eros"?8:10},(_,i)=>`<i class="${i<r?"on":""}"></i>`).join("")}</span><button class="btn small" data-act="blessbuy" data-k="${k}" ${mx||(X.essence||0)<c?"disabled":""}>${mx?"Max":`Rank ${r+1} · ${c} essence`}</button></div>`;}).join("")}</div></section>`;}
+MORE_ACT.chaosgo=()=>{if(G.cleared<CHAOS_MIN)return;if(chaosArm<Date.now()){chaosArm=Date.now()+5000;setTimeout(render,5100);return;}chaosArm=0;
+  const gain=chaosGain();G.chaos=G.chaos||{};G.chaos.essence=(G.chaos.essence||0)+gain;G.chaos.count=(G.chaos.count||0)+1;G.bestEver=Math.max(G.bestEver||0,G.cleared);
+  G.cleared=0;G.firstClears={};G.heroicClears={};G.ink=300;G.pend={ink:0,seals:0,gilt:0};Object.values(G.heroes).forEach(o=>{o.lvl=1;o.perks={};});selStage=null;
+  SFX.play("star");toast(`Returned to Chaos: +${gain} essence.`);achCheck();save();};
+MORE_ACT.blessbuy=b=>{const k=b.dataset.k,r=blessR(k),c=blessCost(r);G.chaos=G.chaos||{};if((G.chaos.essence||0)<c)return;if(r>=10||(k==="eros"&&r>=8))return;G.chaos.essence-=c;G.chaos.bless=G.chaos.bless||{};G.chaos.bless[k]=r+1;SFX.play("star");};
+
+/* ======================= BESTIARY ======================= */
+const BEST_MS=[10,50,200],BEST_PAY=[40,120,300];
+const beastKeys=()=>Object.keys(EN).filter(k=>!k.startsWith("rv_")&&EN[k].n);
+function onFoeSeen(k){if(typeof SIM!=="undefined"&&SIM)return;const B=G.bestiary=G.bestiary||{};B[k]=B[k]||{s:0,k:0,c:0};B[k].s++;}
+function onFoeKill(f){if(typeof SIM!=="undefined"&&SIM)return;const B=G.bestiary=G.bestiary||{};const k=f.key;if(!k)return;B[k]=B[k]||{s:1,k:0,c:0};B[k].k++;}
+function viewBestiary(){const B=G.bestiary||{},ks=beastKeys(),seen=ks.filter(k=>B[k]).length;
+  return `<section class="panel framed">${PH("Bestiary","modes",`${seen}/${ks.length} creatures met`)}
+   <p class="explain">Every creature you meet goes in the book. Defeat ${BEST_MS.join(", ")} of a kind for Drachmae.</p>
+   <div class="bestiary">${ks.map(k=>{const e=EN[k],b=B[k];if(!b)return `<div class="bst unseen" title="Not met yet">${im(k,"sp sil")}<b>?</b></div>`;
+     const next=BEST_MS.findIndex((m,i)=>b.c<=i),can=next>=0&&next===b.c&&b.k>=BEST_MS[next];
+     return `<div class="bst ${e.t==="boss"?"boss":""}" title="${esc(e.n)} · ${EL[e.el]} · ${e.t}${PHASES[k]?` · at half HP: ${PHASES[k].n}`:""}">${im(k)}<b>${esc(e.n)}</b><span class="soft">${gem(e.el)} ${b.k} defeated</span>
+       ${can?`<button class="btn gold small" data-act="bstclaim" data-k="${k}">+${BEST_PAY[b.c]} ${ico("c_gilt")}</button>`:b.c>=BEST_MS.length?`<span class="vdone">Complete</span>`:`<span class="soft" style="font-size:12px">Next: ${BEST_MS[b.c]}</span>`}</div>`;}).join("")}</div></section>`;}
+MORE_ACT.bstclaim=b=>{const B=G.bestiary||{},e=B[b.dataset.k];if(!e||e.c>=BEST_MS.length||e.k<BEST_MS[e.c])return;G.gilt+=BEST_PAY[e.c];e.c++;SFX.play("coin");achCheck();};
+
+/* ======================= ACHIEVEMENTS & TITLES ======================= */
+const ownedN=()=>Object.keys(G.heroes).length;
+const ACH=[
+ ["win1","First Blood","Win a battle",()=>G.stats.wins>=1,50,"Recruit"],["win100","Hundred Fights","Win 100 battles",()=>G.stats.wins>=100,150,"Veteran"],["win1000","Thousand Victories","Win 1,000 battles",()=>G.stats.wins>=1000,500,"Warlord"],
+ ["c10","Out of the Village","Clear stage 1-10",()=>Math.max(G.cleared,G.bestEver||0)>=10,80,null],["c40","Hero of Troy","Clear stage 4-10",()=>Math.max(G.cleared,G.bestEver||0)>=40,200,"Sacker of Cities"],["c80","The Last Page","Clear stage 8-10",()=>Math.max(G.cleared,G.bestEver||0)>=80,800,"Conqueror"],
+ ["p100","Pilgrim","Summon 100 times",()=>G.stats.pulls>=100,120,"Pilgrim"],["p1000","Oracle's Favourite","Summon 1,000 times",()=>G.stats.pulls>=1000,500,"Oracle's Favourite"],
+ ["sec1","Touched by Chaos","Summon a Primordial",()=>(G.stats.secrets||0)>=1,300,"Touched by Chaos"],
+ ["h25","Collector","Own 25 heroes",()=>ownedN()>=25,250,"Collector"],["h51","Pantheon","Own every hero",()=>ownedN()>=HEROES.length,1500,"Keeper of the Pantheon"],
+ ["apo1","Apotheosis","Ascend a hero",()=>Object.keys(G.apo||{}).length>=1,300,"Maker of Gods"],["apo5","Many Gods","Ascend 5 heroes",()=>Object.keys(G.apo||{}).length>=5,800,null],
+ ["myth1","Storyteller","Complete a hero's myth",()=>Object.values(G.myth||{}).filter(p=>p>=3).length>=1,150,"Storyteller"],["myth10","Rhapsode","Complete 10 myths",()=>Object.values(G.myth||{}).filter(p=>p>=3).length>=10,600,"Rhapsode"],["myth51","Homer","Complete every myth",()=>Object.values(G.myth||{}).filter(p=>p>=3).length>=HEROES.length,2000,"Homer Reborn"],
+ ["vase1","Potter","Fire an amphora",()=>(G.museum||[]).length>=1,60,"Potter"],["vase6","Curator","Fill 6 museum spots",()=>(G.museum||[]).length>=6,250,"Curator"],
+ ["laurel100","Festival Regular","Earn 100 laurels",()=>(G.stats.laurels||0)>=100,250,"Garlanded"],
+ ["chaos1","Back to the Beginning","Return to Chaos",()=>((G.chaos||{}).count||0)>=1,300,"Child of Chaos"],["chaos5","Eternal Return","Return to Chaos 5 times",()=>((G.chaos||{}).count||0)>=5,1000,"Ouroboros"],
+ ["best50","Naturalist","Meet 50 kinds of creature",()=>Object.keys(G.bestiary||{}).length>=50,250,"Naturalist"],
+ ["ody1","Homeward","Finish a voyage of the Odyssey",()=>((G.ody||{}).voyages||0)>=1,600,"Much-Travelled"],
+ ["city5","Founder","Raise polis buildings to 5 levels in total",()=>Object.values(G.city||{}).reduce((a,b)=>a+b,0)>=5,200,"Founder"],["city30","Archon","Raise polis buildings to 30 levels in total",()=>Object.values(G.city||{}).reduce((a,b)=>a+b,0)>=30,800,"Archon"],
+ ["run20","Thread of Ariadne","Reach Labyrinth floor 20",()=>(G.runBest||0)>=20,300,"Theseus' Heir"]
+];
+function achCheck(){if(typeof SIM!=="undefined"&&SIM||!G)return;G.ach=G.ach||{};ACH.forEach(([k,n,t,ok,pay,title])=>{if(G.ach[k])return;let v=false;try{v=ok();}catch(e){}if(!v)return;G.ach[k]=dayKey();G.gilt+=pay;if(title){G.titles=G.titles||{};G.titles[title]=1;}
+  if(typeof toast==="function")toast(`🏆 ${n}! +${pay} Drachmae${title?` · title “${title}”`:""}`);});}
+function achPanel(){const A=G.ach||{},T=Object.keys(G.titles||{}),got=ACH.filter(a=>A[a[0]]).length;
+  return `<section class="panel achv" style="grid-column:1/-1">${PH("Achievements","tasks",`${got}/${ACH.length}`)}
+   <div class="row" style="margin-bottom:8px"><span class="label">Title</span>${T.length?`<button class="btn small" data-act="title" data-v="" aria-pressed="${!G.title}">None</button>${T.map(t=>`<button class="btn small" data-act="title" data-v="${esc(t)}" aria-pressed="${G.title===t}">${esc(t)}</button>`).join("")}`:`<span class="soft">Earn achievements to unlock titles.</span>`}</div>
+   <div class="achgrid">${ACH.map(([k,n,t,ok,pay,title])=>`<div class="ach ${A[k]?"got":""}" title="${esc(t)}${title?` · title: ${title}`:""}"><b>${A[k]?"🏆":"○"} ${esc(n)}</b><span>${esc(t)}</span><span class="soft">${pay} Drachmae${title?` · “${esc(title)}”`:""}</span></div>`).join("")}</div></section>`;}
+MORE_ACT.title=b=>{G.title=b.dataset.v||null;};
+
+/* ======================= TEAM CARD & CAMPFIRE ======================= */
+let teamCardOn=false;
+function partyExtra(){const T=myTeam(),lines=campLines(T);
+  return `<section class="panel camp">${PH("Around the fire","party")}
+    <div class="fire">${T.map((id,i)=>`<span class="cf cf${i}">${im(id)}</span>`).join("")}<span class="flame" aria-hidden="true"></span>
+      <div class="campline" aria-live="polite">${lines.length?`<b>${esc(HERO[lines[0][0]].n)}:</b> “${esc(lines[0][1])}”`:"<span class='soft'>Put heroes in your team to hear them talk.</span>"}</div></div>
+    <div class="row" style="margin-top:8px"><button class="btn small" data-act="teamcard">${teamCardOn?"Hide team card":"📷 Team card"}</button></div>
+    ${teamCardOn?`<div class="tcard"><canvas id="tcard" width="900" height="500" aria-label="Team card"></canvas><p class="soft" style="font-size:13px">Right-click (or long-press) the picture to save or share it.</p></div>`:""}</section>`;}
+function campLines(T){const out=[];T.forEach((a,i)=>T.forEach((b,j)=>{if(j<=i)return;const s=SYN.find(x=>(x.a===a&&x.b===b)||(x.a===b&&x.b===a));if(s&&s.q)out.push([s.a,s.q[0]],[s.b,s.q[1]]);}));
+  T.forEach(id=>(QUIP[id]||[]).forEach(q=>out.push([id,q])));return out;}
+let campI=0;setInterval(()=>{if(typeof document==="undefined")return;const el=document.querySelector(".campline");if(!el||!G)return;const L=campLines(myTeam());if(!L.length)return;campI=(campI+1)%L.length;const [id,q]=L[campI];
+  el.innerHTML=`<b>${esc(HERO[id].n)}:</b> “${esc(q)}”`;document.querySelectorAll(".fire .cf").forEach((c,i)=>c.classList.toggle("talk",myTeam()[i]===id));},4500);
+MORE_ACT.teamcard=()=>{teamCardOn=!teamCardOn;};
+function drawTeamCard(cv){const x=cv.getContext("2d"),W=cv.width,H=cv.height,T=myTeam();const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#2a1a30");g.addColorStop(1,"#c8763a");x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle="#d8aa48";x.lineWidth=8;x.strokeRect(14,14,W-28,H-28);drawBorder(x,"meander",28,22,W,"#d8aa48");drawBorder(x,"meander",H-50,22,W,"#d8aa48");
+  x.fillStyle="#fff6e0";x.font="700 40px Georgia,serif";x.textAlign="center";x.fillText("AMPHORA",W/2,98);x.font="italic 22px Georgia,serif";x.fillText(G.title?`“${G.title}”`:"My team",W/2,130);
+  T.forEach((id,i)=>{const X=W/2+(i-(T.length-1)/2)*200,img=new Image();img.onload=()=>{x.drawImage(img,X-80,150,160,160);};img.src=spriteURL(id,true);
+    x.fillStyle="#fff6e0";x.font="700 20px Georgia,serif";x.fillText(HERO[id].n,X,340);x.font="15px Georgia,serif";x.fillText(`${QNAMES[heroQ(id)]} · Lv ${G.heroes[id].lvl} · ${"★".repeat(G.heroes[id].stars)}`,X,364);});
+  x.font="700 24px Georgia,serif";x.fillText(`Team power ${fmt(teamPower())} · stage ${Math.max(G.cleared,G.bestEver||0)}`,W/2,420);}
+
+/* ======================= MUSIC ======================= */
+/* A small generative score: lyre arpeggios, a bass line, drums in battle, a drone for bosses. Built from tones, no audio files. */
+const MUS=(()=>{let A=null,gain=null,timer=null,theme=null,step=0,next=0;
+  const THEMES={
+    menu:{bpm:72,root:50,sc:[0,2,3,5,7,9,10],prog:[0,5,3,4],drum:false,pad:true,lead:"lyre"},
+    verm:{bpm:112,root:52,sc:[0,1,4,5,7,8,10],prog:[0,1,0,6],drum:true,lead:"lyre"},
+    verd:{bpm:104,root:50,sc:[0,2,3,5,7,9,10],prog:[0,6,5,4],drum:true,lead:"flute"},
+    lapis:{bpm:96,root:53,sc:[0,2,4,6,7,9,11],prog:[0,4,5,3],drum:true,lead:"flute"},
+    gold:{bpm:116,root:55,sc:[0,2,4,5,7,9,11],prog:[0,3,4,0],drum:true,lead:"lyre"},
+    iron:{bpm:100,root:45,sc:[0,2,3,5,7,8,11],prog:[0,5,6,4],drum:true,lead:"lyre"},
+    boss:{bpm:126,root:43,sc:[0,1,3,5,7,8,10],prog:[0,1,5,4],drum:true,lead:"saw",drone:true}};
+  const m=n=>440*Math.pow(2,(n-69)/12);
+  function osc(f,t,d,type,vol,dest,att=.01){const o=A.createOscillator(),g=A.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+att);g.gain.exponentialRampToValueAtTime(.0005,t+d);o.connect(g);g.connect(dest);o.start(t);o.stop(t+d+.05);}
+  function drum(t,f,v){const o=A.createOscillator(),g=A.createGain();o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.35,t+.25);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0005,t+.3);o.connect(g);g.connect(gain);o.start(t);o.stop(t+.35);}
+  function noteOf(T,deg,oct=0){const s=T.sc,d=((deg%7)+7)%7;return T.root+s[d]+12*(Math.floor(deg/7)+oct);}
+  function tick(){if(!A||!theme)return;const T=THEMES[theme],spb=60/T.bpm/2;while(next<A.currentTime+.25){const t=Math.max(next,A.currentTime),bar=Math.floor(step/16),beat=step%16,ch=T.prog[bar%T.prog.length];
+      if(beat%8===0)osc(m(noteOf(T,ch,-1)),t,spb*7,"triangle",.11,gain);
+      if(T.pad&&beat===0)[0,2,4].forEach(k=>osc(m(noteOf(T,ch+k,0)),t,spb*15,"sine",.035,gain,.4));
+      if(T.drone&&beat===0)osc(m(T.root-12),t,spb*16,"sawtooth",.03,gain,.3);
+      const arp=[0,2,4,7,4,2,0,2][beat%8],R=(step*7919+bar*31)%11;
+      if(T.lead==="flute"){if(beat%4===0||R<2)osc(m(noteOf(T,ch+arp,1)),t,spb*(beat%4===0?3:1.2),"sine",.05,gain,.04);}
+      else if(T.lead==="saw"){if(beat%2===0)osc(m(noteOf(T,ch+arp,1)),t,spb*1.5,"sawtooth",.025,gain);}
+      else if(beat%2===0||R<3){osc(m(noteOf(T,ch+arp,1)),t,spb*3,"triangle",.06,gain);osc(m(noteOf(T,ch+arp,2)),t,spb*1,"sine",.015,gain);}
+      if(T.drum){if(beat===0||beat===8)drum(t,90,.22);if(beat===4||beat===12)drum(t,180,.1);if(theme==="boss"&&beat%2===1)drum(t,70,.08);}
+      step++;next+=spb;}}
+  function vol(){return (G&&G.music===false)||(G&&G.sound===false)?0:((G&&G.musicVol!=null)?G.musicVol:.5)*.55;}
+  return {set(th){if(typeof SIM!=="undefined"&&SIM)return;if(typeof SFX==="undefined"||!SFX.audio)return;const au=SFX.audio();if(!au)return;if(!A){A=au.ac;gain=A.createGain();gain.gain.value=0;gain.connect(au.master);}
+      if(th===theme){gain.gain.setTargetAtTime(document.hidden?0:vol(),A.currentTime,.3);return;}theme=th;step=0;next=A.currentTime+.05;gain.gain.cancelScheduledValues(A.currentTime);gain.gain.setValueAtTime(0,A.currentTime);gain.gain.linearRampToValueAtTime(vol(),A.currentTime+1.2);
+      if(!timer)timer=setInterval(tick,90);},
+    vol(){if(gain&&A)gain.gain.setTargetAtTime(document.hidden?0:vol(),A.currentTime,.2);}};})();
+function musicTheme(){if(C&&!C.over){if(C.foes&&C.foes.some(f=>f.boss||(EN[f.key]&&EN[f.key].t==="boss")))return "boss";const el=(C.info&&C.info.ch&&CH.find(c=>c.n===C.info.ch.n));const fe=C.foes&&C.foes[0]&&EN[C.foes[0].key];return fe?fe.el:"gold";}return "menu";}
+setInterval(()=>{try{if(G)MUS.set(musicTheme());}catch(e){}},700);
+if(typeof document!=="undefined")document.addEventListener("visibilitychange",()=>{try{MUS.vol();}catch(e){}});
+MORE_ACT.music=()=>{G.music=G.music===false;MUS.vol();toast(G.music===false?"Music off":"Music on");};
+MORE_ACT.musvol=b=>{G.musicVol=+b.dataset.v;G.music=true;MUS.vol();};
+
+/* ======================= THE ODYSSEY ======================= */
+const ODY=[
+ {n:"Ismaros",t:"The fleet raids the Cicones. Their allies gather in the hills by dawn.",w:[["grotesque","moth","piper"]],a:["Plunder the city","+300 Drachmae, but the Cicones fight harder (+20% ATK)",{gilt:300,foeAtk:.2}],b:["Sail on at once","Your crew is fresh: +10% ATK",{atk:.1}]},
+ {n:"Land of the Lotus-Eaters",t:"Sweet flowers that make sailors forget home. The locals are friendly. Too friendly.",w:[["organpig","bear","organpig"]],a:["Taste the lotus","Your team starts with a 30% shield",{shield:.3}],b:["Drag the crew back to the ships","+15% ATK from sheer annoyance",{atk:.15}]},
+ {n:"Cave of the Cyclops",t:"Polyphemus rolls a boulder across the cave mouth. \"What is your name?\" \"Nobody.\"",w:[["sciapod","sciapod"],["sciapod","sciapod"]],elite:{w:1,i:1,mod:"giant"},a:["Blind him with the stake","Foes have −25% ATK",{foeAtk:-.25}],b:["Hide under the sheep","Skip the first wave",{skip:1}]},
+ {n:"Island of Aeolus",t:"The king of winds hands you a bag holding every storm. Do not open it.",w:[["silverfish","beeswarm","silverfish"]],a:["Open the bag","50%: the next island is calm (no fight); 50%: its foes get +40% HP",{bag:1}],b:["Keep it shut","+200 Drachmae from Aeolus",{gilt:200}]},
+ {n:"Telepylos",t:"The Laestrygonian giants hurl boulders at the harbour.",w:[["raider","raider","raider"],["raider","raider","raider","raider"]],a:["Fight on the beach","+15% ATK, foes +15% HP",{atk:.15,foeHp:.15}],b:["Fight from the ships","+20% HP shield",{shield:.2}]},
+ {n:"Aeaea, Circe's Island",t:"Half the crew went to Circe's hall. They came back as pigs.",w:[["thornvine","hydraling","mirrorape"]],a:["Take Hermes' herb, moly","Your heroes are protected",{}],b:["Go in without it","A random hero is turned into a pig and sits this fight out, but you get +25% ATK",{pig:1,atk:.25}]},
+ {n:"The Underworld",t:"At the edge of the world, you pour blood for the prophet Tiresias. The shades crowd in.",w:[["inkblot","inkblot","wraith"],["trumpeter","inkblot","greatblot"]],a:["Let Tiresias drink first","His prophecy: +20% ATK",{atk:.2}],b:["Hold back the shades","+30% shield",{shield:.3}]},
+ {n:"The Sirens",t:"The song carries over the water. Every sailor wants to steer for the rocks.",w:[["silverfish","silverfish","cynohunter"]],a:["Wax in the crew's ears","Foes −15% ATK, your team −10% ATK",{foeAtk:-.15,atk:-.1}],b:["Tie yourself to the mast and listen","+250 Drachmae, foes +15% ATK",{gilt:250,foeAtk:.15}]},
+ {n:"Scylla and Charybdis",t:"A six-headed monster on one side, a whirlpool on the other.",w:[["cynohunter","cynohunter","serpent"],["leviathan"]],a:["Pass by Scylla","Fight only the hounds (one wave), but lose a hero for this fight",{skip:-1,pig:1}],b:["Risk Charybdis","Fight both waves at full strength, +200 Drachmae",{gilt:200}]},
+ {n:"Thrinacia",t:"The cattle of Helios graze here. The crew is starving.",w:[["fallenstar","beeswarm","fallenstar"]],a:["Eat the sacred cattle","+40% shield, but Zeus is angry: foes +30% ATK",{shield:.4,foeAtk:.3}],b:["Go hungry","−10% ATK",{atk:-.1}]},
+ {n:"Ogygia",t:"The nymph Calypso offers you immortality if you stay.",w:[["mirrorape","serpent","mirrorape"]],a:["Rest a while","+25% ATK and a 25% shield",{atk:.25,shield:.25}],b:["Build a raft and leave","+400 Drachmae",{gilt:400}]},
+ {n:"Ithaca",t:"Home at last. A hundred suitors feast in your hall.",w:[["grotesque","moth","piper"],["fool","grotesque","moth"],["piper","grotesque","grotesque"]],elite:{w:2,i:1,mod:"giant"},a:["Fight openly","+15% ATK",{atk:.15}],b:["String the great bow first","Foes −20% HP",{foeHp:-.2}]}
+];
+function odyState(){G.ody=G.ody||{v:1,i:0,choice:null,calm:false,stormy:false,voyages:0};return G.ody;}
+const odyStage=()=>{const O=odyState();return Math.max(6,refS()-6)+O.i+(O.v-1)*4;};
+function viewOdyssey(){const O=odyState(),I=ODY[O.i],ch=O.choice;
+  const map=`<div class="odymap">${ODY.map((x,i)=>`<span class="isl ${i<O.i?"done":i===O.i?"now":""}" title="${esc(x.n)}">${i<O.i?"✓":roman(i+1)}</span>`).join('<i class="sea"></i>')}</div>`;
+  return `<section class="panel framed ody">${PH("The Odyssey","modes",`Voyage ${roman(O.v)} · island ${O.i+1}/12`)}
+   ${map}<div class="isle"><h3>${roman(O.i+1)}. ${esc(I.n)}</h3><p>${esc(I.t)}</p>
+   ${ch?`<p class="soft">You chose: <b>${esc(I[ch][0])}</b>. ${esc(I[ch][1])}.</p>${O.calm?`<p><b>The winds are calm.</b> No fight here.</p><button class="btn main big" data-act="odygo">⛵ Sail on</button>`:`<button class="btn main big" data-act="odygo">⚔ Fight</button>`}`
+     :`<div class="odych"><button class="btn gold" data-act="odych" data-c="a"><b>${esc(I.a[0])}</b><span>${esc(I.a[1])}</span></button><button class="btn gold" data-act="odych" data-c="b"><b>${esc(I.b[0])}</b><span>${esc(I.b[1])}</span></button></div>`}</div>
+   <p class="soft" style="font-size:14px">Each voyage is harder than the last. Every island pays Drachmae and Bronze; reaching Ithaca pays 800 Drachmae and an Olympian copy. You can retry a lost fight as often as you like.</p></section>`;}
+MORE_ACT.odych=b=>{const O=odyState(),I=ODY[O.i],c=b.dataset.c;O.choice=c;const e=I[c][2];if(e.gilt)G.gilt+=e.gilt;
+  if(O.stormy===undefined)O.stormy=false;O.calm=false;if(O.nextCalm){O.calm=true;O.nextCalm=false;}
+  if(e.bag){if(Math.random()<.5)O.nextCalm=true;else O.nextStorm=true;}};
+MORE_ACT.odygo=b=>{const O=odyState(),I=ODY[O.i];if(!O.choice)return;if(O.calm){odyAdvance();return;}
+  const e=I[O.choice][2];let team=myTeam();if(e.pig&&team.length>1){const p=team[Math.floor(Math.random()*team.length)];team=team.filter(x=>x!==p);toast(`${HERO[p].n} has been turned into a pig!`);}
+  let w=I.w.map(x=>x.slice());if(e.skip===1&&w.length>1)w=w.slice(1);if(e.skip===-1)w=w.slice(0,1);
+  const s=odyStage(),mods=[];if(e.atk)mods.push({m:{atk:e.atk}});C=null;
+  startBattle(s,false,{mode:"ody",team,mods,info:specialInfo(`The Odyssey · ${I.n}`,w,{s,elite:I.elite&&e.skip===1?Object.assign({},I.elite,{w:I.elite.w-1}):e.skip===-1?null:I.elite}),mdata:{e,storm:O.nextStorm},log:I.t});O.nextStorm=false;return false;};
+MODE_START.ody=()=>{const e=C.mdata.e;if(e.shield)C.heroes.forEach(u=>{u.shield+=Math.round(u.maxhp*e.shield);});};
+MODE_SPAWN.ody=foes=>{const e=C.mdata.e,hp=1+(e.foeHp||0)+(C.mdata.storm?.4:0),atk=1+(e.foeAtk||0);foes.forEach(f=>{f.maxhp=f.hp=Math.round(f.hp*hp);f.atk=Math.round(f.atk*atk);});};
+function odyAdvance(){const O=odyState(),r={gilt:Math.round((50+O.i*15+(O.v-1)*20)*theatreMul()),seals:40+O.i*8};give(r);O.i++;O.choice=null;O.calm=false;
+  if(O.i>=ODY.length){O.i=0;O.v++;O.voyages=(O.voyages||0)+1;G.gilt+=800;const ol=HEROES.filter(h=>h.q===4);const h=ol[Math.floor(Math.random()*ol.length)];if(G.heroes[h.id])G.heroes[h.id].shards++;else{G.heroes[h.id]=newHeroRec();G.newHeroes=G.newHeroes||{};G.newHeroes[h.id]=1;}
+    toast(`Ithaca! +800 Drachmae and ${h.n}. Voyage ${roman(O.v)} begins.`);achCheck();}return r;}
+MODE_FIN.ody=win=>{if(!win)return {};const r=odyAdvance();return {r,won:true};};
+MODE_RES.ody=r=>r.won?resBox("The island is behind you",true,rwHTML(r.r),`<button class="btn main" data-act="mreturn">Back to the Odyssey</button>`):resBox("Driven back",false,"<p class='soft'>Rest and try again. Your choice stands.</p>",`<button class="btn main" data-act="mreturn">Back to the Odyssey</button>`);
+
+/* ======================= YOUR POLIS ======================= */
+const CITY={
+ gym:{n:"Gymnasium",t:"+2% ATK for every hero",max:10,ink:3000,seals:150},
+ walls:{n:"City Walls",t:"+2% HP for every hero",max:10,ink:3000,seals:150},
+ treasury:{n:"Treasury",t:"+8% Ambrosia from the Agora",max:10,ink:2500,seals:120},
+ harbour:{n:"Harbour",t:"+6% Bronze and Drachmae from the Agora",max:10,ink:2500,seals:200},
+ oracle:{n:"Oracle's Shrine",t:"Bonus favour on summons (every 9th summon at level 1, every 5th at level 5)",max:5,ink:4000,seals:250},
+ potters:{n:"Potters' Quarter",t:"+2 museum spots",max:5,ink:2000,seals:150},
+ theatre:{n:"Theatre",t:"+10% Drachmae from myths, festivals and the Odyssey",max:5,ink:3500,seals:200}};
+const cityLv=k=>(G.city||{})[k]||0,cityCost=k=>{const l=cityLv(k),B=CITY[k];return {ink:Math.round(B.ink*Math.pow(1.75,l)),seals:Math.round(B.seals*Math.pow(1.45,l))};};
+function cityPanel(){const tot=Object.values(G.city||{}).reduce((a,b)=>a+b,0);
+  return `<section class="panel framed polis" style="grid-column:1/-1">${PH("Your polis","idle",`${tot} building level${tot===1?"":"s"}`)}
+   <div class="skyline" aria-hidden="true">${Object.keys(CITY).map(k=>`<span class="bld b_${k}" style="--h:${20+cityLv(k)*8}px"><i></i></span>`).join("")}</div>
+   <div class="blds">${Object.entries(CITY).map(([k,B])=>{const l=cityLv(k),c=cityCost(k),mx=l>=B.max;return `<div class="bd"><b>${esc(B.n)}</b><span class="soft">${esc(B.t)}</span>
+     <span class="pips">${Array.from({length:B.max},(_,i)=>`<i class="${i<l?"on":""}"></i>`).join("")}</span>
+     ${mx?`<span class="vdone">Max level</span>`:`<button class="btn small" data-act="build" data-k="${k}" ${G.ink<c.ink||G.seals<c.seals?"disabled":""}>${l?"Upgrade":"Build"} · ${ico("c_ink")}${fmt(c.ink)} ${ico("c_seal")}${fmt(c.seals)}</button>`}</div>`;}).join("")}</div></section>`;}
+MORE_ACT.build=b=>{const k=b.dataset.k,B=CITY[k];if(!B||cityLv(k)>=B.max)return;const c=cityCost(k);if(G.ink<c.ink||G.seals<c.seals)return;G.ink-=c.ink;G.seals-=c.seals;G.city=G.city||{};G.city[k]=cityLv(k)+1;SFX.play("star");achCheck();};
+
+/* ======================= economy hooks ======================= */
+const _rates=rates;rates=function(){const r=_rates();const ink=1+.2*blessR("chronos")+.08*cityLv("treasury"),ot=1+.1*blessR("tyche")+.06*cityLv("harbour");return Object.assign({},r,{ink:r.ink*ink,seals:r.seals*ot,gilt:r.gilt*ot});};
+const _rewards=rewards;rewards=function(s,h){const r=_rewards(s,h);if(typeof SIM!=="undefined"&&SIM)return r;return Object.assign({},r,{ink:Math.round(r.ink*(1+.15*blessR("erebus")))});};
+function erosMul(){return 1-.05*Math.min(8,blessR("eros"));}
+const theatreMul=()=>1+.1*cityLv("theatre");
+
+/* ======================= new mode cards ======================= */
+MODES.push(
+ {k:"odyssey",n:"The Odyssey",spr:"cyno",unlock:20,tag:"Story",d:"Sail home from Troy island by island. Every island has a choice that changes the fight."},
+ {k:"pottery",n:"Potter's Workshop",spr:"acolyte",unlock:0,tag:"Create",d:"Paint amphorae with your heroes and fill your museum for small permanent bonuses."},
+ {k:"festival",n:"Festivals",spr:"queen",unlock:5,tag:"Weekly event",d:"A different Greek festival every week, with contests, laurels and limited prizes."},
+ {k:"bestiary",n:"Bestiary",spr:"bookworm",unlock:0,tag:"Collection",d:"Every creature you meet. Defeat enough of a kind for Drachmae."},
+ {k:"chaos",n:"Return to Chaos",spr:"ouroboros",unlock:CHAOS_MIN,tag:"Prestige",d:"Start the campaign over for permanent blessings."});
+Object.assign(MORE_VIEW,{odyssey:viewOdyssey,pottery:viewPottery,festival:viewFestival,bestiary:viewBestiary,chaos:viewChaos});
+Object.assign(MORE_STATUS,{odyssey:()=>{const O=odyState();return `Voyage ${roman(O.v)} · island ${O.i+1}/12`;},pottery:()=>`${(G.museum||[]).length}/${museumCap()} in the museum`,
+  festival:()=>`${festNow().n} · ${festLeft()}d left`,bestiary:()=>`${Object.keys(G.bestiary||{}).length}/${beastKeys().length} met`,chaos:()=>`${(G.chaos||{}).essence||0} essence`});
+/* canvases are painted after each render */
+function afterRender(){document.querySelectorAll("canvas.vase").forEach(cv=>{const v=cv.dataset.draft?Object.assign({name:""},potDraft):(G.museum||[])[+cv.dataset.i];if(v)drawVase(cv,v);});
+  const tc=document.getElementById("tcard");if(tc)drawTeamCard(tc);}
 
 /* ============ loop & boot ============ */
 let lastT=Date.now();
