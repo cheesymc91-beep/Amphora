@@ -4690,7 +4690,7 @@ function viewParty(){
        <button class="btn small" data-act="psave" data-i="${i}">Save current</button><button class="btn small" data-act="pload" data-i="${i}" ${p&&p.length?"":"disabled"}>Use</button></div>`;}).join("")}</div>
      ${(()=>{const sy=activeSyn(G.team);return sy.length?`<div class="synact"><span class="label">Active synergies</span>${sy.map(x=>`<div class="syn on"><span class="sp2">${im(x.a)}${im(x.b)}</span><div><b>${esc(x.n)}</b><span>${esc(x.t)}</span></div></div>`).join("")}</div>`:"";})()}
      ${viewBestTeam()}
-     <div class="row" style="margin-top:8px"><button class="btn main" data-act="bestteam">Pick highest-power team</button><button class="btn main" data-act="autoteam" ${G.gear.length?"":"disabled"}>Auto-equip best gear for team</button></div>
+     <div class="row" style="margin-top:8px"><button class="btn main" data-act="bestteam">Pick highest-power team</button><button class="btn main" data-act="autoteam" ${G.gear.length?"":"disabled"}>Auto-equip best gear for team</button><button class="btn" data-act="teamclear" ${G.team.length?"":"disabled"}>✕ Clear team</button></div>
      <p class="soft" style="font-size:14px;margin-top:4px">“Pick highest-power team” simply fills your 4 slots with your highest-power heroes, without testing them. “Auto-equip” then gives the best gear to the strongest heroes first.</p>
      <div class="label" style="margin-top:12px">All heroes (${owned.length}) · sorted by power${partyCls!=="all"?` · showing ${CLS[partyCls].n}s (${shown.length})`:""}</div>
      ${(()=>{const n=owned.filter(h=>{const r=G.heroes[h.id];return r.shards>=r.stars&&r.stars<6;}).length;return `<div class="row starall"><button class="btn gold" data-act="starall" ${n?"":"disabled"}>★ Star up all heroes${n?` (${n} ready)`:""}</button><span class="soft" style="font-size:14px">${n?"Spends every spare copy on every hero, as many stars as the copies allow.":"No hero has enough copies for a new star yet."}</span></div>`;})()}
@@ -5054,6 +5054,7 @@ document.addEventListener("click",e=>{
     case "salvageall":{let n=0,v=0;G.gear=G.gear.filter(g=>{if(!g.owner&&g.q===0){n++;v+=salvageVal(g);return false;}return true;});G.seals+=v;toast(n?`Salvaged ${n} Mortal pieces for ${v} Bronze.`:"No spare Mortal gear to salvage.");break;}
     case "psave":{G.presets=G.presets||[null,null,null];G.presets[+b.dataset.i]=G.team.slice();toast(`Saved as Team ${"ABC"[+b.dataset.i]}.`);break;}
     case "pload":{const p=(G.presets||[])[+b.dataset.i];if(p){const t=p.filter(x=>G.heroes[x]&&!isAway(x));if(t.length){G.team=t;toast(`Team ${"ABC"[+b.dataset.i]} is now active.`);}}break;}
+    case "teamclear":if(C&&!C.over)return toast("Finish or flee the battle first.");G.team=[];toast("Team cleared. Tap heroes below to add them.");break;
     case "bestteam":{const before=teamPower();const ids=Object.keys(G.heroes).filter(i=>!isAway(i)).sort((a,b)=>powerOf(heroStats(b))-powerOf(heroStats(a))).slice(0,4);
       G.team=ids;toast(`Strongest team set: ${ids.map(i=>HERO[i].n).join(", ")}. Team power ${fmt(before)} → ${fmt(teamPower())}.`);break;}
     case "autoteam":{const team=G.team.slice().sort((a,b)=>powerOf(heroStats(b))-powerOf(heroStats(a)));

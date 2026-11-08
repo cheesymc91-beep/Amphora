@@ -1,7 +1,7 @@
 {
- "version": "1.7.0",
+ "version": "1.7.1",
  "shell": "1.1.0",
- "notes": "Balance update (Phoenix toned down, healers and weak heroes stronger) plus: Oracle's Favour wishlist and Charon's obols, Apotheosis for Mortal and Famed heroes, a myth for every hero with a mythic look, the Potter's Workshop and museum, weekly Festivals, Return to Chaos, the Odyssey, your own polis, a bestiary, achievements and titles, a team card, campfire chats, music, 8x speed and shorter ultimates after the first time.",
+ "notes": "New Clear team button in the Party tab removes every hero from your team at once.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "ddc1b19ddec7361bd023c80275d556077ddef1a902f980e257f4bb1582ea5dbb",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "7140a69a4ec007dbf15b489c05fcea0d0673fcaaa1390d3514e255ed5c10357d",
-  "js/marginalia.js": "888f9ceea5bc50a261d055a627087235ec0f16f42ec434f2f9bfd61256fe17cf"
+  "index.html": "5a7dda6d8bc5f53c006610a511cbd2842d64c733027c42010d62375587b040bf",
+  "js/marginalia.js": "bf719119bee6f6726dc2bb5a7a910a5f2d1d67f65c9fe4c6e0e9742874f9d4e3"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
