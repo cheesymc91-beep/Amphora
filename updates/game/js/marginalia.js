@@ -7441,15 +7441,21 @@ const HMYTH={
 };
 const mythPart=id=>(G.myth&&G.myth[id])||0;
 function mythWaves(id,part){const ci=(hashK(id)+part*3)%CH.length,ch=CH[ci],p=ch.pool,R=seeded(hashK(id)+part*17),pk=()=>p[Math.floor(R()*p.length)];
-  return part===1?[[pk(),pk(),pk()]]:part===2?[[pk(),pk()],[pk(),pk(),pk()]]:[[pk(),pk(),pk()],[pk(),ch.boss]];}
+  return part===1?[[pk(),pk(),pk()],[pk(),pk(),pk()]]:part===2?[[pk(),pk(),pk()],[pk(),pk(),pk()],[pk(),pk(),ch.boss]]:[[pk(),pk(),pk()],[pk(),pk(),pk()],[pk(),pk(),pk()],[pk(),pk(),ch.boss]];}
+/* myths are hard: they give the Epic skin. Foes are stages ahead of your best, stronger still, and elite */
+const MYTH_STAGE=[0,5,10,16],MYTH_HP=[1,1.4,1.8,2.4],MYTH_ATK=[1,1.2,1.4,1.65];
+const mythStage=part=>Math.max(6,refS()+MYTH_STAGE[part]);
 function mythPanel(id){const M=HMYTH[id];if(!M)return "";const p=mythPart(id),h=HERO[id];
   return `<div class="myth"><h3>Myth: ${esc(M[0])} <span class="soft">${p}/3</span></h3>
     <ol>${[1,2,3].map(i=>`<li class="${p>=i?"done":p+1===i?"next":""}">${p+1>=i?esc(M[i]):"🔒 A later chapter"}</li>`).join("")}</ol>
-    ${p<3?`<button class="btn main" data-act="mythgo" data-id="${id}">⚔ Play chapter ${roman(p+1)}</button><span class="soft" style="font-size:13px"> ${esc(h.n)} joins your team for it. ${p===2?"Finishing the myth: +8% HP and ATK and their Epic skin.":""}</span>`
+    ${p<3?`<button class="btn main" data-act="mythgo" data-id="${id}">⚔ Play chapter ${roman(p+1)}</button><span class="soft" style="font-size:13px"> ${esc(h.n)} joins your team for it. <b style="color:var(--bad)">${["","Hard","Very hard","Brutal"][p+1]}:</b> ${p+2} waves of foes from stage ${mythStage(p+1)} (your best is ${refS()}) with +${Math.round((MYTH_HP[p+1]-1)*100)}% HP${p+1===3?", every one of them elite":" and elites"}. ${p===2?"Finishing the myth: +8% HP and ATK and their Epic skin.":""}</span>`
       :`<p><b>Myth complete:</b> +8% HP and ATK, and the Epic skin <b>${typeof SKINS!=="undefined"&&SKINS[id+"_3"]?esc(SKINS[id+"_3"].name):""}</b> is in the Wardrobe above.</p>`}</div>`;}
 MORE_ACT.mythgo=b=>{const id=b.dataset.id,part=mythPart(id)+1;if(part>3||!G.heroes[id])return;
-  const team=[id,...myTeam().filter(x=>x!==id)].slice(0,4),s=Math.max(4,refS()-4+part*2);C=null;
+  const team=[id,...myTeam().filter(x=>x!==id)].slice(0,4),s=mythStage(part);C=null;
   startBattle(s,false,{mode:"myth",team,info:specialInfo(`${HMYTH[id][0]} · ${roman(part)}`,mythWaves(id,part),{s}),mdata:{id,part},log:HMYTH[id][part]});return false;};
+MODE_SPAWN.myth=(foes,w)=>{const p=C.mdata.part;foes.forEach((f,i)=>{f.maxhp=f.hp=Math.round(f.hp*MYTH_HP[p]*(f.boss?1.5:1));f.atk=Math.round(f.atk*MYTH_ATK[p]*(f.boss?1.15:1));
+  if(!f.boss&&!f.elite&&(p===3||(p===2&&i===0)||(p===1&&w===1&&i===0))){const e=ELITE_KEYS[(hashK(C.mdata.id)+w*3+i)%ELITE_KEYS.length];f.elite=e;f.n=ELITES[e].n+" "+f.n;f.brk=f.brkMax=f.brkMax+1;
+    if(e==="giant")f.maxhp=f.hp=Math.round(f.hp*1.8);if(e==="furious")f.atk=Math.round(f.atk*1.4);if(e==="swift")f.spd+=40;}});};
 MODE_FIN.myth=win=>{const {id,part}=C.mdata;if(!win)return {};G.myth=G.myth||{};const first=(G.myth[id]||0)<part;if(first)G.myth[id]=part;
   const r={gilt:first?Math.round((60+part*40)*theatreMul()):0,seals:first?40+part*20:10};give(r);if(first&&part===3&&typeof skinInit==="function"){skinInit();G.skins[id+"_3"]=1;}achCheck();return {r,id,part,first};};
 MODE_RES.myth=r=>r.id?resBox(r.part===3&&r.first?`${esc(HMYTH[r.id][0])}: complete!`:`Chapter ${roman(r.part)} won`,true,`${r.part===3&&r.first?`<p>${esc(HERO[r.id].n)} gains +8% HP and ATK and the Epic skin ${typeof SKINS!=="undefined"&&SKINS[r.id+"_3"]?esc(SKINS[r.id+"_3"].name):""}.</p>`:""}${rwHTML(r.r)}`,`<button class="btn main" data-act="toparty">To the Party</button>`)

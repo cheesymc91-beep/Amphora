@@ -1,7 +1,7 @@
 {
- "version": "1.8.0",
+ "version": "1.8.1",
  "shell": "1.1.0",
- "notes": "Hero skins: every hero has 4 skins (Common colourway, Rare outfit, Epic material, Legendary form) with buffs that grow with rarity. New Loom of the Fates in the Temple weaves skins with Golden Thread; Wardrobe on each hero's page. Finished myths now give the hero's Epic skin.",
+ "notes": "Myths are much harder now that they give the Epic skin: more waves, foes 5/10/16 stages beyond your best clear with +40/80/140% HP and more ATK, elites, a tougher boss, and the final chapter is all elites.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "6c72b9c7fbf91ff4533df6f83a1d99aeae7f762b826aac2ec1044838498362c2",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "98041e4415ef5153015a5e08782f98f2e27401ab183fdf508e0f9ec18b0c8264",
-  "js/marginalia.js": "ae5408ac9fd68415feb134ed1a92c783dedd41af4de976a77d548f966c7ce55a"
+  "index.html": "a7443f749ddf8e9edb5be28b0d2b66d6d2a5213d78e78798e383faadd0f2e266",
+  "js/marginalia.js": "40ddc0707c823293576b8a94b139bfccb94652a02a11ccbc51b5e9bca2401e43"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
