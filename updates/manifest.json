@@ -1,17 +1,17 @@
 {
- "version": "1.7.1",
+ "version": "1.8.0",
  "shell": "1.1.0",
- "notes": "New Clear team button in the Party tab removes every hero from your team at once.",
+ "notes": "Hero skins: every hero has 4 skins (Common colourway, Rare outfit, Epic material, Legendary form) with buffs that grow with rarity. New Loom of the Fates in the Temple weaves skins with Golden Thread; Wardrobe on each hero's page. Finished myths now give the hero's Epic skin.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "ddc1b19ddec7361bd023c80275d556077ddef1a902f980e257f4bb1582ea5dbb",
+  "css/marginalia.css": "6c72b9c7fbf91ff4533df6f83a1d99aeae7f762b826aac2ec1044838498362c2",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "5a7dda6d8bc5f53c006610a511cbd2842d64c733027c42010d62375587b040bf",
-  "js/marginalia.js": "bf719119bee6f6726dc2bb5a7a910a5f2d1d67f65c9fe4c6e0e9742874f9d4e3"
+  "index.html": "98041e4415ef5153015a5e08782f98f2e27401ab183fdf508e0f9ec18b0c8264",
+  "js/marginalia.js": "ae5408ac9fd68415feb134ed1a92c783dedd41af4de976a77d548f966c7ce55a"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

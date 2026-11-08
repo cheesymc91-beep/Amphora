@@ -2752,7 +2752,7 @@ function face(cx,cy,s,m="calm",o={}){const dx=s*.1,ex=s*.34,ey=cy+s*.02;let r=""
   const iris=FOE?(o.irisC||"#c8a020"):col("eye"),brow=mix(col("glaze"),"#000",.2);
   const eye=x=>{if(m==="closed")return L(`M${x-s*.2} ${ey} Q${x} ${ey+s*.12} ${x+s*.2} ${ey}`,mix(col("clay"),"#000",.55),s*.07);
     const w=s*.22,h=m==="crazy"?s*.15:s*.1;
-    if(!o.paintEyes)return `<path d="M${x-w} ${ey} Q${x} ${ey-h*1.6} ${x+w} ${ey} Q${x} ${ey+h*1.2} ${x-w} ${ey}Z" fill="${FOE?"#ff5a2a":mix(col("clay"),"#fff",.3)}" stroke="${mix(col("clay"),"#000",.42)}" stroke-width="${s*.035}" ${FOE?`filter="url(#glow)"`:""}/>${FOE?"":`<circle cx="${x+s*.03}" cy="${ey}" r="${h*.7}" fill="none" stroke="${mix(col("clay"),"#000",.35)}" stroke-width="${s*.03}"/><path d="M${x-w*1.1} ${ey-h*.3} Q${x} ${ey-h*2} ${x+w*1.1} ${ey-h*.3}" fill="none" stroke="${mix(col("clay"),"#000",.3)}" stroke-width="${s*.06}" opacity=".6"/>`}`;
+    if(!o.paintEyes&&!(SKN&&SKN.eyes))return `<path d="M${x-w} ${ey} Q${x} ${ey-h*1.6} ${x+w} ${ey} Q${x} ${ey+h*1.2} ${x-w} ${ey}Z" fill="${FOE?"#ff5a2a":mix(col("clay"),"#fff",.3)}" stroke="${mix(col("clay"),"#000",.42)}" stroke-width="${s*.035}" ${FOE?`filter="url(#glow)"`:""}/>${FOE?"":`<circle cx="${x+s*.03}" cy="${ey}" r="${h*.7}" fill="none" stroke="${mix(col("clay"),"#000",.35)}" stroke-width="${s*.03}"/><path d="M${x-w*1.1} ${ey-h*.3} Q${x} ${ey-h*2} ${x+w*1.1} ${ey-h*.3}" fill="none" stroke="${mix(col("clay"),"#000",.3)}" stroke-width="${s*.06}" opacity=".6"/>`}`;
     return `<path d="M${x-w} ${ey} Q${x} ${ey-h*1.5} ${x+w} ${ey} Q${x} ${ey+h*1.1} ${x-w} ${ey}Z" fill="#f6f1e8" stroke="${mix(col("clay"),"#000",.5)}" stroke-width="${s*.03}"/>
       <circle cx="${x+s*.03}" cy="${ey}" r="${h*.95}" fill="${iris}"/><circle cx="${x+s*.03}" cy="${ey}" r="${h*.45}" fill="#140c08"/><circle cx="${x+s*.06}" cy="${ey-h*.35}" r="${h*.25}" fill="#fff"/>
       <path d="M${x-w*1.05} ${ey-h*.1} Q${x} ${ey-h*1.8} ${x+w*1.05} ${ey-h*.2}" fill="none" stroke="#2a1810" stroke-width="${s*(fem?.07:.05)}" stroke-linecap="round"/>`;};
@@ -3043,9 +3043,9 @@ const ICON={
 const GEAR={quill:k=>[ITEM.spear,ITEM.xiphos,ITEM.labrys,ITEM.trident,ITEM.bow,ITEM.bolt][k](42,72),binding:()=>ICON.i_binding(),seal:k=>k>=4?E(50,56,18,18,"dil")+`<circle cx="50" cy="56" r="10" fill="${T.glaze}"/>`+face(50,54,10,"grr",{dark:true,white:true}):ICON.i_seal()};
 const cache={};
 const SKY={verm:["#8a3a2a","#2a120c"],verd:["#3f6a3a","#121e10"],lapis:["#2f5a8a","#0c1626"],gold:["#9a7a2a","#2a1e08"],iron:["#4a4660","#121018"]};
-function wrap(inner,el,bare,bust){const sky=SKY[el]||SKY.gold,foeBg=["#3a1a1a","#0a0606"];const [a,b]=FOE?foeBg:sky;
-  const defs=`<defs>${DEFS.join("")}<radialGradient id="bgx" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>
-   <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${FOE?"#9a6a3a":"#fff3c4"}"/><stop offset=".5" stop-color="${FOE?"#5a3a1c":"#c9973c"}"/><stop offset="1" stop-color="${FOE?"#2a1a0c":"#7a5418"}"/></linearGradient>
+function wrap(inner,el,bare,bust){const FF=SKN&&FORMS[SKN.form],sky=(SKN&&(SKN.sky||(FF&&FF.sky)))||SKY[el]||SKY.gold,foeBg=["#3a1a1a","#0a0606"];const [a,b]=FOE?foeBg:sky;
+  const rim=SKN?skinRim():null;const defs=`<defs>${DEFS.join("")}${skinDefs()}<radialGradient id="bgx" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>
+   <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rim?rim[0]:FOE?"#9a6a3a":"#fff3c4"}"/><stop offset=".5" stop-color="${rim?rim[1]:FOE?"#5a3a1c":"#c9973c"}"/><stop offset="1" stop-color="${rim?rim[2]:FOE?"#2a1a0c":"#7a5418"}"/></linearGradient>
    <filter id="grain" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="${Math.floor(R()*90)}" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 .2  0 0 0 0 .12  0 0 0 0 .05  0 0 0 .14 0" result="g"/><feComposite in="g" in2="SourceAlpha" operator="in" result="gm"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gm"/></feMerge></filter>
    <filter id="vein" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="turbulence" baseFrequency=".035 .09" numOctaves="3" seed="${Math.floor(R()*90)}" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 .35  0 0 0 0 .34  0 0 0 0 .38  -2.2 0 0 0 .55" result="v"/><feComposite in="v" in2="SourceAlpha" operator="in" result="vm"/>
      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 .3  0 0 0 0 .28  0 0 0 0 .26  0 0 0 .1 0" result="g"/><feComposite in="g" in2="SourceAlpha" operator="in" result="gm"/>
@@ -3055,22 +3055,89 @@ function wrap(inner,el,bare,bust){const sky=SKY[el]||SKY.gold,foeBg=["#3a1a1a","
   const plate=bare?"":`<circle cx="50" cy="50" r="48" fill="url(#rim)"/><circle cx="50" cy="50" r="43.5" fill="url(#bgx)"/>
    ${FOE?"":`<ellipse cx="50" cy="30" rx="30" ry="34" fill="#fff" opacity=".10"/>`}
    <circle cx="50" cy="50" r="43.5" fill="none" stroke="${FOE?"#2a1a0c":"#7a5418"}" stroke-width="1.2"/>${[...Array(24)].map((_,i)=>`<g transform="rotate(${i*15} 50 50)"><path d="M48.2 3.6 L48.2 6.4 L51.6 6.4 L51.6 5 L49.9 5" fill="none" stroke="${FOE?"#c9a060":"#5a3a10"}" stroke-width=".7"/></g>`).join("")}`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${defs}${plate}<ellipse cx="50" cy="89.5" rx="${bare?24:20}" ry="2.8" fill="#1a0e06" opacity=".3"/>
-   <g filter="url(#sh)"><g filter="url(#vein)" ${bare?"":bust?`transform="translate(-27 -2) scale(1.55)"`:`transform="translate(9 8) scale(.82)"`}>${inner}</g></g>${bare?"":`<circle cx="50" cy="50" r="43.5" fill="none" stroke="${FOE?"#2a1a0c":"#7a5418"}" stroke-width="1.4"/>`}</svg>`;}
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${defs}${plate}${skinBack(bare)}<ellipse cx="50" cy="89.5" rx="${bare?24:20}" ry="2.8" fill="#1a0e06" opacity=".3"/>
+   <g filter="url(#sh)" ${SKN&&MATS[SKN.mat]&&MATS[SKN.mat].alpha?`opacity="${MATS[SKN.mat].alpha}"`:""}><g filter="url(#${!SKN?"vein":FF?"lfm":MATS[SKN.mat]&&MATS[SKN.mat].vein!=="none"?"mvn":"grain"})" ${bare?"":bust?`transform="translate(-27 -2) scale(1.55)"`:`transform="translate(9 8) scale(.82)"`}>${inner}</g></g>${skinFront()}${bare?"":`<circle cx="50" cy="50" r="43.5" fill="none" stroke="${rim?rim[2]:FOE?"#2a1a0c":"#7a5418"}" stroke-width="1.4"/>`}</svg>`;}
+/* ===== SKINS (1.8): materials, legendary forms, overlays. A skin is {id,tier,mat,cw,o,form,fx,sky}. ===== */
+const MATS={
+ bronze:{clay:"#b9803f",clayL:"#c48c48",clayD:"#8a5a2a",glaze:"#5e3a1c",white:"#d8a860",dil:"#f0cf70",olive:"#4f8a6a",lip:"#9a6234",vein:"patina"},
+ gold:{clay:"#e2b44a",clayL:"#ecc666",clayD:"#b4822a",glaze:"#7a5a18",white:"#fbf0cf",dil:"#fff3b8",olive:"#c8a040",lip:"#c08a30",vein:"none"},
+ obsidian:{clay:"#2c2834",clayL:"#3a3444",clayD:"#201c28",glaze:"#121016",white:"#4c4658",dil:"#c9a0ff",olive:"#3a3a4a",lip:"#3a3444",vein:"violet"},
+ inferno:{clay:"#3a2420",clayL:"#4a2c24",clayD:"#2a1814",glaze:"#160c0a",white:"#5a3a30",dil:"#ffb030",olive:"#5a2a1a",lip:"#5a2a20",vein:"lava"},
+ shade:{clay:"#a8cadc",clayL:"#bcdcea",clayD:"#86aec6",glaze:"#5a7e9e",white:"#dceff8",dil:"#d8f6ff",olive:"#7aa0b0",lip:"#8ab0c8",vein:"mist",alpha:.8},
+ frost:{clay:"#dcf2fb",clayL:"#c8e8f5",clayD:"#a0cce2",glaze:"#5f9cc4",white:"#f6fdff",dil:"#9ee6ff",olive:"#8ec8d8",lip:"#a8d0e4",vein:"ice"},
+ verdant:{clay:"#a9b38e",clayL:"#97aa78",clayD:"#6a8a4a",glaze:"#3e5c30",white:"#cdd5b2",dil:"#e2c260",olive:"#4e7a34",lip:"#8a9a6a",vein:"moss"},
+ lapis:{clay:"#3a5aa0",clayL:"#4766aa",clayD:"#243f7c",glaze:"#121c46",white:"#6a88c4",dil:"#f2cc58",olive:"#2a4a6a",lip:"#30508c",vein:"fleck"},
+ porphyry:{clay:"#7a3050",clayL:"#86385a",clayD:"#5a2038",glaze:"#2e0e1c",white:"#a05a78",dil:"#f0d080",olive:"#5a2a3a",lip:"#6a2846",vein:"speck"},
+ coral:{clay:"#f0a08a",clayL:"#f4b4a0",clayD:"#d27a68",glaze:"#8a3a3a",white:"#fde6dc",dil:"#ffe0a0",olive:"#5aa8a0",lip:"#c86a5a",vein:"pearl"}
+};
+const SKIN_TC=["#a7b0b8","#4f9ae0","#b073e8","#f4b232"];
+/* legendary forms: a gradient map over the statue's light and shade, plus an edge glow */
+const FORMS={
+ astral:{map:["#e8f0ff","#2a3a80","#141c48","#0a0e2a"],glow:"#ffe9a8",sky:["#1a2460","#04061a"],stars:1},
+ radiant:{map:["#6a3a08","#c8861c","#ffd65a","#fff8d8"],glow:"#fff0a0",sky:["#f4c860","#7a4a10"],rays:1},
+ pyre:{map:["#2a0400","#a01a00","#ff6a10","#ffe070"],glow:"#ff8a20",sky:["#5a1408","#120200"],disp:3},
+ eidolon:{map:["#e0c8ff","#4a1a7a","#120820","#06030c"],glow:"#b070ff",sky:["#2a0e40","#05020a"]},
+ tide:{map:["#0a2a40","#1a7a9a","#6ad8e8","#e8ffff"],glow:"#a8f4ff",sky:["#0e5a7a","#021420"],disp:2},
+ blackfig:{map:["#e08a4a","#c86a30","#1a100c","#1a100c","#1a100c"],glow:"#1a100c",sky:["#d8793a","#8a3a14"],vase:1},
+ redfig:{map:["#120a08","#7a3418","#d8803e","#e8955a"],glow:"#120a08",sky:["#1a100c","#050302"],vase:1},
+ storm:{map:["#0a1030","#3050c0","#a8c8ff","#ffffff"],glow:"#c8e4ff",sky:["#1a2850","#04060e"],bolts:1}
+};
+let SKN=null,SKR=0;const SR=()=>{SKR=(SKR*16807)%2147483647;return SKR/2147483647;};
+const tbl=(cs,ch)=>cs.map(c=>(parseInt(c.substr(1+ch*2,2),16)/255).toFixed(3)).join(" ");
+function skinDefs(){if(!SKN)return "";const s=SKN;let d="";
+  const m=MATS[s.mat],v=m&&m.vein;
+  if(v&&v!=="none"){const V={patina:["#3f9a7a",".05 .1",3,.45],violet:["#c8a8ff",".04 .1",3,.55],lava:["#ff7a14",".05 .11",4,1],mist:["#ffffff",".03 .06",2,.4],ice:["#ffffff",".08 .2",3,.6],
+      moss:["#5a8a30",".09 .09",3,.7],fleck:["#f6d060",".9 .9",1,1],speck:["#f4e4ea",".85 .85",1,.9],pearl:["#ffffff",".04 .1",2,.5]}[v];
+    const [c,bf,oc,a]=V,[r,g,b]=hx2(c).map(x=>(x/255).toFixed(3)),dots=bf.startsWith(".8")||bf.startsWith(".9");
+    d+=`<filter id="mvn" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="${dots?"fractalNoise":"turbulence"}" baseFrequency="${bf}" numOctaves="${oc}" seed="${Math.floor(SR()*90)}" result="t"/>
+      <feColorMatrix in="t" type="matrix" values="0 0 0 0 ${r}  0 0 0 0 ${g}  0 0 0 0 ${b}  ${dots?"0 0 0 9 -5.6":"-7 0 0 0 1"}" result="vc"/><feComponentTransfer in="vc" result="va"><feFuncA type="linear" slope="${a}"/></feComponentTransfer>
+      <feComposite in="va" in2="SourceAlpha" operator="in" result="vm"/>${v==="lava"?`<feGaussianBlur in="vm" stdDeviation=".5" result="vb"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="vb"/><feMergeNode in="vm"/></feMerge>`:`<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="vm"/></feMerge>`}</filter>`;}
+  const F=FORMS[s.form];
+  if(F){const mp=F.map;
+    d+=`<filter id="lfm" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="matrix" values=".3 .55 .15 0 0  .3 .55 .15 0 0  .3 .55 .15 0 0  0 0 0 1 0" result="gy"/>
+      ${F.disp?`<feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="2" seed="7" result="tn"/><feDisplacementMap in="gy" in2="tn" scale="${F.disp}" xChannelSelector="R" yChannelSelector="G" result="gd"/>`:""}
+      <feComponentTransfer in="${F.disp?"gd":"gy"}" result="mp"><feFuncR type="table" tableValues="${tbl(mp,0)}"/><feFuncG type="table" tableValues="${tbl(mp,1)}"/><feFuncB type="table" tableValues="${tbl(mp,2)}"/></feComponentTransfer>
+      ${F.stars?`<feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="1" seed="${Math.floor(SR()*90)}" result="sn"/><feColorMatrix in="sn" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 14 -9.4" result="st"/><feComposite in="st" in2="SourceAlpha" operator="in" result="sti"/>`:""}
+      <feMorphology in="SourceAlpha" operator="dilate" radius="${F.vase?.5:1}" result="dl"/><feFlood flood-color="${F.glow}"/><feComposite in2="dl" operator="in" result="gl"/><feGaussianBlur in="gl" stdDeviation="${F.vase?.2:1.3}" result="glb"/>
+      <feMerge><feMergeNode in="glb"/>${F.vase?"":`<feMergeNode in="glb"/>`}<feMergeNode in="gl"/><feMergeNode in="mp"/>${F.stars?`<feMergeNode in="sti"/>`:""}</feMerge></filter>`;}
+  return d;}
+const anim=(a,v,dur,extra="")=>SKN&&SKN.still?"":`<animate attributeName="${a}" values="${v}" dur="${dur}s" repeatCount="indefinite" ${extra}/>`;
+function skinBack(bare){if(!SKN)return "";const F=FORMS[SKN.form];let s="";
+  if(F&&F.rays&&!bare)s+=`<clipPath id="rc"><circle cx="50" cy="50" r="43.5"/></clipPath><g opacity=".55" clip-path="url(#rc)"><g>${[...Array(12)].map((_,i)=>`<path d="M50 50 L${50+Math.cos(i*.5236-.1)*60} ${50+Math.sin(i*.5236-.1)*60} L${50+Math.cos(i*.5236+.1)*60} ${50+Math.sin(i*.5236+.1)*60}Z" fill="#fff6c8"/>`).join("")}${SKN.still?"":`<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="30 50 50" dur="9s" repeatCount="indefinite"/>`}</g></g>`;
+  if(F&&F.vase&&!bare)s+=meander(10,92,84,F===FORMS.blackfig?"rgba(26,16,12,.85)":"rgba(216,128,62,.85)",5)+meander(10,92,15,F===FORMS.blackfig?"rgba(26,16,12,.85)":"rgba(216,128,62,.85)",5);
+  if(SKN.tier>=2&&!F&&!bare){const c=SKN.aura||(MATS[SKN.mat]||{}).dil||"#fff";s+=`<circle cx="50" cy="48" r="30" fill="${c}" opacity=".18">${anim("opacity",".1;.26;.1",4)}</circle>`;}
+  return s&&!bare?`<clipPath id="bkc"><circle cx="50" cy="50" r="43"/></clipPath><g clip-path="url(#bkc)">${s}</g>`:s;}
+function skinFront(){if(!SKN||!SKN.fx)return "";const fx=SKN.fx,n=fx==="stars"?9:7;let s="";
+  for(let i=0;i<n;i++){const x=16+SR()*68,y=14+SR()*72,d=(2.5+SR()*3).toFixed(1),b=(-SR()*5).toFixed(1),bg=`begin="${b}s"`;
+    if(fx==="embers"||fx==="bubbles"||fx==="motes"){const c={embers:"#ffb040",bubbles:"#d8fbff",motes:"#c890ff"}[fx],r=fx==="bubbles"?1.3:.9;
+      s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${fx==="bubbles"?"none":c}" stroke="${fx==="bubbles"?c:"none"}" stroke-width=".5" opacity=".9">${anim("cy",`${y+10};${y-14}`,d,bg)}${anim("opacity","0;1;0",d,bg)}</circle>`;}
+    else if(fx==="stars"||fx==="sparkle"||fx==="snow"){const c={stars:"#fff6d0",sparkle:"#fff3b0",snow:"#ffffff"}[fx],r=.8+SR()*1.2;
+      s+=`<path d="M${x} ${y-r*2} L${x+r*.5} ${y-r*.5} L${x+r*2} ${y} L${x+r*.5} ${y+r*.5} L${x} ${y+r*2} L${x-r*.5} ${y+r*.5} L${x-r*2} ${y} L${x-r*.5} ${y-r*.5}Z" fill="${c}">${anim("opacity","0;1;0",d,bg)}</path>`;}
+    else if(fx==="leaves"||fx==="petals"){const c=fx==="leaves"?(i%2?"#6a9a3a":"#9ab84a"):(i%2?"#f08aa8":"#ffc0d0");
+      s+=`<ellipse cx="${x}" cy="${y}" rx="1.8" ry=".9" fill="${c}" transform="rotate(${Math.round(SR()*180)} ${x} ${y})">${anim("cy",`${y-10};${y+12}`,d+2,bg)}${anim("opacity","0;1;0",d+2,bg)}</ellipse>`;}
+    else if(fx==="bolts"&&i<3){s+=`<path d="M${x} ${y-8} l-3 6 l3 0 l-3 7" fill="none" stroke="#e0f0ff" stroke-width=".8" opacity="0">${anim("opacity","0;0;1;0;0;0",d,bg)}</path>`;}
+    else if(fx==="mist"&&i<4){s+=`<ellipse cx="${x}" cy="${60+SR()*25}" rx="10" ry="2.5" fill="#e8f6ff" opacity=".25">${anim("cx",`${x-6};${x+6};${x-6}`,d*2,bg)}</ellipse>`;}}
+  return s;}
+function skinRim(){const t=SKN.tier,F=FORMS[SKN.form],c=SKIN_TC[t];
+  if(F&&F.vase)return ["#2a1a10","#1a100c","#0c0806"];
+  return t===0?["#eef2f4","#9aa4ac","#4a525a"]:t===1?["#d8ecff","#4f9ae0","#1a3a6a"]:t===2?["#f0e0ff","#b073e8","#4a1a7a"]:["#fff6c8","#f4b232","#8a4a08"];}
+
 /* marble: every figure is a statue. Heroes in white Carrara marble with gold and bronze; monsters in dark basalt with glowing eyes */
 function MARBLE(foe,acc){const m=foe?{clay:"#6a6672",clayL:"#7c7884",clayD:"#55515e",glaze:"#3f3b47",white:"#8a8692",red:mix(acc.red||"#6a2a2a","#4a4650",.55),olive:"#5a5a50"}
   :{clay:"#efe9df",clayL:"#e6dfd2",clayD:"#cfc6b8",glaze:"#bdb4a6",white:"#f4f0e8",red:mix(acc.red||"#c9b8a0","#ece6da",.82),olive:"#a8a894"};
   m.dil=foe?"#a8803a":"#d6aa48";m.eye="marble";m.lip=foe?"#4a4650":"#d8cfc2";return m;}
 const FOE_KEYS=/^(bookworm|silverfish|madhare|armorsnail|bonnacon|mandrake|thornvine|henbane|beeswarm|lamb|grotesque|piper|hybrid|moth|baron|locust|hydraling|fallenstar|trumpeter|beast|raider|sciapod|cynohunter|serpent|leviathan|inkblot|wraith|imp|tornpage|greatblot|panotius|goldant|cockatrice|yale|roc|organpig|bear|mirrorape|fool|goldworm|misrule)$/;
-function draw(k,bare){seed=[...k].reduce((a,c)=>a*31+c.charCodeAt(0),7)%2147483646+1;DEFS=[];GD={};GN=0;FOE=FOE_KEYS.test(k);PAL=MARBLE(FOE,PALS[k]||{});
+function draw(k,bare,sk){seed=[...k].reduce((a,c)=>a*31+c.charCodeAt(0),7)%2147483646+1;DEFS=[];GD={};GN=0;FOE=FOE_KEYS.test(k);SKN=sk||null;SKR=seed;
+  PAL=!sk?MARBLE(FOE,PALS[k]||{}):sk.mat==="painted"||FORMS[sk.form]?Object.assign({},PALS[k]||{},sk.cw||{}):Object.assign({},MARBLE(false,PALS[k]||{}),MATS[sk.mat]||{},sk.cw||{});
   if(ICON[k]){FOE=false;const inner=ICON[k]();return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${DEFS.join("")}</defs>${inner}</svg>`;}
   const gm=/^g_(quill|binding|seal)_(\d)$/.exec(k);
   if(gm){FOE=false;const q=+gm[2];const inner=GEAR[gm[1]](q);return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${DEFS.join("")}<radialGradient id="gq" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f6ecd6"/><stop offset="1" stop-color="#c8b48c"/></radialGradient></defs><circle cx="50" cy="50" r="44" fill="url(#gq)" stroke="${QC[q]}" stroke-width="6"/><g transform="translate(-12 -14) scale(1.25)">${inner}</g></svg>`;}
-  const o=S[k];if(!o)return null;FOE=FOE_KEYS.test(k);
+  const o0=S[k];if(!o0)return null;const o=sk&&sk.o?Object.assign({},o0,sk.o):o0;FOE=FOE_KEYS.test(k);
   const el=(typeof HERO!=="undefined"&&HERO[k]&&HERO[k].el)||(typeof EN!=="undefined"&&EN[k]&&EN[k].el)||"gold";
   const body=o.b(Object.assign({},o));
   return wrap(bare?body:`<clipPath id="cp"><circle cx="50" cy="${o.b===biped?44:50}" r="${o.b===biped?27.5:52}"/></clipPath><g clip-path="url(#cp)">${body}</g>`,el,bare,o.b===biped);}
-function url(k,bare){const ck=k+(bare?"|b":"");if(cache[ck])return cache[ck];const s=draw(k,bare);if(!s)return null;return cache[ck]="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s);}
+function url(k,bare,sk){const ck=k+(bare?"|b":"")+(sk?"|"+sk.id+(sk.still?"s":""):"");if(cache[ck])return cache[ck];let s;try{s=draw(k,bare,sk);}finally{SKN=null;}if(!s)return null;return cache[ck]="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(s);}
 url.keys=()=>Object.keys(S);url.icons=()=>Object.keys(ICON);
 return url;})();
 
@@ -3204,7 +3271,7 @@ function draw(s){const T=stageTheme(s);let seed=s*7919+13;const R=()=>{seed=(see
 function shade(h,f){const n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b2=n&255,t=f<0?0:255,p=Math.abs(f);return "#"+[r,g,b2].map(v=>Math.round(v+(t-v)*p).toString(16).padStart(2,"0")).join("");}
 return s=>{s=Math.max(1,s|0);return cache[s]||(cache[s]="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(draw(s)));};})();
 
-const spriteURL=(k,bare)=>ART_STYLE==="manuscript"?monkURL(k):ART_STYLE==="marble"?(paintURL(k,bare)||potURL(k,bare)||skURL(k,bare)||monkURL(k)):ART_STYLE==="pottery"?(potURL(k,bare)||skURL(k,bare)||monkURL(k)):ART_STYLE==="marzipan"?(mzURL(k,bare)||skURL(k,bare)||monkURL(k)):(skURL(k,bare)||monkURL(k));
+const spriteURL=(k,bare)=>ART_STYLE==="manuscript"?monkURL(k):ART_STYLE==="marble"?(paintURL(k,bare,typeof skinOf==="function"&&typeof HERO!=="undefined"&&HERO[k]?skinOf(k):null)||potURL(k,bare)||skURL(k,bare)||monkURL(k)):ART_STYLE==="pottery"?(potURL(k,bare)||skURL(k,bare)||monkURL(k)):ART_STYLE==="marzipan"?(mzURL(k,bare)||skURL(k,bare)||monkURL(k)):(skURL(k,bare)||monkURL(k));
 /* ============ utils ============ */
 const rnd=(a,b)=>a+Math.random()*(b-a), pick=a=>a[Math.floor(Math.random()*a.length)], roll=p=>Math.random()*100<p;
 const uid=()=>Math.random().toString(36).slice(2,10);
@@ -4889,7 +4956,7 @@ const HELP={
  tasks:{t:"Tasks",b:()=>`<h3>Tasks</h3><p>Tasks teach the game step by step and pay Drachmae, Ambrosia or Bronze. When one turns gold, press <b>Claim</b>. After the starter tasks, the High Priest keeps paying a milestone every 5 stages.</p>`}
 };
 function viewHelp(){
-  const keys=["welcome","basics","battle","strategy","bestteam","classes","synergy","elements","currency","party","gear","wells","idle","daily","endless","tasks"];
+  const keys=["welcome","basics","battle","strategy","bestteam","classes","synergy","elements","currency","party","gear","wells","skins","idle","daily","endless","tasks"];
   return `<div class="modal" role="dialog" aria-label="How to play"><div class="panel framed">
     <div class="ph"><h2>How to play</h2><button class="btn small" data-act="closehelp">Close</button></div>
     <div class="htabs">${keys.map(k=>`<button class="btn small" data-act="help" data-sec="${k}" aria-pressed="${helpSec===k}">${HELP[k].t}</button>`).join("")}</div>
@@ -7378,14 +7445,14 @@ function mythWaves(id,part){const ci=(hashK(id)+part*3)%CH.length,ch=CH[ci],p=ch
 function mythPanel(id){const M=HMYTH[id];if(!M)return "";const p=mythPart(id),h=HERO[id];
   return `<div class="myth"><h3>Myth: ${esc(M[0])} <span class="soft">${p}/3</span></h3>
     <ol>${[1,2,3].map(i=>`<li class="${p>=i?"done":p+1===i?"next":""}">${p+1>=i?esc(M[i]):"🔒 A later chapter"}</li>`).join("")}</ol>
-    ${p<3?`<button class="btn main" data-act="mythgo" data-id="${id}">⚔ Play chapter ${roman(p+1)}</button><span class="soft" style="font-size:13px"> ${esc(h.n)} joins your team for it. ${p===2?"Finishing the myth: +8% HP and ATK and a mythic look.":""}</span>`
-      :`<p><b>Myth complete:</b> +8% HP and ATK.</p><button class="btn small" data-act="skin" data-id="${id}" aria-pressed="${!!(G.skin||{})[id]}">${(G.skin||{})[id]?"Mythic look: on":"Mythic look: off"}</button>`}</div>`;}
+    ${p<3?`<button class="btn main" data-act="mythgo" data-id="${id}">⚔ Play chapter ${roman(p+1)}</button><span class="soft" style="font-size:13px"> ${esc(h.n)} joins your team for it. ${p===2?"Finishing the myth: +8% HP and ATK and their Epic skin.":""}</span>`
+      :`<p><b>Myth complete:</b> +8% HP and ATK, and the Epic skin <b>${typeof SKINS!=="undefined"&&SKINS[id+"_3"]?esc(SKINS[id+"_3"].name):""}</b> is in the Wardrobe above.</p>`}</div>`;}
 MORE_ACT.mythgo=b=>{const id=b.dataset.id,part=mythPart(id)+1;if(part>3||!G.heroes[id])return;
   const team=[id,...myTeam().filter(x=>x!==id)].slice(0,4),s=Math.max(4,refS()-4+part*2);C=null;
   startBattle(s,false,{mode:"myth",team,info:specialInfo(`${HMYTH[id][0]} · ${roman(part)}`,mythWaves(id,part),{s}),mdata:{id,part},log:HMYTH[id][part]});return false;};
 MODE_FIN.myth=win=>{const {id,part}=C.mdata;if(!win)return {};G.myth=G.myth||{};const first=(G.myth[id]||0)<part;if(first)G.myth[id]=part;
-  const r={gilt:first?Math.round((60+part*40)*theatreMul()):0,seals:first?40+part*20:10};give(r);if(first&&part===3){G.skin=G.skin||{};G.skin[id]=1;}achCheck();return {r,id,part,first};};
-MODE_RES.myth=r=>r.id?resBox(r.part===3&&r.first?`${esc(HMYTH[r.id][0])}: complete!`:`Chapter ${roman(r.part)} won`,true,`${r.part===3&&r.first?`<p>${esc(HERO[r.id].n)} gains +8% HP and ATK and a mythic look.</p>`:""}${rwHTML(r.r)}`,`<button class="btn main" data-act="toparty">To the Party</button>`)
+  const r={gilt:first?Math.round((60+part*40)*theatreMul()):0,seals:first?40+part*20:10};give(r);if(first&&part===3&&typeof skinInit==="function"){skinInit();G.skins[id+"_3"]=1;}achCheck();return {r,id,part,first};};
+MODE_RES.myth=r=>r.id?resBox(r.part===3&&r.first?`${esc(HMYTH[r.id][0])}: complete!`:`Chapter ${roman(r.part)} won`,true,`${r.part===3&&r.first?`<p>${esc(HERO[r.id].n)} gains +8% HP and ATK and the Epic skin ${typeof SKINS!=="undefined"&&SKINS[r.id+"_3"]?esc(SKINS[r.id+"_3"].name):""}.</p>`:""}${rwHTML(r.r)}`,`<button class="btn main" data-act="toparty">To the Party</button>`)
   :resBox("The story isn't over",false,`<p class="soft">Try the chapter again with a stronger team.</p>`,`<button class="btn main" data-act="toparty">To the Party</button>`);
 MORE_ACT.skin=b=>{G.skin=G.skin||{};const id=b.dataset.id;if(mythPart(id)<3)return;G.skin[id]=!G.skin[id];};
 /* the hero panel gets myth + apotheosis */
@@ -7663,6 +7730,159 @@ Object.assign(MORE_STATUS,{odyssey:()=>{const O=odyState();return `Voyage ${roma
 /* canvases are painted after each render */
 function afterRender(){document.querySelectorAll("canvas.vase").forEach(cv=>{const v=cv.dataset.draft?Object.assign({name:""},potDraft):(G.museum||[])[+cv.dataset.i];if(v)drawVase(cv,v);});
   const tc=document.getElementById("tcard");if(tc)drawTeamCard(tc);}
+
+/* ===================== 1.8: SKINS & THE LOOM OF THE FATES =====================
+   Every hero has 4 skins. I Painted colourway · II a new outfit · III a statue of a new material · IV a legendary form.
+   Rarer skins give bigger buffs, but only while equipped. Skins are woven at the Loom of the Fates with Golden Thread. */
+const SKIN_T=["Common","Rare","Epic","Legendary"],SKIN_TN=["I","II","III","IV"];
+const SKIN_BUFF=[{hp:.03,atk:.03,pw:0},{hp:.06,atk:.06,pw:0},{hp:.10,atk:.10,pw:.08},{hp:.15,atk:.15,pw:.15}];
+const SKIN_KIND=["Painted colourway","New outfit","Material","Legendary form"];
+const CW={
+ tyrian:["Tyrian Purple",{red:"#6a1a5a",clayD:"#3a1a3a",clayL:"#c8b0c8",white:"#f0e6f0",dil:"#d8b050"}],
+ saffron:["Saffron",{red:"#e09a20",clayD:"#a0601a",clayL:"#f0d8a0",white:"#fff4dc",dil:"#c9973c"}],
+ aegean:["Aegean Blue",{red:"#2a6aa8",clayD:"#1a3a6a",clayL:"#bcd4ea",white:"#eef6fc",dil:"#e0c060"}],
+ olive:["Olive Grove",{red:"#6a7a2a",clayD:"#4a5420",clayL:"#d0d0a0",white:"#f4f2e0",dil:"#c9a040"}],
+ pomegranate:["Pomegranate",{red:"#b0203a",clayD:"#6a1a24",clayL:"#e8c0b8",white:"#fbeee8",dil:"#e0b050"}],
+ ivory:["Ivory and Gold",{red:"#c9a040",clayD:"#8a7040",clayL:"#efe6d0",white:"#fffaf0",dil:"#f0d070"}],
+ midnight:["Midnight",{red:"#2a2a5a",clayD:"#14142a",clayL:"#7a7aa0",white:"#d8d8ec",dil:"#c8c8e8"}],
+ eos:["Rosy Dawn",{red:"#e07a8a",clayD:"#a04a5a",clayL:"#f8d8d8",white:"#fff0f0",dil:"#f0c060"}],
+ seafoam:["Sea-foam",{red:"#3aa08a",clayD:"#1f6a5a",clayL:"#c8ece0",white:"#f0fffa",dil:"#e8d080"}],
+ ochre:["Desert Ochre",{red:"#b86a20",clayD:"#6a3a14",clayL:"#e0c090",white:"#f6e8d0",dil:"#d0a040"}],
+ hyacinth:["Hyacinth",{red:"#5a4ac0",clayD:"#2a2470",clayL:"#c8c0f0",white:"#f2f0ff",dil:"#e8c860"}],
+ crimson:["Spartan Crimson",{red:"#c01818",clayD:"#5a1010",clayL:"#e0b0a0",white:"#f6e8e0",dil:"#e0b040"}],
+ ash:["Ash and Iron",{red:"#5a5a5a",clayD:"#4a4a52",clayL:"#b0b0b0",white:"#e6e6e6",dil:"#c0c0c0"}]};
+const MAT_FX={bronze:"sparkle",gold:"sparkle",obsidian:"motes",inferno:"embers",shade:"mist",frost:"snow",verdant:"leaves",lapis:"sparkle",porphyry:"motes",coral:"bubbles"};
+const FORM_FX={astral:"stars",radiant:"sparkle",pyre:"embers",eidolon:"motes",tide:"bubbles",storm:"bolts",blackfig:"",redfig:""};
+const MAT_SKY={bronze:["#6a4a24","#1a0e04"],gold:["#9a7424","#2a1a04"],obsidian:["#3a2a50","#08060e"],inferno:["#6a1a0a","#120402"],shade:["#3a5a6a","#0a1418"],
+  frost:["#5a8aa8","#0e1e2a"],verdant:["#3f6a2a","#0e1a08"],lapis:["#24407a","#060c1e"],porphyry:["#5a1a3a","#14040c"],coral:["#2a7a8a","#06202a"]};
+const FORM_N={astral:"Constellation",radiant:"Divine radiance",pyre:"Living flame",eidolon:"Shade of the void",tide:"Living water",blackfig:"Black-figure vase",redfig:"Red-figure vase",storm:"Living storm"};
+const MAT_N={bronze:"Bronze",gold:"Gold and ivory",obsidian:"Obsidian",inferno:"Lava stone",shade:"Ghost-glass",frost:"Ice",verdant:"Mossy stone",lapis:"Lapis lazuli",porphyry:"Porphyry",coral:"Coral and pearl"};
+/* per hero: [colourway, rare name, rare outfit, rare colourway, epic material, epic name, legendary form, legendary name] */
+const SKIN_DEF={
+ squire:["pomegranate","Spartan Agoge",{cape:"red",item:"xiphos"},"crimson","bronze","Bronze Kouros","blackfig","Hoplite Amphora"],
+ monk:["saffron","Pythia of Delphi",{hat:["hairF","laurel"],hb:"veil",hbc:"white",item:"bowl"},"ivory","gold","Golden Oracle","radiant","Voice of Apollo"],
+ hare:["olive","Bacchic Reveller",{hat:["hairM","ivy","horns"],item:"thyrsus"},"tyrian","verdant","Mossy Herm","redfig","Krater Satyr"],
+ snailpage:["aegean","Ant-born Phalanx",{cape:"clayD",item:"xiphos",oc:"crescent"},"ash","obsidian","Obsidian Myrmidon","blackfig","Hydria Hoplite"],
+ scribe:["seafoam","Pearl Diver",{hat:["hairF","diadem"],hb:"",item:"trident"},"aegean","coral","Coral Nereid","tide","Daughter of the Deep"],
+ rabbit:["crimson","Scythian Rider",{hat:["hairF","pilos"],item:"bow",cape:"red"},"ochre","bronze","Bronze Penthesilea","pyre","Ares-blooded"],
+ wodewose:["olive","Shepherd of Arcadia",{item:"crook",off:"aulos"},"ochre","verdant","Living Grove","redfig","Pan of the Kylix"],
+ owl:["midnight","Owl of the Agora",{hat:["diadem","laurel"],item:"scroll"},"ivory","gold","Tetradrachm Owl","astral","Night Watch"],
+ lion:["seafoam","Herald of the Waves",{hat:["hairM","laurel"],item:"conch",off:"trident"},"aegean","coral","Coral Throne","tide","Tempest Conch"],
+ ape:["olive","Teacher of Heroes",{torso:{c2:"white",hat:["hairM","laurel"],beard:"glaze",item:"scroll",m:"calm"}},"ivory","bronze","Bronze Centaur","astral","Centaurus Ascendant"],
+ snailknight:["crimson","The Three Hundred",{item:"xiphos",cape:"red",oc:"lambda"},"ash","bronze","Thermopylae Bronze","pyre","The Hot Gates"],
+ blemmye:["saffron","Calydonian Huntress",{hat:["hairF","laurel"],item:"spear",off:"bow"},"olive","gold","Golden Apple Racer","storm","Swifter than Wind"],
+ cyno:["aegean","Beggar's Disguise",{hat:["hood"],item:"crook",cape:"clayD"},"ash","lapis","Lapis Wanderer","redfig","The Siren Stamnos"],
+ rubricator:["tyrian","Colchian Sorceress",{hat:["hairF","snakes"],item:"cup"},"hyacinth","porphyry","Porphyry Witch","pyre","Chariot of the Sun"],
+ stag:["ivory","Healer of Epidaurus",{item:"rod",off:"bowl"},"seafoam","gold","Gilded Physician","astral","Ophiuchus"],
+ illuminator:["saffron","Pythian Victor",{hat:["hairM","laurel"],item:"bow",cape:"red"},"ivory","gold","Chryselephantine Apollo","radiant","Phoebus, the Shining"],
+ manticore:["ochre","Chained Titan",{item:"torch",cape:"glaze"},"ash","inferno","Stolen Fire","pyre","Bringer of Fire"],
+ basilisk:["seafoam","Priestess of Athena",{hat:["hairF","diadem"],hb:"veil",hbc:"white",m:"calm"},"ivory","obsidian","Petrifying Gaze","blackfig","Gorgoneion"],
+ unicorn:["ochre","The Twelve Labours",{hat:["hairM","laurel"],item:"bow",cape:"clayD"},"olive","bronze","Farnese Bronze","astral","Hercules in the Stars"],
+ queen:["pomegranate","Apple of Discord",{hat:["hairF","crownW"],item:"apple",cape:"red"},"tyrian","porphyry","Porphyry Strife","eidolon","Daughter of Night"],
+ mouser:["seafoam","Arion the Bard",{hat:["hairM","laurel"],item:"conch"},"aegean","coral","Coral Rider","tide","Delphinus"],
+ acolyte:["saffron","Eleusinian Mystic",{hat:["hairF","ivy"],hb:"veil",hbc:"red",off:"pomegranate"},"pomegranate","inferno","Ever-burning Lamp","radiant","Torch of the Mysteries"],
+ fox:["tyrian","Enchantress of Aeaea",{hat:["hairF","diadem"],item:"cup",off:"wand"},"seafoam","verdant","Island Witch","eidolon","Night-herb Witch"],
+ siren:["seafoam","Song of Anthemoessa",{hat:["hairF","diadem"],item:"aulos"},"eos","coral","Coral Siren","tide","Shipwreck Song"],
+ pelican:["eos","Queen of the Underworld",{hat:["hairF","crownW"],hb:"veil",hbc:"glaze",item:"torch"},"midnight","verdant","Spring's Return","eidolon","Six Seeds"],
+ gryphon:["aegean","Psychopomp",{item:"caduceus",cape:"glaze"},"midnight","gold","Golden Messenger","storm","Swift as Thought"],
+ elephant:["ash","Guardian of Crete",{cape:"red",item:"hammer"},"crimson","inferno","Molten Ichor","storm","Hephaestus' Engine"],
+ sagittary:["eos","Mistress of Beasts",{hat:["hairF","diadem"],cape:"olive"},"olive","frost","Moonlit Silver","astral","Huntress of the Stars"],
+ phoenix:["saffron","Bird of Heliopolis",{hat:["flame","halo"]},"ivory","gold","Gilded Plumage","pyre","Reborn from Ash"],
+ ouroboros:["ash","Lord of the Golden Age",{cape:"dil"},"ivory","obsidian","Titan's Obsidian","astral","Wheel of Ages"],
+ firsthand:["aegean","Olympian Throne",{hat:["hairM","crownW"],cape:"red"},"tyrian","gold","Statue of Olympia","storm","The Thunderer"],
+ wyvern:["seafoam","Earth-Shaker",{cape:"olive"},"aegean","lapis","Lapis Depths","tide","Lord of the Sea"],
+ hades:["midnight","Helm of Darkness",{hat:["corinth"],beard:"",cape:"glaze"},"ash","obsidian","Obsidian Throne","eidolon","Lord of Shades"],
+ athena:["aegean","Parthenos",{oc:"gorgon",cape:"red"},"ivory","gold","Athena Parthenos","blackfig","Panathenaic Amphora"],
+ ares:["crimson","Spartan War-God",{cape:"red",item:"xiphos"},"ash","inferno","Bloodfire","pyre","Wrath of War"],
+ hephaestus:["ochre","Smith of Lemnos",{off:"compass"},"ash","inferno","Forge-heart","radiant","Forge of Olympus"],
+ aphrodite:["eos","Born of Sea-foam",{item:"conch",hbc:"white"},"seafoam","coral","Pearl of Cythera","radiant","Golden Aphrodite"],
+ dionysus:["tyrian","Vintage Reveller",{item:"cup",off:"jar"},"pomegranate","verdant","Ivy Crown","blackfig","The Dionysus Cup"],
+ gaia:["olive","Mother of Titans",{hat:["hairF","crownW"],hbc:"clayD"},"ochre","verdant","Living Earth","astral","Earth and Starry Sky"],
+ nyx:["midnight","Mother of Dreams",{hat:["hairF","halo"],item:"cup"},"hyacinth","obsidian","Black Mirror","astral","Primordial Night"],
+ achilles:["crimson","Shield of Achilles",{hat:["hairM","laurel"],cape:"red"},"ivory","gold","Divine Armour","blackfig","The Dice Players"],
+ hecate:["midnight","Keeper of Crossroads",{hat:["hairF","crownW"],item:"wand"},"hyacinth","shade","Ghost of the Crossroads","eidolon","Triple Moon"],
+ nemesis:["ash","Retribution",{hat:["hairF","diadem"],cape:"glaze",item:"sickle"},"tyrian","frost","Cold Justice","storm","Inescapable"],
+ perseus:["aegean","Gifts of the Gods",{hat:["corinth"],off:"mirror"},"ochre","bronze","Cellini's Bronze","astral","Perseus in the Sky"],
+ cassandra:["eos","Priestess of Troy",{hat:["hairF","diadem"],hbc:"glaze",item:"torch"},"midnight","shade","Unheeded Ghost","eidolon","Vision of Troy's Fall"],
+ orpheus:["saffron","Argonaut Bard",{hat:["hairM","petasos"],cape:"clayD"},"aegean","shade","Descent to Hades","astral","Lyra"],
+ hector:["ochre","Prince of Troy",{hat:["hairM","crownW"],cape:"red"},"crimson","bronze","Bronze of Ilium","redfig","Farewell to Andromache"],
+ icarus:["ivory","Labyrinth Escapee",{cape:"clayD"},"aegean","inferno","Too Close to the Sun","radiant","Toward Helios"],
+ daedalus:["ochre","Master Craftsman",{hat:["hairM","pilos"]},"ash","bronze","Bronze Inventor","blackfig","The Labyrinth Vase"],
+ arachne:["hyacinth","Weaver of Lydia",{hat:["hairF","diadem"]},"tyrian","porphyry","Purple Thread","eidolon","Spider Queen"],
+ jason:["aegean","The Golden Fleece",{cape:"dil",hat:["hairM","laurel"],item:"xiphos"},"ivory","gold","Fleece-bearer","tide","Voyage of the Argo"]};
+const SKINS={};
+Object.entries(SKIN_DEF).forEach(([h,d])=>{const [cw,rn,ro,rcw,mat,en,form,ln]=d;
+  SKINS[h+"_1"]={id:h+"_1",hero:h,tier:0,name:CW[cw][0],kind:SKIN_KIND[0],art:{id:h+"_1",tier:0,mat:"painted",eyes:1,cw:CW[cw][1]}};
+  SKINS[h+"_2"]={id:h+"_2",hero:h,tier:1,name:rn,kind:SKIN_KIND[1],art:{id:h+"_2",tier:1,mat:"painted",eyes:1,cw:CW[rcw][1],o:ro,sky:[CW[rcw][1].red,"#0e0a08"]}};
+  SKINS[h+"_3"]={id:h+"_3",hero:h,tier:2,name:en,kind:MAT_N[mat],art:{id:h+"_3",tier:2,mat,fx:MAT_FX[mat],sky:MAT_SKY[mat]}};
+  SKINS[h+"_4"]={id:h+"_4",hero:h,tier:3,name:ln,kind:FORM_N[form],art:{id:h+"_4",tier:3,form,fx:FORM_FX[form]}};});
+const heroSkins=h=>[1,2,3,4].map(i=>SKINS[h+"_"+i]).filter(Boolean);
+/* ---------- state ---------- */
+function skinInit(){if(typeof G==="undefined"||!G)return;if(!G.skins)G.skins={};if(!G.skinEq)G.skinEq={};if(G.thread==null)G.thread=0;if(!G.loomPity)G.loomPity={e:0,l:0};
+  if(!G.skinMig){G.skinMig=1;Object.keys(G.skin||{}).forEach(h=>{if(SKINS[h+"_3"]){G.skins[h+"_3"]=1;if(G.skin[h])G.skinEq[h]=h+"_3";}});G.skin={};}}
+function eqSkin(h){if(typeof G==="undefined"||!G||!G.skinEq)return null;const id=G.skinEq[h];return id&&G.skins&&G.skins[id]?SKINS[id]:null;}
+function skinOf(k){if(typeof SIM!=="undefined"&&SIM)return null;const s=eqSkin(k);if(!s)return null;return RM()?Object.assign({},s.art,{still:true}):s.art;}
+const skinURL=(id,bare)=>{const s=SKINS[id];return s?paintURL(s.hero,bare,RM()?Object.assign({},s.art,{still:true}):s.art):"";};
+/* ---------- buffs: only the equipped skin, never for borrowed heroes ---------- */
+const _moreStatS=moreStat;
+moreStat=function(id){const o=_moreStatS(id);const s=!RENT&&eqSkin(id);if(s){o.hp+=SKIN_BUFF[s.tier].hp;o.atk+=SKIN_BUFF[s.tier].atk;}return o;};
+const _apoUnitS=apoUnit;
+apoUnit=function(u){_apoUnitS(u);const s=u&&!RENT&&eqSkin(u.id);if(!s||!SKIN_BUFF[s.tier].pw)return;const k=1+SKIN_BUFF[s.tier].pw,
+  sc=x=>x?Object.assign({},x,{fx:x.fx.map(f=>(["dmg","heal","blot","shield"].includes(f.t)&&typeof f.m==="number")?Object.assign({},f,{m:Math.round(f.m*k*100)/100}):f)}):x;
+  u.s=sc(u.s);u.u=sc(u.u);u.skin=s.id;};
+/* the old hue-shift mythic look is gone: a finished myth now grants the hero's Epic skin */
+skinCss=function(key){if(typeof G==="undefined"||!G||!HERO[key])return "";return isApo(key)?"filter:drop-shadow(0 0 5px #fff3c0);":"";};
+const _onPullS=onPull;
+onPull=function(res){_onPullS(res);if(typeof SIM!=="undefined"&&SIM)return;if(res&&res.kind==="hero"){skinInit();G.thread+=res.isNew?1:1+res.q;}};
+/* ---------- the Loom of the Fates ---------- */
+const LOOM_COST=12,LOOM_ODDS=[58,30,10,2],LOOM_DUPE=[2,4,9,25],THREAD_BUY={gilt:600,n:6};
+let loomRes=null,loomPick=false;
+function loomPool(){const f=G.loomFocus&&G.heroes[G.loomFocus]?[G.loomFocus]:Object.keys(G.heroes).filter(h=>SKIN_DEF[h]);return f;}
+function weaveOne(){const P=G.loomPity;P.e++;P.l++;let r=Math.random()*100,t=r<LOOM_ODDS[3]?3:r<LOOM_ODDS[3]+LOOM_ODDS[2]?2:r<LOOM_ODDS[3]+LOOM_ODDS[2]+LOOM_ODDS[1]?1:0;
+  if(P.l>=60)t=3;else if(P.e>=10&&t<2)t=2;if(t>=2)P.e=0;if(t===3)P.l=0;
+  const pool=loomPool(),h=pool[Math.floor(Math.random()*pool.length)],s=SKINS[h+"_"+(t+1)],isNew=!G.skins[s.id];
+  if(isNew)G.skins[s.id]=1;else G.thread+=LOOM_DUPE[t];return {id:s.id,t,isNew};}
+function loomCost(n){return Math.round((n===10?LOOM_COST*9:LOOM_COST)*(G.loomFocus?2:1));}
+function loomPanel(){skinInit();const own=Object.keys(G.skins).length,tot=Object.keys(SKINS).length,f=G.loomFocus&&HERO[G.loomFocus];
+  const res=loomRes?`<div class="loomres">${loomRes.map(r=>{const s=SKINS[r.id];return `<div class="lcard st${r.t}" title="${esc(HERO[s.hero].n)}: ${esc(s.name)}"><img src="${skinURL(r.id)}" alt=""><b>${esc(s.name)}</b><span>${esc(HERO[s.hero].n)}</span><i>${r.isNew?"NEW":"+"+LOOM_DUPE[r.t]+" thread"}</i></div>`;}).join("")}</div>`:"";
+  const picker=loomPick?`<div class="wpick"><p class="soft" style="margin:0 0 6px">Weave only one hero's skins (costs double).</p><button class="wph ${!G.loomFocus?"on":""}" data-act="loomfocus" data-id="">All my heroes</button>${Object.keys(G.heroes).filter(h=>SKIN_DEF[h]).map(h=>`<button class="wph q${HERO[h].q} ${G.loomFocus===h?"on":""}" data-act="loomfocus" data-id="${h}">${im(h)}${esc(HERO[h].n)}</button>`).join("")}</div>`:"";
+  return `<section class="panel loom" style="grid-column:1/-1">${PH("Loom of the Fates","skins",`🧵 ${G.thread} Golden Thread · ${own}/${tot} skins`)}
+    <p class="explain">The three Fates weave new looks for your heroes. Every summoned hero spins Golden Thread (more for duplicates and rarer heroes). Rarer skins give bigger buffs while equipped: <span class="st0">Common +3%</span>, <span class="st1">Rare +6%</span>, <span class="st2">Epic +10% and +8% skill power</span>, <span class="st3">Legendary +15% and +15% skill power</span> (HP and ATK). Equip skins in the Party, on each hero's page.</p>
+    <div class="loomodds">${SKIN_T.map((n,i)=>`<span class="st${i}">${n} ${LOOM_ODDS[i]}%</span>`).join("")}<span class="soft">Epic or better at least every 10 weaves (${10-G.loomPity.e} to go) · Legendary guaranteed by 60 (${60-G.loomPity.l} to go)</span></div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn gold" data-act="loom" data-n="1" ${G.thread<loomCost(1)?"disabled":""}>Weave ×1 · ${loomCost(1)} 🧵</button>
+      <button class="btn gold" data-act="loom" data-n="10" ${G.thread<loomCost(10)?"disabled":""}>Weave ×10 · ${loomCost(10)} 🧵</button>
+      <button class="btn small" data-act="loompick">Focus: ${f?esc(f.n):"all heroes"}</button>
+      <button class="btn small" data-act="thrbuy" ${G.gilt<THREAD_BUY.gilt?"disabled":""}>+${THREAD_BUY.n} 🧵 · ${THREAD_BUY.gilt} Drachmae</button></div>${picker}${res}</section>`;}
+Object.assign(MORE_ACT,{
+  loom(b){skinInit();const n=+b.dataset.n===10?10:1,c=loomCost(n);if(G.thread<c)return toast("Not enough Golden Thread.");G.thread-=c;
+    loomRes=Array.from({length:n},weaveOne);const best=Math.max(...loomRes.map(r=>r.t));SFX.play(best>=3?"star":best>=2?"reveal":"coin",best>=3?5:best+1);
+    if(best===3){const L=loomRes.find(r=>r.t===3);toast(`Legendary skin: ${SKINS[L.id].name} for ${HERO[SKINS[L.id].hero].n}!`);}},
+  loompick(){loomPick=!loomPick;},
+  loomfocus(b){G.loomFocus=b.dataset.id||null;loomPick=false;},
+  thrbuy(){if(G.gilt<THREAD_BUY.gilt)return;skinInit();G.gilt-=THREAD_BUY.gilt;G.thread+=THREAD_BUY.n;SFX.play("coin");},
+  skineq(b){skinInit();const h=b.dataset.h,id=b.dataset.id;if(!id){delete G.skinEq[h];return;}if(!G.skins[id])return;G.skinEq[h]=id;SFX.play("coin");},
+  skin(b){skinInit();const h=b.dataset.id,id=h+"_3";if(!G.skins[id])return;if(G.skinEq[h]===id)delete G.skinEq[h];else G.skinEq[h]=id;}
+});
+/* ---------- the wardrobe on each hero's page ---------- */
+function wardrobe(h){skinInit();if(!SKIN_DEF[h])return "";const eq=G.skinEq[h];
+  const card=(s)=>{const own=s?G.skins[s.id]:true,on=s?eq===s.id:!eq,b=s?SKIN_BUFF[s.tier]:null;
+    return `<div class="wcard ${s?"st"+s.tier:"st-"} ${own?"":"locked"} ${on?"on":""}">
+      <img src="${s?skinURL(s.id):paintURL(h,false,null)}" alt="" ${own?"":`style="filter:saturate(.3) brightness(.7)"`}>
+      <b>${s?esc(s.name):"Marble statue"}</b><span class="soft">${s?`${SKIN_T[s.tier]} · ${esc(s.kind)}`:"Default"}</span>
+      <span class="wbuff">${b?`+${Math.round(b.hp*100)}% HP & ATK${b.pw?`, +${Math.round(b.pw*100)}% skill`:""}`:"No bonus"}</span>
+      ${own?`<button class="btn small" data-act="skineq" data-h="${h}" data-id="${s?s.id:""}" ${on?"disabled":""}>${on?"Equipped":"Equip"}</button>`:`<span class="soft" style="font-size:12px">${s.tier===2&&HMYTH&&HMYTH[h]?"Finish the myth or weave it":"Weave it at the Loom"}</span>`}</div>`;};
+  return `<div class="wardrobe"><h3>Wardrobe <span class="soft">${heroSkins(h).filter(s=>G.skins[s.id]).length}/4</span></h3><div class="wgrid">${card(null)}${heroSkins(h).map(card).join("")}</div></div>`;}
+const _heroExtraS=heroExtra;
+heroExtra=function(id){return wardrobe(id)+_heroExtraS(id);};
+const _favourPanelS=favourPanel;
+favourPanel=function(){return _favourPanelS()+loomPanel();};
+HELP.skins={t:"Skins",b:()=>`<h3>Skins and the Loom of the Fates</h3><p>Every hero has four skins, from Common to Legendary. Only the skin a hero is wearing gives its bonus:</p>
+<ul><li><b class="st0">Common</b>, a painted colourway: the statue painted the way Greek statues once were. +3% HP and ATK.</li>
+<li><b class="st1">Rare</b>, a new outfit: other armour, weapons and robes. +6% HP and ATK.</li>
+<li><b class="st2">Epic</b>, a new material: bronze, gold and ivory, obsidian, ice, lava stone and more. +10% HP and ATK, +8% skill and ultimate power. Finishing a hero's myth also gives their Epic skin.</li>
+<li><b class="st3">Legendary</b>, a whole new form: a constellation, living flame, a black-figure vase painting, a storm. +15% HP and ATK, +15% skill and ultimate power.</li></ul>
+<p>Weave skins at the <b>Loom of the Fates</b> in the Temple with Golden Thread. Every hero you summon spins thread, and duplicates spin more. A skin you already have turns back into thread. Focus the Loom on one hero to weave only their skins, at double cost. Equip skins in the Party, in the Wardrobe on each hero's page.</p>`};
 
 /* ============ loop & boot ============ */
 let lastT=Date.now();

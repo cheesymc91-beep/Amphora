@@ -941,4 +941,23 @@ canvas.vase{max-width:100%;height:auto;display:block;margin:0 auto}canvas.vase.b
 .bld{flex:1;display:flex;align-items:flex-end;justify-content:center}.bld i{display:block;width:100%;max-width:60px;height:var(--h);background:#efe2c4;border:2px solid #8a6a3a;border-bottom:0;position:relative}
 .bld i::before{content:"";position:absolute;left:-6px;right:-6px;top:-10px;height:10px;background:#c8763a;clip-path:polygon(0 100%,50% 0,100% 100%)}
 .b_gym i{background:repeating-linear-gradient(90deg,#efe2c4 0 8px,#d8c8a0 8px 10px)}.b_walls i{background:#c8b090}.b_oracle i{background:#fff3c0}.b_potters i{background:#e0a070}.b_theatre i{border-radius:40px 40px 0 0}
+/* ===== 1.8 skins ===== */
+.st0{--st:#8a949c}.st1{--st:#3f86cc}.st2{--st:#9a5ad6}.st3{--st:#e0a020}
+span.st0,span.st1,span.st2,span.st3{color:var(--st);font-weight:600}
+.loomodds{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:14px}
+.loomres{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:12px}
+.lcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border-radius:12px;background:var(--sheet2);border:2px solid var(--st);text-align:center;font-size:12px;animation:lcin .45s both}
+.lcard img{width:84px;height:84px}.lcard b{font-size:13px;line-height:1.15}.lcard i{font-style:normal;font-weight:700;color:var(--st)}
+.lcard.st3{background:radial-gradient(circle at 50% 30%,color-mix(in srgb,#f4b232 35%,var(--sheet2)),var(--sheet2));box-shadow:0 0 14px #f4b23288}
+.lcard.st2{box-shadow:0 0 8px #b073e866}
+.loomres .lcard:nth-child(2){animation-delay:.05s}.loomres .lcard:nth-child(3){animation-delay:.1s}.loomres .lcard:nth-child(4){animation-delay:.15s}.loomres .lcard:nth-child(5){animation-delay:.2s}
+.loomres .lcard:nth-child(6){animation-delay:.25s}.loomres .lcard:nth-child(7){animation-delay:.3s}.loomres .lcard:nth-child(8){animation-delay:.35s}.loomres .lcard:nth-child(9){animation-delay:.4s}.loomres .lcard:nth-child(10){animation-delay:.45s}
+@keyframes lcin{from{opacity:0;transform:translateY(10px) scale(.9)}to{opacity:1;transform:none}}
+html.rm .lcard{animation:none}
+.wardrobe{padding:12px;border-radius:12px;background:var(--sheet2);border:1px solid var(--rule-hi)}
+.wardrobe h3{margin:0 0 8px;color:var(--rubric)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.wcard{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:12px;background:var(--sheet);border:2px solid var(--st,var(--rule));text-align:center;font-size:12px}
+.wcard img{width:92px;height:92px}.wcard b{font-size:13px;line-height:1.15}.wcard .wbuff{font-weight:600;color:var(--good)}
+.wcard.on{background:color-mix(in srgb,var(--st,var(--gold-hi)) 18%,var(--sheet))}.wcard.locked{opacity:.75}.wcard.locked .wbuff{color:var(--ink-soft)}
 
