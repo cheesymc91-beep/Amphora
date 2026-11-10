@@ -3043,8 +3043,8 @@ const ICON={
 const GEAR={quill:k=>[ITEM.spear,ITEM.xiphos,ITEM.labrys,ITEM.trident,ITEM.bow,ITEM.bolt][k](42,72),binding:()=>ICON.i_binding(),seal:k=>k>=4?E(50,56,18,18,"dil")+`<circle cx="50" cy="56" r="10" fill="${T.glaze}"/>`+face(50,54,10,"grr",{dark:true,white:true}):ICON.i_seal()};
 const cache={};
 const SKY={verm:["#8a3a2a","#2a120c"],verd:["#3f6a3a","#121e10"],lapis:["#2f5a8a","#0c1626"],gold:["#9a7a2a","#2a1e08"],iron:["#4a4660","#121018"]};
-function wrap(inner,el,bare,bust){const FF=SKN&&FORMS[SKN.form],sky=(SKN&&(SKN.sky||(FF&&FF.sky)))||SKY[el]||SKY.gold,foeBg=["#3a1a1a","#0a0606"];const [a,b]=FOE?foeBg:sky;
-  const rim=SKN?skinRim():null;const defs=`<defs>${DEFS.join("")}${skinDefs()}<radialGradient id="bgx" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>
+function wrap(inner,el,bare,bust){const FF=SKN&&FORMS[SKN.form],AE=!SKN&&AEONK.has(CURK),sky=(SKN&&(SKN.sky||(FF&&FF.sky)))||(AE?["#2c2650","#05040c"]:null)||SKY[el]||SKY.gold,foeBg=["#3a1a1a","#0a0606"];const [a,b]=FOE?foeBg:sky;
+  const rim=SKN?skinRim():AE?["#ffffff","#f0d070","#6a4a10"]:null;const defs=`<defs>${DEFS.join("")}${skinDefs()}<radialGradient id="bgx" cx=".5" cy=".35" r=".75"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient>
    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rim?rim[0]:FOE?"#9a6a3a":"#fff3c4"}"/><stop offset=".5" stop-color="${rim?rim[1]:FOE?"#5a3a1c":"#c9973c"}"/><stop offset="1" stop-color="${rim?rim[2]:FOE?"#2a1a0c":"#7a5418"}"/></linearGradient>
    <filter id="grain" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="${Math.floor(R()*90)}" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 .2  0 0 0 0 .12  0 0 0 0 .05  0 0 0 .14 0" result="g"/><feComposite in="g" in2="SourceAlpha" operator="in" result="gm"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gm"/></feMerge></filter>
    <filter id="vein" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="turbulence" baseFrequency=".035 .09" numOctaves="3" seed="${Math.floor(R()*90)}" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 .35  0 0 0 0 .34  0 0 0 0 .38  -2.2 0 0 0 .55" result="v"/><feComposite in="v" in2="SourceAlpha" operator="in" result="vm"/>
@@ -3055,8 +3055,37 @@ function wrap(inner,el,bare,bust){const FF=SKN&&FORMS[SKN.form],sky=(SKN&&(SKN.s
   const plate=bare?"":`<circle cx="50" cy="50" r="48" fill="url(#rim)"/><circle cx="50" cy="50" r="43.5" fill="url(#bgx)"/>
    ${FOE?"":`<ellipse cx="50" cy="30" rx="30" ry="34" fill="#fff" opacity=".10"/>`}
    <circle cx="50" cy="50" r="43.5" fill="none" stroke="${FOE?"#2a1a0c":"#7a5418"}" stroke-width="1.2"/>${[...Array(24)].map((_,i)=>`<g transform="rotate(${i*15} 50 50)"><path d="M48.2 3.6 L48.2 6.4 L51.6 6.4 L51.6 5 L49.9 5" fill="none" stroke="${FOE?"#c9a060":"#5a3a10"}" stroke-width=".7"/></g>`).join("")}`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${defs}${plate}${skinBack(bare)}<ellipse cx="50" cy="89.5" rx="${bare?24:20}" ry="2.8" fill="#1a0e06" opacity=".3"/>
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${defs}${plate}${skinBack(bare)}${AE&&!bare?[...Array(18)].map((_,i)=>{const a=i*2.39,r=12+((i*37)%30);return `<circle cx="${(50+Math.cos(a)*r).toFixed(1)}" cy="${(46+Math.sin(a)*r*.9).toFixed(1)}" r="${i%3?.6:1}" fill="#fff6d8" opacity="${i%2?.6:.95}"/>`;}).join(""):""}<ellipse cx="50" cy="89.5" rx="${bare?24:20}" ry="2.8" fill="#1a0e06" opacity=".3"/>
    <g filter="url(#sh)" ${SKN&&MATS[SKN.mat]&&MATS[SKN.mat].alpha?`opacity="${MATS[SKN.mat].alpha}"`:""}><g filter="url(#${!SKN?"vein":FF?"lfm":MATS[SKN.mat]&&MATS[SKN.mat].vein!=="none"?"mvn":"grain"})" ${bare?"":bust?`transform="translate(-27 -2) scale(1.55)"`:`transform="translate(9 8) scale(.82)"`}>${inner}</g></g>${skinFront()}${bare?"":`<circle cx="50" cy="50" r="43.5" fill="none" stroke="${rim?rim[2]:FOE?"#2a1a0c":"#7a5418"}" stroke-width="1.4"/>`}</svg>`;}
+/* ===== 1.9 new heroes ===== */
+ITEM.hourglass=(x,y)=>P(`M${x-6} ${y-24} L${x+10} ${y-24} L${x+3} ${y-12} L${x+10} ${y} L${x-6} ${y} L${x+1} ${y-12}Z`,"white")+L(`M${x-8} ${y-25} L${x+12} ${y-25} M${x-8} ${y+1} L${x+12} ${y+1} M${x-6} ${y-24} L${x+10} ${y-24} L${x+3} ${y-12} L${x+10} ${y} L${x-6} ${y} L${x+1} ${y-12}Z`,"dil",1.4)+P(`M${x-2} ${y-2} L${x+6} ${y-2} L${x+2} ${y-8}Z`,"dil");
+ITEM.orb=(x,y)=>`<ellipse cx="${x+2}" cy="${y-14}" rx="8" ry="10" fill="${T.white}" stroke="${T.dil}" stroke-width="1.4"/>`+L(`M${x-5} ${y-16} L${x-1} ${y-12} L${x+3} ${y-17} L${x+7} ${y-12} L${x+9} ${y-15}`,"dil",1.1);
+ITEM.chain=(x,y)=>[0,1,2,3,4].map(i=>`<ellipse cx="${x+2}" cy="${y-26+i*7}" rx="${i%2?2.2:3.4}" ry="${i%2?3.6:2.4}" fill="none" stroke="${T.dil}" stroke-width="1.4"/>`).join("");
+const AEONK=new Set(["aion","ananke","phanes"]);let CURK="";
+const ZOD=`<circle cx="50" cy="50" r="40" fill="none" stroke="#c9a040" stroke-width="1.6" opacity=".85"/><circle cx="50" cy="50" r="35" fill="none" stroke="#c9a040" stroke-width=".7" opacity=".7"/>`+[...Array(12)].map((_,i)=>{const a=i/12*Math.PI*2,x1=50+Math.cos(a)*35,y1=50+Math.sin(a)*35,x2=50+Math.cos(a)*40,y2=50+Math.sin(a)*40,xm=50+Math.cos(a+.26)*37.5,ym=50+Math.sin(a+.26)*37.5;return `<path d="M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}" stroke="#c9a040" stroke-width=".8"/><circle cx="${xm.toFixed(1)}" cy="${ym.toFixed(1)}" r="1.1" fill="#e8c860"/>`;}).join("");
+const CHAINS=`<path d="M8 20 Q30 34 38 46 M92 20 Q70 34 62 46 M6 76 Q26 70 36 64 M94 76 Q74 70 64 64" stroke="#8a8a96" stroke-width="2.4" fill="none" stroke-dasharray="3 2" opacity=".9"/>`;
+const EGG=`<path d="M22 70 Q20 40 34 22 L40 30 L46 18 L52 28 L58 16 L64 26 L70 20 Q82 40 78 70" fill="none" stroke="#d8d2c6" stroke-width="1.6" opacity=".8"/><path d="M50 92 Q22 88 20 64 Q30 74 50 76 Q70 74 80 64 Q78 88 50 92Z" fill="#e8e2d6" opacity=".55"/><path d="M14 58 Q24 30 50 24 Q78 30 86 58" fill="none" stroke="#c9a040" stroke-width="2.2" stroke-dasharray="1 3" opacity=".9"/>`;
+Object.assign(PALS,{
+ aion:h("t","w","#2a3a7a","#3a3a5a","#eef0f8",{eye:"#4a6ab0",dil:"#e8c860"}),ananke:h("l","k","#3a3a46","#2a2a34","#e6e2dc",{eye:"#8a8aa0",dil:"#b8b8c8"}),
+ phanes:h("l","y","#f0c040","#a8783a","#fffbe8",{eye:"#d8a020",dil:"#ffd860"}),erebus:h("o","k","#14141e","#22202a",0,{eye:"#7a5aa0",glaze:"#0e0c14",dil:"#6a5a8a"}),
+ hera:h("l","b","#2a6a7a","#4a3a4a","#f6f0e4",{eye:"#3a6a6a",dil:"#d8b040"}),demeter:h("m","y","#b0882a","#6a5a2a","#f6efd8",{eye:"#5a7a3a",dil:"#d8b040",olive:"#7a9a3a"}),
+ theseus:h("m","b","#2a5a8a","#5a4a3a",0,{eye:"#3a5a8a"}),bellerophon:h("m","y","#c8902a","#6a4a2a",0,{eye:"#4a7aa0",dil:"#f0c860"}),
+ ariadne:h("l","a","#b0283a","#6a3a3a","#f6efe6",{eye:"#3a7a6a"}),pandora:h("l","k","#5a2a6a","#3a2a3a","#f0e8f0",{eye:"#8a5aa0"}),
+ narcissus:h("l","y","#4a9ab0","#5a6a7a","#f6fbff",{eye:"#3a9ab0"}),echo:h("l","a","#6a9a5a","#4a5a3a","#eef4e6",{eye:"#5a8a4a"}),pankratiast:h("t","k","#a03a1f","#6a3a20",0,{eye:"#5a3a20"})});
+Object.assign(S,{
+ aion:{b:biped,c2:"red",hat:["hairM","laurel"],beard:"glaze",item:"hourglass",cape:"red",back:ZOD,m:"calm"},
+ ananke:{b:biped,c2:"glaze",hat:["hairF","crownW"],hb:"veil",hbc:"glaze",item:"spindle",off:"chain",back:CHAINS,m:"calm"},
+ phanes:{b:biped,c2:"white",hat:["hairM","halo"],wingsB:"dil",item:"orb",back:EGG,m:"smile"},
+ erebus:{b:biped,c2:"glaze",hat:["hairM","hood"],beard:"glaze",item:"sickle",cape:"glaze",wingsB:"glaze",m:"grr"},
+ hera:{b:biped,c2:"red",hat:["hairF","crownW"],hb:"veil",hbc:"red",item:"rod",off:"pomegranate",m:"calm"},
+ demeter:{b:biped,c2:"white",hat:["hairF","laurel"],hb:"veil",hbc:"red",item:"sickle",off:"torch",m:"smile"},
+ theseus:{b:biped,c2:"red",hat:["hairM"],item:"club",off:"aspis",oc:"",cuirass:1,m:"grr"},
+ bellerophon:{b:biped,c2:"red",hat:["corinth"],item:"spear",wingsB:"white",cape:"dil",m:"smile"},
+ ariadne:{b:biped,c2:"white",hat:["hairF","diadem"],item:"spindle",back:`<path d="M10 80 Q30 60 22 44 Q14 28 34 20 Q54 12 62 30 Q70 46 88 40" fill="none" stroke="#b0283a" stroke-width="1.4" opacity=".9"/>`,m:"smile"},
+ pandora:{b:biped,c2:"red",hat:["hairF","diadem"],item:"jar",m:"calm"},
+ narcissus:{b:biped,c2:"white",hat:["hairM","laurel"],item:"mirror",m:"smile"},
+ echo:{b:biped,c2:"red",hat:["hairF","ivy"],hb:"veil",hbc:"white",m:"calm",back:`<path d="M20 30 Q14 40 20 50 M14 24 Q4 40 14 56 M80 30 Q86 40 80 50 M86 24 Q96 40 86 56" fill="none" stroke="#c9a040" stroke-width="1.2" opacity=".7"/>`},
+ pankratiast:{b:biped,c2:"clay",hat:["hairM"],m:"grr",item:"",off:""}});
 /* ===== SKINS (1.8): materials, legendary forms, overlays. A skin is {id,tier,mat,cw,o,form,fx,sky}. ===== */
 const MATS={
  bronze:{clay:"#b9803f",clayL:"#c48c48",clayD:"#8a5a2a",glaze:"#5e3a1c",white:"#d8a860",dil:"#f0cf70",olive:"#4f8a6a",lip:"#9a6234",vein:"patina"},
@@ -3128,7 +3157,7 @@ function MARBLE(foe,acc){const m=foe?{clay:"#6a6672",clayL:"#7c7884",clayD:"#555
   :{clay:"#efe9df",clayL:"#e6dfd2",clayD:"#cfc6b8",glaze:"#bdb4a6",white:"#f4f0e8",red:mix(acc.red||"#c9b8a0","#ece6da",.82),olive:"#a8a894"};
   m.dil=foe?"#a8803a":"#d6aa48";m.eye="marble";m.lip=foe?"#4a4650":"#d8cfc2";return m;}
 const FOE_KEYS=/^(bookworm|silverfish|madhare|armorsnail|bonnacon|mandrake|thornvine|henbane|beeswarm|lamb|grotesque|piper|hybrid|moth|baron|locust|hydraling|fallenstar|trumpeter|beast|raider|sciapod|cynohunter|serpent|leviathan|inkblot|wraith|imp|tornpage|greatblot|panotius|goldant|cockatrice|yale|roc|organpig|bear|mirrorape|fool|goldworm|misrule)$/;
-function draw(k,bare,sk){seed=[...k].reduce((a,c)=>a*31+c.charCodeAt(0),7)%2147483646+1;DEFS=[];GD={};GN=0;FOE=FOE_KEYS.test(k);SKN=sk||null;SKR=seed;
+function draw(k,bare,sk){CURK=k;seed=[...k].reduce((a,c)=>a*31+c.charCodeAt(0),7)%2147483646+1;DEFS=[];GD={};GN=0;FOE=FOE_KEYS.test(k);SKN=sk||null;SKR=seed;
   PAL=!sk?MARBLE(FOE,PALS[k]||{}):sk.mat==="painted"||FORMS[sk.form]?Object.assign({},PALS[k]||{},sk.cw||{}):Object.assign({},MARBLE(false,PALS[k]||{}),MATS[sk.mat]||{},sk.cw||{});
   if(ICON[k]){FOE=false;const inner=ICON[k]();return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>${DEFS.join("")}</defs>${inner}</svg>`;}
   const gm=/^g_(quill|binding|seal)_(\d)$/.exec(k);
@@ -3294,11 +3323,11 @@ const RM=()=>!!(typeof G!=="undefined"&&G&&G.motion==="reduced");
 /* interface: "visual" (default) or "classic" */
 const VIS=()=>!(typeof G!=="undefined"&&G&&G.ui==="classic");
 const elname=el=>`<span class="elname">${gem(el)}${EL[el]}</span>`;
-const QN=["Mortal","Sketch","Mosaic","Masterwork","Olympian","Secret Rare"];
+const QN=["Mortal","Sketch","Mosaic","Masterwork","Olympian","Secret Rare","Aeon"];
 const ROLE={tank:{hp:700,atk:44,def:46,spd:90},warrior:{hp:560,atk:62,def:32,spd:98},striker:{hp:460,atk:74,def:24,spd:112},mage:{hp:430,atk:78,def:20,spd:102},healer:{hp:490,atk:50,def:28,spd:104},support:{hp:510,atk:54,def:30,spd:106}};
 const ROLE_TXT={tank:"Tank: soaks hits and protects allies",warrior:"Warrior: sturdy all-round fighter",striker:"Striker: fast, hard-hitting",mage:"Mage: hits many foes at once",healer:"Healer: keeps the team alive",support:"Support: buffs the whole team"};
 /* 1.7 balance: Mortal and Famed heroes closer to the rest; Primordial a touch lower */
-const RMULT=[1.1,1.19,1.27,1.42,1.56,1.6];
+const RMULT=[1.1,1.19,1.27,1.42,1.56,1.6,1.95];
 const D=(m,tg="one")=>({t:"dmg",m,tg});
 /* ===== BREAK: every foe carries a shield of weak points. Hits from a hero whose ink or class it is weak to chip it; at 0 it is Broken ===== */
 const BRK={sh:{fodder:2,fast:2,caster:2,brute:2,tank:3,boss:4},dmg:1,meter:15};
@@ -3667,16 +3696,18 @@ function unequip(hid,slot){const gid=G.heroes[hid].gear[slot];if(!gid)return;con
 /* ============ gacha ============ */
 const SECRET={hero:{rate:.25,pity:200},gear:{rate:.15,pity:300}};
 const HERO_OLY={rate:.75,pity:120};
+const AEON={rate:.05,pity:600};  /* 1.9: Aeons, above the Primordials: 1 in 2,000 summons, guaranteed by 600 */
 function pullHero(){
-  G.pity.h10++;G.pity.hL++;G.pity.hS=(G.pity.hS||0)+1;G.pity.hO=(G.pity.hO||0)+1;G.stats.pulls++;
+  G.pity.h10++;G.pity.hL++;G.pity.hS=(G.pity.hS||0)+1;G.pity.hO=(G.pity.hO||0)+1;G.pity.hA=(G.pity.hA||0)+1;G.stats.pulls++;
   let q;
   const r=Math.random()*100;
-  if(G.pity.hS>=SECRET.hero.pity||r<SECRET.hero.rate)q=5;
+  if(HEROES.some(x=>x.q===6)&&(G.pity.hA>=AEON.pity||Math.random()*100<AEON.rate))q=6;
+  else if(G.pity.hS>=SECRET.hero.pity||r<SECRET.hero.rate)q=5;
   else if(G.pity.hO>=HERO_OLY.pity||r<SECRET.hero.rate+HERO_OLY.rate)q=4;
   else if(G.pity.hL>=50)q=3;
   else if(G.pity.h10>=10)q=roll(81)?2:3;
   else{const r2=Math.random()*100;q=r2<3?3:r2<16?2:r2<48?1:0;}
-  if(q>=2)G.pity.h10=0;if(q>=3)G.pity.hL=0;if(q===4)G.pity.hO=0;if(q===5){G.pity.hS=0;G.stats.secrets=(G.stats.secrets||0)+1;}
+  if(q>=2)G.pity.h10=0;if(q>=3)G.pity.hL=0;if(q===4)G.pity.hO=0;if(q===5){G.pity.hS=0;G.stats.secrets=(G.stats.secrets||0)+1;}if(q===6){G.pity.hA=0;G.stats.secrets=(G.stats.secrets||0)+1;G.stats.aeons=(G.stats.aeons||0)+1;}
   const fd=G.daily&&G.daily.featured&&HERO[G.daily.featured];
   const fp=typeof festPatron==="function"?festPatron():null;
   const h=fp&&fp.q===q&&roll(33)?fp:fd&&fd.q===q&&roll(50)?fd:pick(HEROES.filter(x=>x.q===q));let isNew=false;track("pullh");
@@ -3841,6 +3872,8 @@ function mkFoeUnit(key,s,o={}){
     myth:[],pa:Object.assign({},e.pa||{}),tr:traitsOf(key),b:{n:"Strike",fx:[D(1)]},s:e.s||null,cd:e.s?Math.ceil(e.s.cd/2):0,st:[],shield:0,dead:false,born:o.born||0};
 }
 const hasM=(u,k)=>u.myth.includes(k);
+/* 1.9: passive hooks for heroes added in later modules */
+const PX={start:[],turn:[],act:[],dmg:[],hit:[],save:[],kill:[],atk:[],def:[]};
 function harmony(team){
   const cnt={};team.forEach(id=>{const e=HERO[id].el;cnt[e]=(cnt[e]||0)+1;});
   const n=Math.max(0,...Object.values(cnt)),el=Object.keys(cnt).find(k=>cnt[k]===n);
@@ -3866,7 +3899,8 @@ function startBattle(s,heroic=false,opt={}){
    C.heroes.filter(x=>x.pa.k==="argo").forEach(x=>{const n=C.heroes.filter(y=>y!==x&&ARGONAUTS.includes(y.id)).length;if(n){const m=1+.08*n;x.atk=Math.round(x.atk*m);x.def=Math.round(x.def*m);x.maxhp=x.hp=Math.round(x.maxhp*m);}});
    if(has("strategy"))C.meter+=15;
    if(has("motherofall"))C.heroes.forEach(x=>{x.maxhp=x.hp=Math.round(x.maxhp*1.15);});
-   if(has("nightfalls"))C.heroes.forEach(x=>{if(x.el==="iron")x.atk=Math.round(x.atk*1.15);});}
+   if(has("nightfalls"))C.heroes.forEach(x=>{if(x.el==="iron")x.atk=Math.round(x.atk*1.15);});
+   PX.start.forEach(f=>f(has));}
   const syn=activeSyn(team);C.syn=syn.map(x=>x.id);
   C.heroes.forEach(u=>{
     heroTalentMods(u.id).forEach(m=>{applyMods(u,m);if(m.meter)C.meter+=m.meter;});
@@ -3918,9 +3952,10 @@ function eff(u,k){
     if(u.pa.k==="chesteyes")b+=.08*(u.stacks||0);
     if(u.blood)b+=.15*u.blood;
     if(u.pa.k==="warlust")b+=.4*(1-u.hp/u.maxhp);
+    for(const f of PX.atk)b+=f(u)||0;
     b+=rage(u);
     return u.atk*Math.max(.3,b);}
-  if(k==="def"){let b=1+stv(u,"defUp")-stv(u,"defDown")+(u.gaiaDef||0);if(u.pa.k==="troy"&&C)b+=.12*alliesOf(u).filter(x=>x!==u&&x.row==="back").length;return u.def*Math.max(.3,b);}
+  if(k==="def"){let b=1+stv(u,"defUp")-stv(u,"defDown")+(u.gaiaDef||0);if(u.pa.k==="troy"&&C)b+=.12*alliesOf(u).filter(x=>x!==u&&x.row==="back").length;for(const f of PX.def)b+=f(u)||0;return u.def*Math.max(.3,b);}
   if(k==="spd")return (u.spd+(u.spdX||0))*Math.max(.3,1+stv(u,"spdUp")-stv(u,"spdDown"));
   return u.crit+stv(u,"critUp");
 }
@@ -3954,6 +3989,7 @@ function nextTurn(){
   if(u.side==="h"&&u.hp<u.maxhp&&C.heroes.some(x=>!x.dead&&x.pa.k==="lyrecomfort"))heal(null,u,u.maxhp*.03);
   if(u.pa.k==="sunward"){u.spdX=(u.spdX||0)+6;if(u.spdX>30&&!F(u,"waxsafe")){const d=Math.min(u.hp-1,Math.round(u.maxhp*.05));if(d>0){u.hp-=d;pop(u,"The wax melts −"+d,"weak");}}}
   if(u.pa.k==="arrives"){if(!u.hitSince&&C.round>1){const v=Math.round(u.maxhp*.06);u.shield+=v;pop(u,"+"+v+" shield","heal");}u.hitSince=false;}
+  PX.turn.forEach(f=>f(u));if(u.dead){render();if(checkEnd())return;return later(nextTurn,400);}
   const stunned=u.st.some(x=>x.k==="stun"||x.k==="broken"),asleep=u.st.some(x=>x.k==="sleep"),up=u.st.find(x=>x.k==="aloft");
   u.st.forEach(x=>x.turns--);u.st=u.st.filter(x=>x.turns>0);
   if(u.el0&&!u.st.some(x=>x.k==="elshift")){u.el=u.el0;u.el0=null;u.weakX=null;C.rebuild=true;}
@@ -4058,6 +4094,7 @@ function perform(u,sk,target){
     else anim(u,u.side==="h"?"go-r":"go-l");
   } else anim(u,"cast");
   if(u.pa.k==="votive")gainMeter(F(u,"votivePlus")?12:8);
+  PX.act.forEach(f=>f(u,sk,skill,ult));
   if(ult&&u.side==="h"){track("ults");say(u,(QUIP[u.id]||[])[0]);SFX.play("ult");}else if(skill)SFX.play("skill");
   if((skill||ult)&&F(u,"echo40")&&u.pa.k!=="twicetold")u.echo={n:sk.n+" (echo)",fx:sk.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot")?Object.assign({},f,{m:f.m*.4}):f)};
   if((skill||ult)&&u.pa.k==="twicetold")u.echo={n:sk.n+" (echo)",fx:sk.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot")?Object.assign({},f,{m:f.m*.6}):f)};
@@ -4188,6 +4225,7 @@ function strike(a,t,m,counter,single=true){
   if(t.side==="h"&&a.side==="f"&&C.foeSkill&&C.heroes.some(x=>!x.dead&&x.pa.k==="prophetess"))d*=.75;
   if(single&&tt.includes("armored")&&!t.st.some(x=>x.k==="defDown"))d*=.6;
   if(!single&&tt.includes("bulwark"))d*=.6;
+  for(const f of PX.dmg)d=f(a,t,d,crit,single,counter);
   d=Math.max(1,Math.round(d));
   const dealt=hurt(t,d,a,{cls:t.broken?"crit":crit?"crit":em>1?"adv":em<1?"weak":""});
   if(a.side==="h"&&t.side==="f"&&!counter)brkHit(a,t);
@@ -4207,6 +4245,7 @@ function strike(a,t,m,counter,single=true){
   if(single&&!counter&&hasM(a,"firstword")&&dealt>0)foesOf(a).filter(x=>x!==t).forEach(x=>hurt(x,Math.max(1,Math.round(dealt*.4)),a,{cls:"weak"}));
   if(hasM(a,"rubric")&&!t.dead)applyBlot(a,t,.25,2);
   if(a.side==="h")gainMeter(crit?4:2.5);
+  PX.hit.forEach(f=>f(a,t,dealt,crit,counter));
   if(a.pa.k==="sermon"&&!t.dead&&!warded(t)&&!F(t,"unstoppable")&&roll(t.boss?10:25)){addSt(t,"beguile",1,2);pop(t,"Beguiled!","info");}
   if(a.pa.k==="courier"&&!counter){const al=alliesOf(a).filter(x=>x!==a&&x.cd>0).sort((x,y)=>y.cd-x.cd)[0];if(al)al.cd--;}
   if(hasT(a,"juggler")&&!counter&&!a.dead){const o=foesOf(a).filter(x=>x!==t);if(o.length)strike(a,pick(o),m*.5,true);}
@@ -4233,8 +4272,10 @@ function hurt(t,d,src,o={}){
     else if(t.side==="h"&&!C.saintUsed&&!t.wasRevived&&allies.some(x=>!x.dead&&x!==t&&F(x,"saint"))){C.saintUsed=true;t.wasRevived=true;t.hp=Math.round(t.maxhp*.3);t.st=[];pop(t,"Blessed!","heal");fx(t,"glow");}
     else if(t.side==="h"&&!C.gaiaUsed&&!t.wasRevived&&allies.some(x=>!x.dead&&x!==t&&x.pa.k==="motherofall")){C.gaiaUsed=true;t.wasRevived=true;t.hp=Math.round(t.maxhp*.4);t.st=[];pop(t,"Gaia restores!","heal");fx(t,"glow");}
     else if(t.side==="h"&&!C.featherUsed&&allies.some(x=>F(x,"feather"))){C.featherUsed=true;t.hp=Math.round(t.maxhp*.5);t.st=[];pop(t,"Phoenix Feather!","heal");fx(t,"glow");}
+    else if(PX.save.some(f=>f(t,allies)));
     else{t.hp=0;t.dead=true;t.st=[];t.shield=0;if(t.side!=="h"&&typeof onFoeKill==="function")onFoeKill(t);fx(t,"splat");SFX.play("kill");
       if(t.side==="f")track("kills");
+      PX.kill.forEach(f=>f(t,src,o));
       if(t.side==="h"&&HERO[t.id])say(t,FALL[HERO[t.id].cls]);
       if(src&&!o.noKill&&src.side!==t.side&&F(src,"bloodlust")&&!src.dead){src.blood=(src.blood||0)+1;pop(src,"Bloodlust!","info");}
       if(t.side==="f"&&src&&src.side==="h")gainMeter(8);
@@ -4328,7 +4369,7 @@ function heroAct(target){
 /* ultimate length: full the first time a player sees each hero's ultimate, then a shorter cut (setting in How to play) */
 function ultMs(u){if(SIM||u.side!=="h"||typeof ULTFX==="undefined"||!ULTFX.has(u.id)||RM())return 900;let q=(HERO[u.id]||{}).q||0;
   const base=G.speed>=8?1000:G.speed>=4?1450:G.speed>=2?2200:3200,mode=G.ultLen||"first";q=typeof heroQ==="function"?heroQ(u.id):q;const full=mode==="full"||(mode==="first"&&!(G.seenUlt||{})[u.id]);
-  return Math.round(base*(full?[.72,.85,1.05,1.4,1.85,2.4]:[.55,.6,.66,.74,.84,.95])[q]);}
+  return Math.round(base*(full?[.72,.85,1.05,1.4,1.85,2.4,3]:[.55,.6,.66,.74,.84,.95,1.1])[q]);}
 function cutIn(u,text){if(SIM||!u||u.side!=="h")return;const bf=document.getElementById("bf");if(!bf)return;const old=bf.querySelector(".cutin");if(old)old.remove();
   const d=document.createElement("div");d.className="cutin";d.innerHTML=`<img src="${spriteURL(u.spr)}" alt=""><div><span>${esc(u.n)}</span><b>${esc(text)}</b></div>`;bf.appendChild(d);setTimeout(()=>d.remove(),1000);}
 let popQ=[],fxQ=[];
@@ -4833,16 +4874,16 @@ function viewParty(){
    </section></div>`;
 }
 function viewWells(){
-  const hr=[[5,SECRET.hero.rate],[4,HERO_OLY.rate],[3,3],[2,13],[1,32],[0,51]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
+  const hr=[[6,AEON.rate],[5,SECRET.hero.rate],[4,HERO_OLY.rate],[3,3],[2,13],[1,32],[0,51]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
   const odds=a=>`<div class="odds">${a.map(([q,p])=>`<div class="q${q}"><span class="qtag">${QN[q]}</span><span class="bar"><i style="width:${Math.max(2,p/52*100)}%"></i></span><b>${p}%</b></div>`).join("")}</div>`;
   const pity=(lbl,cur,max)=>`<div class="pity"><span>${lbl}</span><b class="px">${max-cur} left</b><span class="bar"><i style="width:${cur/max*100}%"></i></span></div>`;
   return `<div class="wells">
    <section class="panel framed well">${PH("Oracle of Delphi","wells","Summon heroes")}
      <div class="wart">${im("unicorn","sp side l")}${im("inkwell","sp main")}${im("illuminator","sp side")}</div>
      ${(()=>{const D=ensureDaily(),fh=HERO[D.featured];return `<div class="feat">${im(fh.id)}<div><span class="label">★ Featured today</span><b>${esc(fh.n)}</b> ${clsBadge(fh.id)}<span class="soft" style="font-size:13px">Half of all ${QN[fh.q]} summons today will be ${esc(fh.n)}.</span></div></div>`;})()}
-     <p class="explain" style="margin:0">Spend Drachmae to draw a random hero from the Oracle's smoke. A hero you already own becomes a <b>copy</b> that you use to Star up. Gods of Olympus walk among the <b>Olympians</b>, and a rare few are <b class="holo-t">Primordials</b>.</p>
+     <p class="explain" style="margin:0">Spend Drachmae to draw a random hero from the Oracle's smoke. A hero you already own becomes a <b>copy</b> that you use to Star up. Gods of Olympus walk among the <b>Olympians</b>, a rare few are <b class="holo-t">Primordials</b>, and rarest of all are the <b class="aeon-t">Aeons</b>.</p>
      ${odds(hr)}
-     ${pity("Guaranteed Legendary or better",G.pity.h10,10)}${pity("Guaranteed Demigod",G.pity.hL,50)}${pity("Guaranteed Olympian",G.pity.hO||0,HERO_OLY.pity)}<div class="secretpity">${pity("✦ Guaranteed Primordial",G.pity.hS||0,SECRET.hero.pity)}</div>
+     ${pity("Guaranteed Legendary or better",G.pity.h10,10)}${pity("Guaranteed Demigod",G.pity.hL,50)}${pity("Guaranteed Olympian",G.pity.hO||0,HERO_OLY.pity)}<div class="secretpity">${pity("✦ Guaranteed Primordial",G.pity.hS||0,SECRET.hero.pity)}</div><div class="aeonpity">${pity("✧ Guaranteed Aeon",G.pity.hA||0,AEON.pity)}</div>
      <div class="pullrow"><button class="btn gold big" data-act="pullh" data-n="1" ${G.gilt<COST.hero1?"disabled":""}>Summon ×1 ${ico("c_gilt")}${COST.hero1}</button><button class="btn gold big" data-act="pullh" data-n="10" ${G.gilt<COST.hero10?"disabled":""}>Summon ×10 ${ico("c_gilt")}${COST.hero10}</button></div>
      ${apPanel("h")}
      ${G.gilt<COST.hero1?`<p class="soft" style="font-size:14px">Need more Drachmae? Clear new stages, finish Tasks, or collect from the Agora.</p>`:""}
@@ -4858,9 +4899,9 @@ function viewWells(){
    ${typeof favourPanel==="function"?favourPanel():""}<section class="panel" style="grid-column:1/-1">${PH("Folio of Heroes","party",`${Object.keys(G.heroes).length} of ${HEROES.length} drawn`)}
      <div class="coll">${HEROES.slice().sort((a,b)=>b.q-a.q).map(h=>{const own=G.heroes[h.id];return `<div class="q${h.q}" title="${own?esc(h.n):"Not yet summoned"}">${im(h.id,own?"sp":"sp sil")}<span>${own?esc(h.n):"???"}</span>${clsBadge(h.id)}<span class="qtag">${QN[h.q]}</span></div>`;}).join("")}</div>
    </section>
-   <section class="panel secretpanel" style="grid-column:1/-1">${PH("✦ Primordials","wells","1 in 400 summons · 1 in 667 forge crates")}
-     <p class="explain">The rarest things in the amphora. Each is far stronger than a Demigod and has a power found nowhere else. Bad luck is capped: the secret pity bars guarantee one eventually.</p>
-     <div class="ginv">${HEROES.filter(h=>h.secret).map(h=>{const own=G.heroes[h.id];return `<div class="gear q5">${im(h.id,own?"sp":"sp sil")}<span class="qtag">Primordial hero · ${own?"owned":"not found"}</span><b>${own?esc(h.n):"???"}</b><span class="uq">✦ ${own?esc(h.pa.n)+": "+esc(h.pa.t):"Summon it to reveal its power."}</span></div>`;}).join("")}
+   <section class="panel secretpanel" style="grid-column:1/-1">${PH("✦ Primordials and ✧ Aeons","wells","Primordials 1 in 400 summons · Aeons 1 in 2,000 · relics 1 in 667 forge crates")}
+     <p class="explain">The rarest things in the amphora. Each Primordial is far stronger than a Demigod and has a power found nowhere else. Above them stand the <b class="aeon-t">Aeons</b>: Eternity, Necessity and the First Light, older than Chaos itself. Bad luck is capped: the secret pity bars guarantee one eventually.</p>
+     <div class="ginv">${HEROES.filter(h=>h.secret).sort((a,b)=>b.q-a.q).map(h=>{const own=G.heroes[h.id];return `<div class="gear q${h.q}">${im(h.id,own?"sp":"sp sil")}<span class="qtag">${QN[h.q]} hero · ${own?"owned":"not found"}</span><b>${own?esc(h.n):"???"}</b><span class="uq">✦ ${own?esc(h.pa.n)+": "+esc(h.pa.t):"Summon it to reveal its power."}</span></div>`;}).join("")}
        ${SECRET_GEAR.map(m=>{const own=G.gear.some(x=>x.myth===m.k);return `<div class="gear q5">${im(gearSprite({slot:m.slot,q:5}),own?"sp":"sp sil")}<span class="qtag">Primordial ${SLOTS[m.slot].n} · ${own?"owned":"not found"}</span><b>${own?esc(m.n):"???"}</b><span class="uq">✦ ${own?esc(m.t):"Open forge crates to reveal its power."}</span></div>`;}).join("")}</div>
    </section>
    <section class="panel" style="grid-column:1/-1">${PH("Olympian","gear","The rarest equipment")}
@@ -4882,19 +4923,19 @@ function viewScrip(){
 }
 function viewReveal(){
   const R=reveal;
-  const sec=R.items.some(x=>x.q===5);
+  const sec=R.items.some(x=>x.q>=5),aeon=R.items.some(x=>x.q>=6);
   if(R.phase==="shake"){const bq=Math.max(...R.items.map(x=>x.q));
-    const msg=sec?"The page is… glowing?":bq>=4?"The Oracle trembles!":bq===3?"Gold light seeps through the field!":bq===2?"The smoke turns blue…":R.kind==="hero"?"Something stirs in the element…":"Breaking the wax…";
-    return `<div class="modal" role="dialog" aria-label="Summoning"><div class="panel framed ${sec?"secretglow":""}" style="max-width:420px"><div class="summon glowq${bq}">${im(R.kind==="hero"?"inkwell":"chest")}<p class="label">${msg}</p><button class="btn small" data-act="skiprev">Skip</button>${R.auto&&AP&&!AP.done?` <button class="btn small" data-act="apstop">■ Stop auto</button> <button class="btn small" data-act="aphide">Hide animations</button>`:""}</div></div></div>`;}
+    const msg=aeon?"Time itself… stops.":sec?"The page is… glowing?":bq>=4?"The Oracle trembles!":bq===3?"Gold light seeps through the field!":bq===2?"The smoke turns blue…":R.kind==="hero"?"Something stirs in the element…":"Breaking the wax…";
+    return `<div class="modal" role="dialog" aria-label="Summoning"><div class="panel framed ${aeon?"aeonglow":sec?"secretglow":""}" style="max-width:420px"><div class="summon glowq${bq}">${im(R.kind==="hero"?"inkwell":"chest")}<p class="label">${msg}</p><button class="btn small" data-act="skiprev">Skip</button>${R.auto&&AP&&!AP.done?` <button class="btn small" data-act="apstop">■ Stop auto</button> <button class="btn small" data-act="aphide">Hide animations</button>`:""}</div></div></div>`;}
   const cards=R.items.map((x,i)=>{
     if(x.kind==="hero"){const h=HERO[x.id];return `<div class="rc q${x.q}" style="animation-delay:${i*120}ms">${im(h.id)}<span class="qtag">${QN[x.q]}</span><b>${esc(h.n)}</b>${clsBadge(h.id)}${x.isNew?`<span class="new">NEW HERO!</span>`:`<span class="soft" style="font-size:12px">+1 copy (for Star up)</span>`}</div>`;}
     const g=x.g;return `<div class="rc q${x.q}" style="animation-delay:${i*120}ms">${im(gearSprite(g))}<span class="qtag">${QN[x.q]}</span><b>${esc(g.name)}</b><span class="soft" style="font-size:12px">${statTxt(g.main.k,g.main.v)}</span></div>`;}).join("");
   const best=Math.max(...R.items.map(x=>x.q));
-  const secBlock=sec?`<div class="secretreveal">${R.items.filter(x=>x.q===5).map(x=>{if(x.kind==="hero"){const h=HERO[x.id];return `<div class="sr">${im(h.id)}<div><span class="qtag holo-t">✦ Primordial hero ✦</span><b>${esc(h.n)}</b><span>${esc(h.pa.n)}: ${esc(h.pa.t)}</span></div></div>`;}
+  const secBlock=sec?`<div class="secretreveal">${R.items.filter(x=>x.q>=5).map(x=>{if(x.kind==="hero"){const h=HERO[x.id];return `<div class="sr">${im(h.id)}<div><span class="qtag ${x.q>=6?"aeon-t":"holo-t"}">${x.q>=6?"✧ AEON HERO ✧":"✦ Primordial hero ✦"}</span><b>${esc(h.n)}</b><span>${esc(h.pa.n)}: ${esc(h.pa.t)}</span></div></div>`;}
       const m=MYTH[x.g.myth];return `<div class="sr">${im(gearSprite(x.g))}<div><span class="qtag holo-t">✦ Primordial relic ✦</span><b>${esc(m.n)}</b><span>${esc(m.t)}</span></div></div>`;}).join("")}</div>`:"";
   const can=R.kind==="hero"?G.gilt>=(R.items.length===10?COST.hero10:COST.hero1):G.seals>=(R.items.length===10?COST.gear10:COST.gear1);
   return `<div class="modal" role="dialog" aria-label="Results"><div class="panel framed">
-    <div class="ph"><h2 class="${best===5?"holo-t":""}">${best===5?"✦ PRIMORDIAL ✦":best===4?"Olympian!":best===3?"A Demigod!":best===2?"A Legendary!":"The smoke settles"}</h2><span class="soft">${R.items.length} result${R.items.length>1?"s":""}</span></div>
+    <div class="ph"><h2 class="${best===6?"aeon-t":best===5?"holo-t":""}">${best===6?"✧ AEON ✧":best===5?"✦ PRIMORDIAL ✦":best===4?"Olympian!":best===3?"A Demigod!":best===2?"A Legendary!":"The smoke settles"}</h2><span class="soft">${R.items.length} result${R.items.length>1?"s":""}</span></div>
     ${secBlock}<div class="reveal">${cards}</div>
     ${R.auto?`<div class="aprev"><span class="label">Auto ${R.kind==="hero"?"summon":"forge"} · ${fmt(AP?AP.n:0)} so far</span>${R.apWhy?`<b class="apwhy">${esc(R.apWhy)}</b>`:""}</div>`:""}
     <div class="row" style="justify-content:flex-end">${R.auto&&AP&&!AP.done?`<button class="btn main" data-act="apstop">■ Stop auto</button><button class="btn" data-act="aphide">Hide animations</button>`:""}<button class="btn" data-act="again" data-n="${R.items.length}" ${can&&!(AP&&!AP.done)?"":"disabled"}>Again ×${R.items.length}</button><button class="btn main" data-act="${R.kind==="hero"?"revparty":"revgear"}">${R.kind==="hero"?"See heroes":"Equip gear"}</button><button class="btn" data-act="closerev">Close</button></div></div></div>`;
@@ -4958,7 +4999,7 @@ const HELP={
  classes:{t:"Classes",b:()=>`<h3>Hero classes</h3><p>Every hero has one class that tells you its job in a fight. A solid team usually has a <b>Tank or Bruiser</b> in front, a <b>Healer</b>, and one or two damage heroes, then a Buffer or Controller to taste.</p>
   <div class="hcards">${Object.keys(CLS).map(k=>`<div class="hcard"><span class="cls big" style="--cc:${CLS[k].c}">${clsIco(k)}</span><div><b>${CLS[k].n}</b>${CLS[k].d}<br><i class="soft">${HEROES.filter(h=>h.cls===k&&(G.heroes[h.id]||!h.secret)).map(h=>esc(h.n)).join(", ")}</i></div></div>`).join("")}</div>
   <p>Filter your heroes by class in the Party tab. The <b>Team makeup</b> line warns you when a line-up is missing a front-liner, a healer or damage.</p>`},
- party:{t:"Heroes",b:()=>`<h3>Heroes</h3><ul><li><b>Rarity</b>: Mortal, Famed, Legendary, Demigod, <b>Olympian</b>, and the hidden <b>Primordial</b> (0.25% per summon, guaranteed within 200). Rarer heroes have higher stats and stronger skills.</li>
+ party:{t:"Heroes",b:()=>`<h3>Heroes</h3><ul><li><b>Rarity</b>: Mortal, Famed, Legendary, Demigod, <b>Olympian</b>, the hidden <b>Primordial</b> (0.25% per summon, guaranteed within 200), and above them the <b>Aeons</b> (0.05% per summon, guaranteed within 600): Eternity, Necessity and the First Light. Rarer heroes have higher stats and stronger skills.</li>
   <li><b>Level</b>: spend Ambrosia. The cap is 50, plus 10 per extra star.</li><li><b>Stars</b>: pulling a hero you already own gives a copy. Spend copies to Star up: +15% to every stat.</li>
   <li><b>Roles</b>: tanks protect, healers heal, supports buff, strikers and mages deal damage. A mix works best.</li>
   <li><b>Unique passive</b>: every hero has a one-of-a-kind trait that is always on, from the Leonidas's growing shell to Medusa turning attackers to stone. Some help the whole team, so try combinations.</li></ul>`},
@@ -5004,11 +5045,11 @@ function doPull(kind,n){
   const cost=kind==="hero"?(n===10?COST.hero10:COST.hero1):(n===10?COST.gear10:COST.gear1);
   if(kind==="hero"){if(G.gilt<cost)return toast("Not enough Drachmae.");G.gilt-=cost;reveal={kind,phase:"shake",t0:Date.now(),items:Array.from({length:n},pullHero)};}
   else{if(G.seals<cost)return toast("Not enough Bronze.");G.seals-=cost;reveal={kind,phase:"shake",t0:Date.now(),items:Array.from({length:n},pullGearOne)};}
-  const r=reveal,sec=r.items.some(x=>x.q===5),bq=Math.max(...r.items.map(x=>x.q));SFX.play("rise",bq);
+  const r=reveal,sec=r.items.some(x=>x.q>=5),bq=Math.max(...r.items.map(x=>x.q));SFX.play("rise",bq);
   setTimeout(()=>{if(reveal===r&&r.phase==="shake"){r.phase="cards";SFX.play("reveal",bq);render();if(sec)secretFlash();}},sec?2400:bq>=3?1800:bq===2?1400:1100);
 }
 /* ---- Auto summon: keeps summoning (x10 when affordable, else x1) until a stop rule, the reserve, or Stop ---- */
-const AP_STOP={h:[["q5","a Primordial hero"],["q3","Demigod or better"],["new","any new hero"],["none","never (until out of Drachmae)"]],
+const AP_STOP={h:[["q5","a Primordial or Aeon hero"],["q3","Demigod or better"],["new","any new hero"],["none","never (until out of Drachmae)"]],
   g:[["q5","a Primordial piece"],["q4","Olympian or better"],["none","never (until out of Bronze)"]]};
 let AP=null; /* the run in progress: {k,n,spent,tally,hits,news,salv,why,done} */
 function apCfg(k){G.autoPull=G.autoPull||{};return G.autoPull[k]=Object.assign(k==="h"?{stop:"q5",keep:0}:{stop:"q4",keep:0,salv:0},G.autoPull[k]||{});}
@@ -5022,9 +5063,9 @@ function apStep(){
   G[cur]-=n===10?c10:c1;AP.spent+=n===10?c10:c1;
   let stop=null,sec=false;AP.batch=[];
   for(let i=0;i<n;i++){
-    const r=k==="h"?pullHero():pullGearOne();AP.batch.push(r);AP.n++;AP.tally[r.q]++;if(r.q===5)sec=true;
+    const r=k==="h"?pullHero():pullGearOne();AP.batch.push(r);AP.n++;AP.tally[r.q]++;if(r.q>=5)sec=true;
     if(k==="h"){if(r.isNew)AP.news.push(r.id);if(r.q>=3||r.isNew)AP.hits.push({q:r.q,n:HERO[r.id].n,isNew:r.isNew});
-      if(!stop&&((cfg.stop==="q5"&&r.q===5)||(cfg.stop==="q3"&&r.q>=3)||(cfg.stop==="new"&&r.isNew)))stop=`${HERO[r.id].n} (${QN[r.q]}${r.isNew?", new":""})`;}
+      if(!stop&&((cfg.stop==="q5"&&r.q>=5)||(cfg.stop==="q3"&&r.q>=3)||(cfg.stop==="new"&&r.isNew)))stop=`${HERO[r.id].n} (${QN[r.q]}${r.isNew?", new":""})`;}
     else{if(r.q<=(+cfg.salv||0)-1&&!r.g.owner){G.seals+=salvageVal(r.g);G.gear=G.gear.filter(x=>x!==r.g);AP.salv++;}
       if(r.q>=4)AP.hits.push({q:r.q,n:r.g.name});
       if(!stop&&((cfg.stop==="q5"&&r.q===5)||(cfg.stop==="q4"&&r.q>=4)))stop=`${r.g.name} (${QN[r.q]})`;}
@@ -5198,7 +5239,7 @@ const SFX=(()=>{
     lose:t=>{[392,330,262,196].forEach((f,i)=>tone(f,t+i*.16,.4,"triangle",.12));},
     coin:t=>{tone(1568,t,.12,"square",.05);tone(2093,t+.07,.18,"square",.05);},
     rise:(t,q)=>{tone(220,t,1+q*.2,"sine",.08,2+q*.6);noise(t,.6+q*.2,.05,1200+q*400,.6);},
-    reveal:(t,q)=>{const base=[392,440,523,587,659,784];for(let i=0;i<=Math.min(5,q+1);i++)tone(base[i]*(q>=3?1.5:1),t+i*.07,.5,"sine",.1);if(q>=3)tone(1568,t+.45,.8,"sine",.07);if(q===5)[2093,2637,3136].forEach((f,i)=>tone(f,t+.5+i*.08,.6,"sine",.05));},
+    reveal:(t,q)=>{const base=[392,440,523,587,659,784];for(let i=0;i<=Math.min(5,q+1);i++)tone(base[i]*(q>=3?1.5:1),t+i*.07,.5,"sine",.1);if(q>=3)tone(1568,t+.45,.8,"sine",.07);if(q>=5)[2093,2637,3136].forEach((f,i)=>tone(f,t+.5+i*.08,.6,"sine",.05));if(q>=6){[131,196,262].forEach(f=>tone(f,t+.9,2.2,"sine",.07,1));[3136,3951,4699,5274].forEach((f,i)=>tone(f,t+1.1+i*.12,1.2,"sine",.035));}},
     star:t=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,t+i*.06,.3,"sine",.1));},
     tick:t=>{noise(t,.03,.12,4000,2);},
     page:t=>{noise(t,.18,.12,1800,.5);}
@@ -5738,6 +5779,174 @@ SYN.push(
 );
 })();
 
+/* ===================== 1.9: THIRTEEN NEW HEROES and the AEON rarity (above the Primordials) =====================
+   Aeons (q6): Aion (Eternity), Ananke (Necessity), Phanes (the First Light).  Primordial: Erebus.  Olympians: Hera, Demeter.
+   Demigods: Theseus, Bellerophon.  Legendary: Ariadne, Pandora.  Famed: Narcissus, Echo.  Mortal: the Pankratiast. */
+(function(){
+const N=[
+ /* ---------------- Aeons (q6) ---------------- */
+ {id:"aion",n:"Aion",q:6,el:"lapis",role:"mage",cls:"mage",secret:true,aeon:true,lore:"Eternity itself: not the time that passes, but the time that never ends. He turns the wheel of the zodiac, and the ages turn with it.",
+  b:{n:"Turn of Ages",fx:[D(1.35)]},s:{n:"Hour of Ruin",cd:3,fx:[D(1.75,"all"),{t:"debuff",k:"spdDown",v:.3,turns:2,tg:"all"}]},
+  u:{n:"The Wheel of Ages",fx:[D(3.1,"all"),{t:"refresh"},{t:"buff",k:"spdUp",v:.3,turns:3,tg:"allies"}]},
+  pa:{k:"eternity",n:"Eternity",t:"On each of his turns, every other ally's skill comes 1 turn closer and the Glory meter fills 5%. Once per battle, when an ally would fall, time rewinds: they return at 60% HP with their debuffs undone."},
+  qp:["Again. And again. And again.","I have already seen how this ends."],bio:["He holds the zodiac like a hoop. Every turn of it is an age of the world.","The gods count in years. The Titans count in ages. He does not count."],
+  myth:["The Wheel of Ages","A crack runs through the zodiac. Hours go missing from the world.","Kronos tries to seize the wheel and stop time at the Golden Age.","At the end of all ages, Chaos comes to unmake the wheel."],
+  skin:["midnight","Keeper of the Zodiac",{hat:["hairM","stars"],cape:"glaze"},"hyacinth","lapis","Lapis Eternity","astral","The Endless Sky"]},
+ {id:"ananke",n:"Ananke",q:6,el:"iron",role:"support",cls:"control",secret:true,aeon:true,lore:"Necessity, the force even the gods obey. The Fates are her daughters; the spindle on her knees spins the axis of the world.",
+  b:{n:"Bind",fx:[D(1.2),{t:"debuff",k:"spdDown",v:.15,turns:2,tg:"hit"}]},s:{n:"Spindle of Necessity",cd:3,fx:[D(1.55,"all"),{t:"stun",p:45,turns:1},{t:"debuff",k:"defDown",v:.25,turns:2,tg:"all"}]},
+  u:{n:"What Must Be",fx:[D(2.7,"all"),{t:"stun",p:80,turns:1},{t:"debuff",k:"atkDown",v:.35,turns:3,tg:"all"},{t:"execute",v:.2}]},
+  pa:{k:"necessity",n:"Necessity",t:"While she stands, every foe deals 15% less damage. She deals +35% damage to stunned, sleeping or slowed foes, and every boss she hits is slowed (−15% Speed) for 2 turns."},
+  qp:["It must be so.","Even Zeus kneels to Necessity."],bio:["Her daughters spin, measure and cut the thread of every life. She owns the spindle.","Plato said the whole sky turns on her spindle. She thought that was a little dramatic."],
+  myth:["The Spindle of the World","The thread of a hero's life is cut too soon. Ananke wants to know who did it.","The Fates quarrel, and the threads of a whole city begin to fray.","Someone has stolen the shears of Atropos. Necessity herself takes the field."],
+  skin:["ash","Mother of the Fates",{hat:["hairF","crownW"],hb:"veil",hbc:"glaze"},"tyrian","obsidian","Iron Necessity","eidolon","The Unbreakable Thread"]},
+ {id:"phanes",n:"Phanes",q:6,el:"gold",role:"healer",cls:"healer",secret:true,aeon:true,lore:"The First-Born, who hatched from the silver egg of the cosmos on golden wings and gave the world its light. Everything that lives, lives by his light.",
+  b:{n:"Dawnfire",fx:[D(1.15)]},s:{n:"Light of Creation",cd:3,fx:[{t:"heal",m:.95,tg:"allies"},{t:"cleanse"},{t:"shield",m:.12,tg:"allies"}]},
+  u:{n:"The Cosmic Egg",fx:[{t:"revive",m:.5,all:true},{t:"heal",m:1.3,tg:"allies"},{t:"buff",k:"atkUp",v:.35,turns:3,tg:"allies"},D(1.9,"all")]},
+  pa:{k:"firstborn",n:"The First Light",t:"At the start of each of his turns, every ally heals 6% of max HP and the most wounded ally gains a shield worth 10% of his max HP. Allies above 70% HP get +20% ATK."},
+  qp:["Let there be light.","I was here first."],bio:["He hatched from an egg laid by Time itself. The shell is still up there; we call it the sky.","His name means 'the one who shows'. He showed the world to itself."],
+  myth:["The Silver Egg","Something stirs inside the cosmic egg, and the darkness around it is hungry.","The newborn light is hunted across the void by the creatures of Erebus.","Night and Darkness join forces to put out the First Light for ever."],
+  skin:["ivory","Hatchling of the Egg",{hat:["hairM","halo"],cape:"dil"},"saffron","gold","Chryselephantine Light","radiant","The First Dawn"]},
+ /* ---------------- Primordial (q5) ---------------- */
+ {id:"erebus",n:"Erebus",q:5,el:"iron",role:"warrior",cls:"bruiser",secret:true,lore:"Primordial Darkness, brother and husband of Night. Before there was light there was only Erebus, and he remembers.",
+  b:{n:"Shadow Grasp",fx:[D(1.3)]},s:{n:"The Deep Dark",cd:3,fx:[D(2.3),{t:"blind",v:30,turns:2},{t:"buff",k:"atkUp",v:.2,turns:2,tg:"self"}]},
+  u:{n:"Darkness Before Creation",fx:[D(2.7,"all"),{t:"blind",v:40,turns:2,tg:"all"},{t:"debuff",k:"defDown",v:.3,turns:2,tg:"all"}]},
+  pa:{k:"underdark",n:"The Underdark",t:"Deals +45% damage to blinded foes and heals for 20% of the damage he deals to them. The first time he falls, he melts into shadow and returns at 35% HP."},
+  qp:["The light was a mistake.","Come into the dark."],bio:["The river Styx flows through his halls. Charon rows across them for free.","His children are Day and Air. He finds them both a bit much."],
+  myth:["Brother of Night","A torch is lit in the deepest part of the Underworld. Erebus wants it out.","Hades's hounds stray into the Darkness and must be driven back.","Phanes's light threatens to burn away the dark for ever."],
+  skin:["midnight","Lord of the Styx",{hat:["hairM","hood"],cape:"glaze",item:"bident"},"ash","obsidian","Obsidian Abyss","eidolon","Darkness Unmade"]},
+ /* ---------------- Olympians (q4) ---------------- */
+ {id:"hera",n:"Hera",q:4,el:"lapis",role:"support",cls:"buffer",lore:"Queen of Olympus and goddess of marriage. Her peacock watches with a hundred eyes, and so does she.",
+  b:{n:"Royal Sceptre",fx:[D(1.05)]},s:{n:"Queen's Decree",cd:3,fx:[D(1.05,"all"),{t:"buff",k:"atkUp",v:.3,turns:2,tg:"allies"},{t:"buff",k:"defUp",v:.2,turns:2,tg:"allies"}]},
+  u:{n:"Wrath of the Queen",fx:[D(2,"all"),{t:"debuff",k:"atkDown",v:.3,turns:2,tg:"all"},{t:"buff",k:"atkUp",v:.4,turns:3,tg:"allies"},{t:"glory",v:15}]},
+  pa:{k:"queenly",n:"Queen of Olympus",t:"Every Olympian, Primordial and Aeon ally gains +15% ATK and +10% HP. If Zeus is in the team, she watches him closely: she gains +25% ATK."},
+  qp:["Kneel.","I am the queen of the gods. Act like it."],bio:["She raised Hephaestus, then threw him off Olympus. She would like that left out of the bio.","Argus, her hundred-eyed watchman, now lives on in the peacock's tail."],
+  myth:["Queen of Heaven","Zeus has disappeared again. Hera goes looking.","A shrine at Argos is defiled by bandits who mock the queen.","The giants storm Olympus while Zeus is away. The queen defends the throne."],
+  skin:["tyrian","Peacock Throne",{hat:["hairF","diadem"],cape:"red"},"aegean","lapis","Queen in Lapis","radiant","Heraion Dawn"]},
+ {id:"demeter",n:"Demeter",q:4,el:"verd",role:"healer",cls:"healer",lore:"Goddess of the harvest. When her daughter was taken, the fields died; when she came back, it was spring.",
+  b:{n:"Harvest Sickle",fx:[D(1.0)]},s:{n:"Bountiful Harvest",cd:3,fx:[{t:"heal",m:.85,tg:"allies"},{t:"buff",k:"defUp",v:.15,turns:2,tg:"allies"}]},
+  u:{n:"Eternal Spring",fx:[{t:"heal",m:1.6,tg:"allies"},{t:"cleanse"},{t:"shield",m:.15,tg:"allies"},{t:"buff",k:"atkUp",v:.25,turns:2,tg:"allies"}]},
+  pa:{k:"harvest",n:"Mother of the Harvest",t:"At the start of her turn she tends the most wounded ally for 8% of their max HP. Every time a foe falls, the whole team heals 4% of max HP."},
+  qp:["Grow.","Every field remembers me."],bio:["She wandered the earth with a torch for nine days looking for Persephone. Nothing grew.","She taught Triptolemus to farm and sent him round the world in a chariot pulled by dragons."],
+  myth:["The Search for Persephone","Persephone vanishes from a meadow. Demeter lights her torches.","The fields wither, and hungry raiders roam the empty farms.","Demeter storms the gates of the Underworld to bring her daughter home."],
+  skin:["olive","Lady of Eleusis",{hat:["hairF","laurel"],hb:"veil",hbc:"dil",item:"torch"},"saffron","verdant","Living Wheat","radiant","Golden Harvest"]},
+ /* ---------------- Demigods (q3) ---------------- */
+ {id:"theseus",n:"Theseus",q:3,el:"lapis",role:"warrior",cls:"bruiser",lore:"Hero of Athens, slayer of the Minotaur. He went into the Labyrinth with a sword and a ball of thread, and came out with a legend.",
+  b:{n:"Club of Periphetes",fx:[D(1.2)]},s:{n:"Into the Labyrinth",cd:3,fx:[D(2.4),{t:"stun",p:35,turns:1}]},
+  u:{n:"Slayer of the Minotaur",fx:[D(3.2),D(1.1,"all"),{t:"buff",k:"atkUp",v:.25,turns:2,tg:"self"}]},
+  pa:{k:"labyrinth",n:"Monster Slayer",t:"Deals +35% damage to bosses and elites. Every boss or elite he helps defeat gives him +10% ATK for the rest of the battle."},
+  qp:["Where's the bull?","Follow the thread home."],bio:["He cleared the road to Athens of bandits by giving each one his own trick back.","He forgot to change his black sails. His father never forgave him; neither did the sea."],
+  myth:["The Road to Athens","Six bandits hold the road to Athens. Theseus takes it anyway.","The Marathonian Bull runs wild across Attica.","Into the Labyrinth: the Minotaur waits in the dark."],
+  skin:["aegean","Prince of Athens",{hat:["hairM","laurel"],cape:"red",item:"xiphos"},"ivory","bronze","Bronze of the Agora","blackfig","The Minotaur Amphora"]},
+ {id:"bellerophon",n:"Bellerophon",q:3,el:"gold",role:"striker",cls:"dps",lore:"Tamer of Pegasus and slayer of the Chimera. He flew so high that he tried to ride to Olympus itself.",
+  b:{n:"Lead-tipped Lance",fx:[D(1.25)]},s:{n:"Pegasus Dive",cd:3,fx:[D(2.8),{t:"mark",v:.2,turns:2}]},
+  u:{n:"Bane of the Chimera",fx:[D(4),{t:"blot",m:.5,turns:3}]},
+  pa:{k:"pegasus",n:"Rider of Pegasus",t:"+20 Speed. His first hit in every wave always lands as a critical hit."},
+  qp:["Up, Pegasus!","From above!"],bio:["Athena gave him a golden bridle in a dream. When he woke, it was in his hand.","He killed the Chimera by shoving lead down its throat. Its own fire melted it."],
+  myth:["The Golden Bridle","A winged horse drinks from the spring at Corinth. Bellerophon must catch it.","King Iobates sends him to fight the Solymi, hoping he will not return.","The Chimera burns Lycia. Only a rider in the sky can reach it."],
+  skin:["saffron","Lycian Champion",{hat:["corinth"],cape:"red"},"crimson","gold","Golden Bridle","storm","Pegasus Ascending"]},
+ /* ---------------- Legendary (q2) ---------------- */
+ {id:"ariadne",n:"Ariadne",q:2,el:"verd",role:"support",cls:"buffer",lore:"Princess of Crete, who gave Theseus the thread that led him out of the Labyrinth. Abandoned on Naxos, she married a god instead.",
+  b:{n:"Red Thread",fx:[D(1.1)]},s:{n:"Clew of Thread",cd:3,fx:[D(1.1,"all"),{t:"buff",k:"spdUp",v:.2,turns:2,tg:"allies"},{t:"cleanse"}]},
+  u:{n:"The Way Out",fx:[D(1.8,"all"),{t:"buff",k:"spdUp",v:.3,turns:2,tg:"allies"},{t:"buff",k:"critUp",v:20,turns:2,tg:"allies"}]},
+  pa:{k:"thread",n:"The Guiding Thread",t:"Every ally gains +8% crit chance and +8 Speed."},
+  qp:["Hold on to the thread.","This way. Trust me."],bio:["Theseus left her asleep on Naxos. Dionysus found her there and gave her a crown of stars.","Her crown is still in the sky: the Corona Borealis."],
+  myth:["The Thread of Crete","Athenian youths arrive as tribute for the Minotaur. Ariadne sees Theseus.","She steals the thread from Daedalus's workshop.","Abandoned on Naxos, she meets a god who throws a very loud party."],
+  skin:["eos","Bride of Dionysus",{hat:["hairF","ivy"],item:"cup"},"tyrian","coral","Coral of Naxos","astral","Corona Borealis"]},
+ {id:"pandora",n:"Pandora",q:2,el:"iron",role:"mage",cls:"mage",lore:"The first woman, built by Hephaestus and given a jar she must never open. She opened it. Only Hope stayed inside.",
+  b:{n:"Lifted Lid",fx:[D(1.2)]},s:{n:"Open the Jar",cd:3,fx:[D(1.4,"all"),{t:"blot",m:.3,turns:2},{t:"debuff",k:"atkDown",v:.15,turns:2,tg:"all"}]},
+  u:{n:"All the World's Ills",fx:[D(2.2,"all"),{t:"blot",m:.45,turns:3},{t:"debuff",k:"defDown",v:.2,turns:2,tg:"all"},{t:"debuff",k:"spdDown",v:.2,turns:2,tg:"all"}]},
+  pa:{k:"hope",n:"Hope Remains",t:"The first time each battle an ally drops below 25% HP, she lets Hope out of the jar: that ally heals 35% of max HP and is cleansed."},
+  qp:["Oops.","Hope is still in here. Somewhere."],bio:["Every god gave her a gift. Hermes gave her curiosity. Hermes should be stopped.","It was a jar, not a box. A translator got it wrong, and now it's a box for ever."],
+  myth:["The Jar","Hephaestus shapes the first woman from clay. The gods line up with gifts.","Curiosity wins. Plagues, sorrow and strife pour out into the world.","Pandora goes after the Ills, armed with the one thing left in the jar."],
+  skin:["tyrian","Gift of the Gods",{hat:["hairF","diadem"],item:"jar"},"ivory","porphyry","Porphyry Jar","redfig","Pithos of Ills"]},
+ /* ---------------- Famed (q1) ---------------- */
+ {id:"narcissus",n:"Narcissus",q:1,el:"lapis",role:"striker",cls:"dps",lore:"The most beautiful young man in Greece, and the first to tell you so. He fell in love with his own reflection and has not looked away since.",
+  b:{n:"Reflection",fx:[D(1.2)]},s:{n:"Admiration",cd:3,fx:[D(2.3),{t:"buff",k:"critUp",v:20,turns:2,tg:"self"}]},
+  u:{n:"The Mirror Pool",fx:[D(3),{t:"charm",p:40,turns:1}]},
+  pa:{k:"vanity",n:"Vanity",t:"Deals +35% damage while above 60% HP, but takes 15% more damage."},
+  qp:["Did you see that? I did.","Flawless."],bio:["A seer said he would live long if he never knew himself. He found a pond.","The flower that grew where he sat still leans over the water."],
+  myth:["The Pool of Thespiae","Suitors line up for Narcissus. He sends them all away.","Nemesis hears the prayer of a heartbroken nymph.","A clear pool in the woods. He looks down."],
+  skin:["seafoam","Hunter of Thespiae",{item:"bow",cape:"clayD"},"olive","frost","Mirror of Ice","tide","Reflection in the Pool"]},
+ {id:"echo",n:"Echo",q:1,el:"verd",role:"support",cls:"buffer",lore:"A mountain nymph cursed by Hera to repeat only the last words of others. She repeats them very, very well.",
+  b:{n:"Repeat",fx:[D(1.0)]},s:{n:"Last Words",cd:3,fx:[D(1.0,"all"),{t:"buff",k:"atkUp",v:.2,turns:2,tg:"allies"}]},
+  u:{n:"Echoing Hills",fx:[D(1.6,"all"),{t:"glory",v:20},{t:"buff",k:"atkUp",v:.25,turns:2,tg:"allies"}]},
+  pa:{k:"echoing",n:"Echo, Echo",t:"Whenever another ally uses a skill or ultimate, she echoes it: a free hit on a random foe for 45% of her ATK."},
+  qp:["…Echo!","…the last word!"],bio:["She kept Hera talking while Zeus slipped away. Hera noticed.","Only her voice is left now, in the hills. Shout and she will answer."],
+  myth:["The Last Word","A nymph talks a little too much on Mount Cithaeron.","Hera's curse takes her voice, except for other people's last words.","Narcissus walks into the woods. Echo follows."],
+  skin:["olive","Nymph of Cithaeron",{hat:["hairF","ivy"]},"eos","shade","Fading Voice","eidolon","Only a Voice"]},
+ /* ---------------- Mortal (q0) ---------------- */
+ {id:"pankratiast",n:"Pankratiast",q:0,el:"verm",role:"warrior",cls:"bruiser",lore:"A fighter of the pankration, the Olympic contest where everything is allowed except biting and eye-gouging. Mostly.",
+  b:{n:"Haymaker",fx:[D(1.2)]},s:{n:"Anything Goes",cd:3,fx:[D(2),{t:"stun",p:30,turns:1}]},
+  u:{n:"Olympic Victor",fx:[D(2.6),{t:"buff",k:"atkUp",v:.3,turns:2,tg:"self"},{t:"heal",m:.5,tg:"self"}]},
+  pa:{k:"pankration",n:"Pankration",t:"He starts every battle with +15% ATK, and every hit he takes makes him angrier: +5% ATK more per hit, up to +65%."},
+  qp:["No rules!","Two out of three?"],bio:["Arrichion won the pankration at Olympia after he had already died. The other man gave up first.","The rules fit on a fingernail: no biting, no gouging. The rest is negotiable."],
+  myth:["The Olympic Games","A farm boy from Arcadia walks to Olympia to compete.","The heats: wrestlers, boxers and one very large Spartan.","The final at Olympia, before all of Greece."],
+  skin:["crimson","Olympic Victor",{hat:["hairM","laurel"]},"ochre","bronze","Bronze Pankratiast","redfig","Panathenaic Prize"]}
+];
+globalThis.HERO3_MYTH={};globalThis.HERO3_SKIN={};
+/* balance from simulated battles (tier sim): Aeons must out-rank Primordials */
+const BOOST3={aion:1.5,ananke:1.7,phanes:1.6,erebus:1.4,theseus:1.25,bellerophon:1.2,narcissus:1.4,pankratiast:1.5};
+N.forEach(h=>{const k=BOOST3[h.id];if(k)[h.b,h.s,h.u].forEach(x=>{if(x&&x.fx)x.fx=x.fx.map(f=>(["dmg","heal","blot","shield"].includes(f.t)&&typeof f.m==="number")?Object.assign({},f,{m:Math.round(f.m*k*100)/100}):f);});});
+N.forEach(h=>{const pa=h.pa,u=h.u,q=h.qp,bio=h.bio;HERO3_MYTH[h.id]=h.myth;HERO3_SKIN[h.id]=h.skin;["pa","u","qp","bio","myth","skin"].forEach(k=>delete h[k]);
+  h.pa=PASSIVE[h.id]=pa;HEROES.push(h);HERO[h.id]=h;HERO_CLS[h.id]=h.cls;ULT[h.id]=u;QUIP[h.id]=q;BIO[h.id]=bio;});
+
+/* ---------------- how the new passives work ---------------- */
+const alive=(side,k)=>(side==="h"?C.heroes:C.foes).find(x=>!x.dead&&x.pa&&x.pa.k===k);
+const upTier=new Set(["aion","ananke","phanes"]);
+PX.start.push(has=>{
+  if(has("queenly"))C.heroes.forEach(x=>{const hq=HERO[x.id]&&HERO[x.id].q;if(hq>=4){x.atk=Math.round(x.atk*1.15);x.maxhp=x.hp=Math.round(x.maxhp*1.1);}
+    if(x.pa.k==="queenly"&&C.heroes.some(y=>y.id==="firsthand"))x.atk=Math.round(x.atk*1.25);});
+  if(has("thread"))C.heroes.forEach(x=>{x.crit+=8;x.spd+=8;});
+  C.heroes.forEach(x=>{if(x.pa.k==="pegasus")x.spd+=20;});});
+PX.turn.push(u=>{
+  if(u.pa.k==="eternity"){alliesOf(u).forEach(a=>{if(a!==u&&a.cd>0)a.cd--;});if(u.side==="h")gainMeter(5);}
+  if(u.pa.k==="firstborn"){const al=alliesOf(u);al.forEach(a=>{if(a.hp<a.maxhp)heal(u,a,a.maxhp*.06);});const w=al.slice().sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0];
+    if(w){const v=Math.round(u.maxhp*.1);w.shield+=v;pop(w,"+"+v+" shield","heal");}}
+  if(u.pa.k==="harvest"){const w=alliesOf(u).filter(a=>a.hp<a.maxhp).sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0];if(w)heal(u,w,w.maxhp*.08);}});
+PX.atk.push(u=>{let b=0;
+  if(u.pa.k==="pankration")b+=.15+.05*Math.min(10,u.angry||0);
+  if(u.lab)b+=.1*u.lab;
+  if(u.hp>u.maxhp*.7&&C&&(u.side==="h"?C.heroes:C.foes).some(x=>!x.dead&&x.pa.k==="firstborn"))b+=.2;
+  return b;});
+PX.dmg.push((a,t,d,crit)=>{
+  if(a.side!==t.side&&alive(t.side,"necessity"))d*=.85;
+  if(a.pa.k==="necessity"&&t.st.some(x=>x.k==="stun"||x.k==="sleep"||x.k==="spdDown"))d*=1.35;
+  if(a.pa.k==="underdark"&&t.st.some(x=>x.k==="blind"))d*=1.45;
+  if(a.pa.k==="labyrinth"&&(t.boss||t.elite))d*=1.35;
+  if(a.pa.k==="vanity"&&a.hp>a.maxhp*.6)d*=1.35;
+  if(t.pa.k==="vanity")d*=1.15;
+  if(a.pa.k==="pegasus"&&a.pgWave!==C.wave){a.pgWave=C.wave;if(!crit){d*=1.5+(a.critDmg||0);pop(a,"From above!","info");}}
+  return d;});
+PX.hit.push((a,t,dealt,crit)=>{
+  if(a.pa.k==="underdark"&&dealt>0&&!a.dead&&t.st.some(x=>x.k==="blind"))heal(a,a,dealt*.2);
+  if(a.pa.k==="necessity"&&t.boss&&!t.dead)addSt(t,"spdDown",.15,2);
+  if(t.pa.k==="pankration"&&!t.dead&&dealt>0)t.angry=(t.angry||0)+1;
+  if(t.side==="h"&&!t.dead&&t.hp<t.maxhp*.25&&!C.hopeUsed){const p=alive("h","hope");if(p){C.hopeUsed=true;heal(p,t,t.maxhp*.35);t.st=t.st.filter(x=>!["atkDown","defDown","spdDown","blot","stun"].includes(x.k));pop(t,"Hope!","heal");}}});
+PX.act.push((u,sk,skill,ult)=>{
+  if((skill||ult)&&u.side==="h"){const e=C.heroes.find(x=>!x.dead&&x!==u&&x.pa.k==="echoing");if(e)later(()=>{const l=foesOf(e);if(l.length&&!e.dead){pop(e,"Echo!","info");strike(e,pick(l),.45,true);}},200);}});
+PX.save.push((t,allies)=>{
+  if(t.pa.k==="underdark"&&!t.shadowed){t.shadowed=true;t.hp=Math.round(t.maxhp*.35);t.st=[];pop(t,"Into shadow…","heal");fx(t,"glow");return true;}
+  if(t.side==="h"&&!C.aionUsed&&allies.some(x=>!x.dead&&x.pa.k==="eternity"&&x!==t)){C.aionUsed=true;t.hp=Math.round(t.maxhp*.6);t.st=t.st.filter(x=>!["atkDown","defDown","spdDown","blot","stun"].includes(x.k));pop(t,"Time rewinds!","heal");fx(t,"glow");return true;}
+  return false;});
+PX.kill.push((t,src)=>{
+  if(t.side==="f"){const d=alive("h","harvest");if(d)C.heroes.forEach(x=>{if(!x.dead&&x.hp<x.maxhp)heal(d,x,x.maxhp*.04);});
+    if(t.boss||t.elite)C.heroes.forEach(x=>{if(!x.dead&&x.pa.k==="labyrinth"){x.lab=(x.lab||0)+1;pop(x,"ATK +10%","info");}});}});
+
+/* ---------------- new bonds ---------------- */
+SYN.push(
+ {id:"darkness",a:"erebus",b:"nyx",n:"Night and Darkness",t:"Erebus and Nyx both gain +15% ATK and +10% HP.",ma:{atk:.15,hp:.1},mb:{atk:.15,hp:.1},q:["Darling.","Dearest dark."]},
+ {id:"kings",a:"hera",b:"firsthand",n:"King and Queen of Heaven",t:"Zeus and Hera both gain +12% ATK and +12% DEF.",ma:{atk:.12,def:.12},mb:{atk:.12,def:.12},q:["Where were you?","…Working."]},
+ {id:"mother",a:"demeter",b:"pelican",n:"Mother and Daughter",t:"Demeter and Persephone both gain +15% HP, and their heals are 15% stronger.",ma:{hp:.15,heal:.15},mb:{hp:.15,heal:.15},q:["My girl!","Mother, please. Not in front of the Underworld."]},
+ {id:"clew",a:"theseus",b:"ariadne",n:"The Clew of Thread",t:"Theseus gains +20% ATK. Ariadne gains +15% HP.",ma:{atk:.2},mb:{hp:.15},q:["The thread!","Don't lose it this time."]},
+ {id:"labyrinthine",a:"theseus",b:"daedalus",n:"Builder and Breaker",t:"Theseus gains +10% crit chance. Daedalus gains +10 Speed.",ma:{crit:10},mb:{spd:10},q:["You built this?","You were supposed to get lost."]},
+ {id:"pool",a:"narcissus",b:"echo",n:"The Pool and the Voice",t:"Echo gains +20% ATK. Narcissus gains +10% crit chance.",ma:{crit:10},mb:{atk:.2},q:["Lovely, aren't I?","…aren't I?"]},
+ {id:"chimera",a:"bellerophon",b:"athena",n:"The Golden Bridle",t:"Bellerophon gains +15% ATK. Athena gains +10 Speed.",ma:{atk:.15},mb:{spd:10},q:["Thank you for the bridle!","Do not fly too high."]},
+ {id:"jarmaker",a:"pandora",b:"hephaestus",n:"Made of Clay",t:"Pandora gains +15% ATK. Hephaestus gains +10% HP.",ma:{atk:.15},mb:{hp:.1},q:["You made me?","Took me all week."]},
+ {id:"firstthings",a:"phanes",b:"erebus",n:"Light and Dark",t:"Phanes's heals are 15% stronger. Erebus gains +15% DEF.",ma:{heal:.15},mb:{def:.15},q:["Out of my way, darkness.","You'll fade, little light."]},
+ {id:"fates",a:"ananke",b:"aion",n:"Time and Necessity",t:"Aion and Ananke both gain +15% ATK and +10 Speed.",ma:{atk:.15,spd:10},mb:{atk:.15,spd:10},q:["It must be.","And it always will be."]}
+);
+})();
+
 /* ===================== RARITY FLOURISHES: the rarer the hero, the more its ultimate (and skill) does =====================
    Every tier adds to the one below. Applied once at load to all heroes, old and new. */
 const FLOURISH={
@@ -5745,7 +5954,8 @@ const FLOURISH={
  2:{pow:.08,ult:[{t:"buff",k:"atkUp",v:.2,turns:2,tg:"self"}]},
  3:{pow:.10,ult:[{t:"buff",k:"atkUp",v:.2,turns:2,tg:"self"},{t:"cleanse",tg:"allies"}],skill:[{t:"glory",v:8}]},
  4:{pow:.12,ult:[{t:"buff",k:"atkUp",v:.25,turns:2,tg:"self"},{t:"cleanse",tg:"allies"},{t:"shield",m:.1,tg:"allies"}],skill:[{t:"glory",v:10},{t:"buff",k:"critUp",v:10,turns:2,tg:"self"}]},
- 5:{pow:.15,ult:[{t:"buff",k:"atkUp",v:.3,turns:2,tg:"self"},{t:"cleanse",tg:"allies"},{t:"shield",m:.12,tg:"allies"},{t:"debuff",k:"atkDown",v:.2,turns:2,tg:"all"}],skill:[{t:"glory",v:12},{t:"buff",k:"critUp",v:15,turns:2,tg:"self"},{t:"heal",m:.25,tg:"allies"}]}
+ 5:{pow:.15,ult:[{t:"buff",k:"atkUp",v:.3,turns:2,tg:"self"},{t:"cleanse",tg:"allies"},{t:"shield",m:.12,tg:"allies"},{t:"debuff",k:"atkDown",v:.2,turns:2,tg:"all"}],skill:[{t:"glory",v:12},{t:"buff",k:"critUp",v:15,turns:2,tg:"self"},{t:"heal",m:.25,tg:"allies"}]},
+ 6:{pow:.18,ult:[{t:"buff",k:"atkUp",v:.3,turns:2,tg:"self"},{t:"cleanse",tg:"allies"},{t:"shield",m:.15,tg:"allies"},{t:"debuff",k:"atkDown",v:.25,turns:2,tg:"all"},{t:"buff",k:"spdUp",v:.2,turns:2,tg:"allies"}],skill:[{t:"glory",v:15},{t:"buff",k:"critUp",v:15,turns:2,tg:"self"},{t:"heal",m:.3,tg:"allies"}]}
 };
 HEROES.forEach(h=>{const F=FLOURISH[h.q];if(!F)return;const U=ULT[h.id];if(!U||U.flourish)return;
   U.fx=U.fx.map(f=>(f.t==="dmg"||f.t==="heal"||f.t==="blot"||f.t==="shield")?Object.assign({},f,{m:Math.round(f.m*(1+F.pow)*100)/100}):f).concat(F.ult.map(f=>Object.assign({rider:true},f)));
@@ -6753,7 +6963,7 @@ Object.assign(MOVE,{squire:"shove",monk:"kneel",hare:"dance",snailpage:"brace",s
              the whole game tilts, triple impact frames, colour split, window-wide shockwaves, ΟΛΥΜΠΟΣ stamped on screen.
    Primordial: reality breaks: the game shrinks into a cosmic void, the window cracks, a black hole swallows the light,
              SUPERNOVA white-out, gravity flips the enemies, the cracked screen shatters and falls away, ΧΑΟΣ. */
-const TIER=[{O:0,A:0},{O:0,A:.15},{O:.25,A:.3},{O:.65,A:.45},{O:1,A:.6},{O:1.45,A:.95}];
+const TIER=[{O:0,A:0},{O:0,A:.15},{O:.25,A:.3},{O:.65,A:.45},{O:1,A:.6},{O:1.45,A:.95},{O:2.1,A:1.25}];
 let LIVE=[];
 const DOMA=(t0,d,get,kf,o={})=>({t0,d:.01,draw(){},once(ms){const el=typeof get==="function"?get():get;if(el&&el.animate)LIVE.push(el.animate(kf,{duration:Math.max(40,d*ms),easing:o.easing||"ease-out",composite:o.add?"add":"replace"}));}});
 const SND=(t0,k)=>({t0,d:.01,draw(){},once(){try{if(typeof SFX!=="undefined")SFX.play(k);}catch(e){}}});
@@ -6793,7 +7003,7 @@ function director(q,e,list){
       D(O*.55,.5,(x,p,W,H)=>{const k=easeIn(seg(p,0,.35)),w=lerp(10,90,seg(p,.3,.5))*(1-seg(p,.6,1)),y1=lerp(0,hy+40,k);x.globalAlpha=1-seg(p,.7,1);const g=x.createLinearGradient(hx-w,0,hx+w,0);
         g.addColorStop(0,"rgba(255,211,77,0)");g.addColorStop(.5,q>=5?"#ffffff":"#fff6c8");g.addColorStop(1,"rgba(255,211,77,0)");x.fillStyle=g;glow(x,"#ffd34d",40);x.fillRect(hx-w,0,w*2,y1);x.shadowBlur=0;}),
       ...[0,1,2].map(i=>D(C+i*.07,.6,(x,p,W,H)=>{const R=Math.hypot(W,H)*ease(p);x.globalAlpha=(1-p)*.8;x.strokeStyle=q>=5?HOLO[i]:["#fff6c8","#ffd34d","#ffffff"][i];x.lineWidth=18*(1-p)+2;x.beginPath();x.arc(tx,ty,R,0,TAU);x.stroke();})),
-      D(C+.05,.7,(x,p,W,H)=>stamp(x,q>=5?"ΧΑΟΣ":"ΟΛΥΜΠΟΣ",W/2,H*.42,p,Math.min(W*.13,H*.2),q>=5?HOLO:["#fff6c8","#ffd34d","#c8902a"])),
+      D(C+.05,.7,(x,p,W,H)=>stamp(x,q>=6?"ΑΙΩΝ":q>=5?"ΧΑΟΣ":"ΟΛΥΜΠΟΣ",W/2,H*.42,p,Math.min(W*.13,H*.2),q>=6?["#fffbe8","#f0c040","#ffffff","#b08020"]:q>=5?HOLO:["#fff6c8","#ffd34d","#c8902a"])),
       fx.rain(q>=5?60:36,end,T.A,{glyph:q>=5?["✦","✧","❖","✶"]:["✦","❦","✧"],colors:q>=5?HOLO:["#fff6c8","#ffd34d"],size:9}));
     S.push(D(C,.12,(x,p,W,H)=>fill(x,"#fff",(1-p)*.9,W,H)));
     L.push(DOMA(.05,O+.05,appEl,[{transform:"none"},{transform:"rotate(-1.6deg) scale(1.025)"}],{easing:"ease-in"}),
@@ -6819,6 +7029,23 @@ function director(q,e,list){
       DOMA(C,.6,appEl,[{transform:"scale(1.12) rotate(2deg)"},{transform:"scale(.96) rotate(-1deg)",offset:.3},{transform:"scale(1.02)",offset:.6},{transform:"none"}],{easing:"ease-out"}),
       U(e.FU,C+.05,.9,i=>[{transform:"none"},{transform:`translateY(-${110+i*25}px) rotate(${i%2?200:-200}deg)`,offset:.4},{transform:`translateY(-${100+i*25}px) rotate(${i%2?360:-360}deg)`,offset:.7},{transform:"translateY(10px) scale(1.1,.85)",offset:.88},{transform:"none"}],{stagger:.03}),
       SND(C-.45,"charge"),SND(C,"nova"));}
+  if(q>=6){const AU=["#fffbe8","#f0c040","#ffffff","#b08020"],R1=Math.min(innerWidth,innerHeight)*.42;
+    /* AEON: time stops. The world drains to grey, a vast clock of eternity rises behind the hero and runs backwards,
+       the ouroboros closes around the target, then time restarts in one golden heartbeat. */
+    L.push(DOMA(O*.25,C-O*.25,bfEl,[{filter:"none"},{filter:"grayscale(1) sepia(.35) contrast(1.15)",offset:.15},{filter:"grayscale(1) sepia(.35) contrast(1.15)",offset:.97},{filter:"none"}],{easing:"linear"}),
+      U(e.FU,O*.3,C-O*.3,()=>[{transform:"none"},{transform:"translateY(-6px)",offset:.1},{transform:"translateY(-6px)",offset:.95},{transform:"none"}]));
+    S.push(D(O*.2,C-O*.2+.35,(x,p,W,H)=>{const o=ease(seg(p,0,.15))*(1-seg(p,.9,1)),r=R1*ease(seg(p,0,.25));x.save();x.translate(hx,hy);x.globalAlpha=o*.9;
+        x.strokeStyle="#f0c040";glow(x,"#fff6c8",24);x.lineWidth=4;[1,.93,.6].forEach(k=>{x.beginPath();x.arc(0,0,r*k,0,TAU);x.stroke();});
+        x.fillStyle="#fffbe8";x.font=`900 ${Math.max(14,r*.12)}px Georgia,serif`;x.textAlign="center";x.textBaseline="middle";
+        for(let i=0;i<12;i++){const a=i/12*TAU-Math.PI/2;x.fillText(GREEK[i],Math.cos(a)*r*.8,Math.sin(a)*r*.8);x.save();x.rotate(a+Math.PI/2);x.fillRect(-2,-r*.98,4,r*.08);x.restore();}
+        const back=-p*TAU*3.5*(1-seg(p,.8,1));[[.55,6,back*12],[.75,4,back]].forEach(([k,w,a])=>{x.save();x.rotate(a);x.lineWidth=w;x.beginPath();x.moveTo(0,0);x.lineTo(0,-r*k);x.stroke();x.restore();});
+        x.beginPath();x.arc(0,0,8,0,TAU);x.fill();x.restore();x.shadowBlur=0;}),
+      D(C-.7,1.1,(x,p,W,H)=>{const r=Math.min(W,H)*.2*(1.4-ease(seg(p,0,.5))*.4),a0=p*5;x.save();x.translate(tx,ty);x.globalAlpha=fade(p,.1,.8);x.lineCap="round";
+        for(let i=0;i<60;i++){const a=a0+i/60*TAU*.94,w=14*(1-i/70);x.strokeStyle=AU[i%4];x.lineWidth=w;glow(x,"#f0c040",10);x.beginPath();x.arc(0,0,r,a,a+.12);x.stroke();}
+        const ha=a0;x.fillStyle="#f0c040";x.beginPath();x.arc(Math.cos(ha)*r,Math.sin(ha)*r,15,0,TAU);x.fill();x.fillStyle="#1a1206";x.beginPath();x.arc(Math.cos(ha)*r+4,Math.sin(ha)*r-4,3,0,TAU);x.fill();x.restore();x.shadowBlur=0;}),
+      D(C,.9,(x,p,W,H)=>{fill(x,"#fffbe8",.9*(1-seg(p,0,.25)),W,H);for(let k=0;k<5;k++){const pp=seg(p,k*.08,.6+k*.08),R=Math.hypot(W,H)*ease(pp);x.globalAlpha=(1-pp)*.85;x.strokeStyle=AU[k%4];x.lineWidth=22*(1-pp)+2;glow(x,"#f0c040",20);x.beginPath();x.arc(tx,ty,R,0,TAU);x.stroke();}x.shadowBlur=0;}),
+      fx.rain(70,C+.1,T.A,{glyph:["✧","⧗","✦","∞"],colors:AU,size:10}));
+    L.push(DOMA(C,.4,appEl,[{filter:"brightness(2.2) sepia(1) saturate(3) hue-rotate(-12deg)"},{filter:"none"}],{easing:"ease-out"}),SND(O*.25,"charge"),SND(C,"nova"),SND(C+.25,"boom"));}
   if(q===4)L.push(SND(C,"nova"));
   return {L,S};}
 
@@ -6904,6 +7131,103 @@ const USND={
  gaia:[[0,(a,t)=>{rumble(a,t,2,.3);a.pad(a.m(33),t,2,.1,"sawtooth",400);}],[.3,(a,t)=>{for(let i=0;i<9;i++){a.noise(t+i*.07,.25,.2,400,.8);a.drum(60+i*5,t+i*.07,.15);}}],[.45,(a,t)=>a.chord([45,52,57,64].map(a.m),t,1.4,"triangle",.06)]],
  nyx:[[0,(a,t)=>{a.sweep(t,1.4,.15,3000,150,.5);a.pad(a.m(38),t,2.2,.1,"sine",700);}],[.3,(a,t)=>{a.vib(a.m(50),t,1.6,"sine",.08,.5,10);a.vib(a.m(57),t,1.6,"sine",.06,.4,8);}],[.7,(a,t)=>{for(let i=0;i<12;i++)a.noise(t+i*.08,.18,.04,3000+Math.random()*3000,4);}],[1,(a,t)=>a.bell(a.m(86),t,2,.06)]]
 };
+
+/* ===== 1.9: signature ultimates, moves and sounds for the 13 new heroes ===== */
+Object.assign(R,{
+ /* Mortal: the pankratiast barrels in and throws haymakers */
+ pankratiast:(e)=>[D(0,1.5,(x,p,W,H)=>fill(x,"#2a0e04",.35*bell(p),W,H)),
+   ...[0,1,2].map(i=>fx.slash(e.T[0]+rr(-14,14),e.T[1]-20+i*16,90,i%2?.6:-.6,"#ffd8a0",.45+i*.18,.18,6)),
+   ...[0,1,2].map(i=>fx.burst(e.T[0],e.T[1],10,.5+i*.18,.35,{shapes:["s"],colors:["#fff","#ffb070"],speed:220})),
+   D(.9,.7,(x,p,W,H)=>{x.globalAlpha=fade(p,.05,.6);x.font=`900 ${Math.min(W*.08,70)}px Georgia,serif`;x.textAlign="center";x.fillStyle="#fff3d0";x.strokeStyle="#4a1a04";x.lineWidth=5;x.strokeText("ΝΙΚΗ!",e.T[0],e.T[1]-90-p*20);x.fillText("ΝΙΚΗ!",e.T[0],e.T[1]-90-p*20);}),
+   fx.call(.5,shakeNow()),fx.call(.86,shakeNow())],
+ /* Famed */
+ narcissus:(e)=>[D(0,1.7,(x,p,W,H)=>{fill(x,"#04202a",.4*bell(p),W,H);x.globalAlpha=.5*bell(p);x.fillStyle="#6ad8e8";x.beginPath();x.ellipse(W/2,ground(e)-10,W*.32,26,0,0,TAU);x.fill();}),
+   D(.15,1.3,(x,p,W,H)=>{const g=ground(e)-10;x.globalAlpha=fade(p)*.9;x.strokeStyle="#e8ffff";x.lineWidth=2;for(let k=0;k<4;k++){const r=(p*120+k*40)%160;x.beginPath();x.ellipse(W/2,g,r*1.8,r*.25,0,0,TAU);x.stroke();}}),
+   ...e.F.map((f,i)=>D(.6+i*.06,.6,(x,p)=>at(x,f[0],f[1]-40,0,1,()=>{x.globalAlpha=bell(p);x.strokeStyle="#ff9ac0";x.lineWidth=3;x.beginPath();for(let k=0;k<2;k++){x.moveTo(0,-8);x.bezierCurveTo(-14,-24,-26,0,0,16);x.bezierCurveTo(26,0,14,-24,0,-8);}x.stroke();}))),
+   fx.slash(e.T[0],e.T[1],160,-.4,"#e8ffff",.9,.3,8),U(e.FU,.95,.5,[{transform:"none"},{transform:"translateY(-10px) rotate(-6deg)",offset:.4},{transform:"none"}])],
+ echo:(e)=>[D(0,1.8,(x,p,W,H)=>{fill(x,"#0e1a0a",.4*bell(p),W,H);for(let k=0;k<3;k++){x.globalAlpha=.35*bell(p);x.fillStyle=["#3a5a2a","#4a6a32","#5a7a3a"][k];x.beginPath();x.moveTo(0,H);for(let i=0;i<=10;i++)x.lineTo(i/10*W,H*(.55+k*.1)-Math.abs(Math.sin(i*1.3+k))*80);x.lineTo(W,H);x.fill();}}),
+   ...[0,1,2,3,4].map(i=>D(.2+i*.22,.8,(x,p,W,H)=>{const r=40+p*Math.max(W,H)*.5;x.globalAlpha=(1-p)*.7*(1-i*.15);x.strokeStyle="#e8f6c8";x.lineWidth=5-i*.8;x.beginPath();x.arc(e.me[0],e.me[1]-30,r,-.9,.9);x.stroke();})),
+   ...e.F.map((f,i)=>fx.burst(f[0],f[1],8,.7+i*.08,.4,{shapes:["c"],colors:["#e8f6c8","#ffffff"],speed:180})),
+   U(e.FU,.7,.9,[{transform:"none"},{transform:"translateX(8px)",offset:.2},{transform:"translateX(-6px)",offset:.45},{transform:"translateX(4px)",offset:.7},{transform:"none"}],{stagger:.06})],
+ /* Legendary */
+ ariadne:(e)=>{const pts=[e.me,...e.F.slice().sort((a,b)=>a[1]-b[1]),[e.W+40,e.H*.3]];return [D(0,1.9,(x,p,W,H)=>fill(x,"#1a0a0a",.45*bell(p),W,H)),
+   D(.1,1.6,(x,p)=>{const k=ease(seg(p,0,.6))*(pts.length-1);x.globalAlpha=fade(p,.02,.85);x.strokeStyle="#e0303a";x.lineWidth=4;glow(x,"#ff6070",14);x.beginPath();x.moveTo(pts[0][0],pts[0][1]-30);
+     for(let i=1;i<=Math.floor(k)&&i<pts.length;i++){const a=pts[i-1],b=pts[i];x.quadraticCurveTo((a[0]+b[0])/2,Math.min(a[1],b[1])-90,b[0],b[1]-30);}x.stroke();x.shadowBlur=0;}),
+   ...e.F.map((f,i)=>fx.ring(f[0],f[1],"#ff8090",60,.5+i*.15,.4,4)),U(e.AU,.5,1.1,[{filter:"none"},{filter:"drop-shadow(0 0 10px #ff6070) brightness(1.15)",offset:.3},{filter:"none"}])];},
+ pandora:(e)=>[D(0,1.9,(x,p,W,H)=>fill(x,"#120418",.55*bell(p),W,H)),
+   D(.05,1.5,(x,p)=>at(x,e.me[0]+30,e.me[1]-60,0,1.4,()=>{x.globalAlpha=fade(p);x.fillStyle="#c08a5a";x.beginPath();x.ellipse(0,0,26,32,0,0,TAU);x.fill();x.fillStyle="#1a1008";x.fillRect(-14,-38,28,8);
+     x.save();x.translate(-14,-38);x.rotate(-ease(seg(p,.15,.35))*1.4);x.fillStyle="#d8a070";x.fillRect(0,-6,30,6);x.restore();})),
+   ...[...Array(22)].map((_,i)=>{const r=rnd(i+40),f=e.F[i%e.F.length];return D(.4+r()*.4,.9,(x,p)=>{const X=lerp(e.me[0]+30,f[0]+rr(-30,30),ease(p)),Y=lerp(e.me[1]-100,f[1]-20,ease(p))-Math.sin(p*Math.PI)*120;
+     x.globalAlpha=1-seg(p,.8,1);x.fillStyle=["#6a2a8a","#2a6a2a","#8a1a2a","#3a3a3a"][i%4];glow(x,x.fillStyle,10);x.beginPath();x.arc(X,Y,6+Math.sin(p*20+i)*2,0,TAU);x.fill();x.shadowBlur=0;});}),
+   D(1.2,.6,(x,p)=>{x.globalAlpha=bell(p);x.fillStyle="#fff6c8";glow(x,"#fff6c8",30);x.beginPath();x.arc(e.me[0]+30,e.me[1]-110-p*30,7,0,TAU);x.fill();x.shadowBlur=0;}),
+   U(e.FU,.9,.8,[{filter:"none"},{filter:"hue-rotate(90deg) saturate(1.6)",offset:.4},{filter:"none"}],{stagger:.05})],
+ /* Demigods */
+ theseus:(e)=>[D(0,1.9,(x,p,W,H)=>{fill(x,"#140c06",.6*bell(p),W,H);x.globalAlpha=.5*bell(p);x.strokeStyle="#6a4a2a";x.lineWidth=10;const c=Math.min(W,H)*.06;
+     for(let k=1;k<7;k++){x.strokeRect(W/2-k*c*1.6,H/2-k*c,k*c*3.2,k*c*2);}}),
+   D(.15,1.2,(x,p,W,H)=>at(x,e.T[0],e.T[1]-30,0,1,()=>{x.globalAlpha=fade(p)*.9;x.fillStyle="#3a1a0a";x.beginPath();x.ellipse(0,0,40,30,0,0,TAU);x.fill();x.fillStyle="#e8dcc0";[-1,1].forEach(k=>{x.beginPath();x.moveTo(k*30,-16);x.quadraticCurveTo(k*60,-40,k*48,-62);x.quadraticCurveTo(k*44,-36,k*22,-22);x.fill();});
+     x.fillStyle="#ff3a1a";[-1,1].forEach(k=>{x.beginPath();x.arc(k*14,-4,4,0,TAU);x.fill();});})),
+   fx.slash(e.T[0],e.T[1],220,-.8,"#fff",1,.3,12),fx.slash(e.T[0],e.T[1],220,.8,"#ffd8a0",1.12,.3,10),fx.call(1.05,shakeNow("shakeH")),
+   ...e.F.map((f,i)=>fx.burst(f[0],f[1],12,1.15+i*.04,.5,{shapes:["s"],colors:["#fff","#ffd34d"],speed:260}))],
+ bellerophon:(e)=>[D(0,1.9,(x,p,W,H)=>{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#7ab8f0");g.addColorStop(1,"#f0c070");x.globalAlpha=.45*bell(p);x.fillStyle=g;x.fillRect(0,0,W,H);}),
+   D(.05,1.2,(x,p,W,H)=>{const X=lerp(-120,e.T[0]-40,ease(seg(p,0,.75))),Y=lerp(H*.12,e.T[1]-60,easeIn(seg(p,.4,.75)));at(x,X,Y,lerp(0,.5,seg(p,.4,.75)),1,()=>{x.globalAlpha=1-seg(p,.85,1);P.horse(x,90);x.save();x.translate(-10,-40);P.wing(x,70,"#ffffff","#d8e8ff",9);x.restore();});}),
+   D(.85,.8,(x,p,W,H)=>at(x,e.T[0],e.T[1]-20,0,1,()=>{x.globalAlpha=1-p;for(let k=0;k<3;k++){x.fillStyle=["#ff6a1a","#ffd34d","#fff6c8"][k];glow(x,"#ff8a2a",30);x.beginPath();x.arc(0,0,(60-k*16)*(.5+p),0,TAU);x.fill();}x.shadowBlur=0;})),
+   fx.lines(e.T[0],e.T[1],"#fff",.7,.3),fx.call(.86,shakeNow()),U(e.FU,.86,.6,[{transform:"none"},{transform:"translateY(14px) scale(1.1,.85)",offset:.3},{transform:"none"}])],
+ /* Olympians */
+ hera:(e)=>{const cx=e.me[0],cy=e.me[1]-40;return [D(0,2,(x,p,W,H)=>fill(x,"#04202a",.5*bell(p),W,H)),
+   D(.05,1.8,(x,p)=>{const o=ease(seg(p,0,.3));x.save();x.translate(cx,cy);x.globalAlpha=fade(p,.05,.85);for(let i=0;i<22;i++){const a=-Math.PI*.95+i/21*Math.PI*.9,L=170*o;x.save();x.rotate(a+Math.PI/2);
+     x.strokeStyle="#2a8a6a";x.lineWidth=3;x.beginPath();x.moveTo(0,0);x.lineTo(0,-L);x.stroke();x.fillStyle="#1a6a8a";x.beginPath();x.ellipse(0,-L,11,15,0,0,TAU);x.fill();x.fillStyle="#f0c040";x.beginPath();x.ellipse(0,-L,6,8,0,0,TAU);x.fill();
+     x.fillStyle="#0a2a5a";x.beginPath();x.arc(0,-L,3.5,0,TAU);x.fill();x.restore();}x.restore();}),
+   ...e.F.map((f,i)=>D(.8+i*.05,.8,(x,p)=>{x.globalAlpha=bell(p);x.strokeStyle="#f0c040";x.lineWidth=4;glow(x,"#f0c040",16);x.beginPath();x.moveTo(cx,cy-120);x.lineTo(lerp(cx,f[0],ease(p)),lerp(cy-120,f[1],ease(p)));x.stroke();x.shadowBlur=0;})),
+   U(e.AU,.6,1.2,[{filter:"none"},{filter:"drop-shadow(0 0 12px #f0c040) brightness(1.2)",offset:.3},{filter:"none"}]),U(e.FU,1,.5,[{transform:"none"},{transform:"translateY(10px)",offset:.3},{transform:"none"}],{stagger:.05})];},
+ demeter:(e)=>{const G=ground(e)+6;return [D(0,2,(x,p,W,H)=>{fill(x,"#1a1404",.35*bell(p),W,H);x.globalAlpha=.6*bell(p);const g=x.createLinearGradient(0,H*.6,0,H);g.addColorStop(0,"rgba(240,200,80,0)");g.addColorStop(1,"rgba(240,200,80,.6)");x.fillStyle=g;x.fillRect(0,H*.6,W,H*.4);}),
+   ...[...Array(26)].map((_,i)=>D(.1+(i%13)*.04,1.6,(x,p,W,H)=>at(x,(i+.5)/26*W,G,Math.sin(p*6+i)*.12,ease(seg(p,0,.35))*(.8+(i%3)*.2),()=>{x.globalAlpha=fade(p,.05,.85);P.wheat(x,70);}))),
+   ...e.A.map((a,i)=>D(.6+i*.08,1,(x,p)=>{x.globalAlpha=bell(p);for(let k=0;k<6;k++){x.fillStyle=k%2?"#ffd860":"#9ad860";x.beginPath();x.arc(a[0]+Math.cos(k+p*4)*26,a[1]-20-p*50+Math.sin(k*2)*10,3,0,TAU);x.fill();}})),
+   U(e.AU,.5,1.2,[{filter:"none"},{filter:"drop-shadow(0 0 12px #ffd860) brightness(1.15)",offset:.3},{filter:"none"}])];},
+ /* Primordial */
+ erebus:(e)=>[D(0,2.1,(x,p,W,H)=>{const k=ease(seg(p,0,.3))*(1-seg(p,.88,1));x.globalAlpha=k*.94;x.fillStyle="#020104";x.fillRect(0,0,W,H);
+     x.globalAlpha=k;x.fillStyle="#a080ff";for(let i=0;i<24;i++){const r=rnd(i+3);x.beginPath();x.arc(r()*W,r()*H,1.5,0,TAU);x.fill();}}),
+   ...[...Array(10)].map((_,i)=>{const f=e.F[i%e.F.length];return D(.4+i*.05,1,(x,p,W,H)=>{const r=rnd(i+20),sx=r()*W,sy=H+40;x.globalAlpha=bell(p)*.95;x.strokeStyle="#0a0610";x.lineWidth=16-i*.5;glow(x,"#7a4ac0",18);
+     x.beginPath();x.moveTo(sx,sy);x.quadraticCurveTo(lerp(sx,f[0],.5)+rr(-60,60),lerp(sy,f[1],.5),lerp(sx,f[0],ease(p)),lerp(sy,f[1],ease(p)));x.stroke();x.shadowBlur=0;});}),
+   ...e.F.map((f,i)=>D(1.05+i*.04,.6,(x,p)=>{x.globalAlpha=bell(p);x.fillStyle="#c8a0ff";glow(x,"#c8a0ff",20);[-1,1].forEach(k=>{x.beginPath();x.ellipse(f[0]+k*9,f[1]-30,4,2,0,0,TAU);x.fill();});x.shadowBlur=0;})),
+   U(e.FU,.9,1,[{filter:"none"},{filter:"brightness(.15) blur(1px)",offset:.3},{filter:"brightness(.15) blur(1px)",offset:.7},{filter:"none"}],{stagger:.04})],
+ /* Aeons */
+ aion:(e)=>{const cx=e.W/2,cy=e.H*.45,R0=Math.min(e.W,e.H)*.38,ZD="♈♉♊♋♌♍♎♏♐♑♒♓";return [D(0,2.2,(x,p,W,H)=>{const g=x.createRadialGradient(cx,cy,10,cx,cy,Math.hypot(W,H)*.6);g.addColorStop(0,"#1a2a6a");g.addColorStop(1,"#02040e");x.globalAlpha=.75*bell(p);x.fillStyle=g;x.fillRect(0,0,W,H);}),
+   D(.05,2,(x,p)=>{const r=R0*ease(seg(p,0,.3));x.save();x.translate(cx,cy);x.rotate(-p*TAU*.75);x.globalAlpha=fade(p,.05,.85);x.strokeStyle="#f0d070";glow(x,"#f0d070",16);x.lineWidth=3;x.beginPath();x.arc(0,0,r,0,TAU);x.stroke();x.beginPath();x.arc(0,0,r*.82,0,TAU);x.stroke();
+     x.fillStyle="#fff6d8";x.font=`${Math.max(12,r*.13)}px serif`;x.textAlign="center";x.textBaseline="middle";for(let i=0;i<12;i++){const a=i/12*TAU;x.fillText(ZD[i],Math.cos(a)*r*.91,Math.sin(a)*r*.91);x.save();x.rotate(a+.26);x.fillRect(-1,-r,2,r*.18);x.restore();}x.restore();x.shadowBlur=0;}),
+   D(.3,1.5,(x,p)=>at(x,cx,cy,0,1.6,()=>{x.globalAlpha=fade(p);P.hourglass(x,60,p);})),
+   ...e.F.map((f,i)=>D(1.2+i*.05,.7,(x,p)=>{x.globalAlpha=1-p;x.strokeStyle="#f0d070";x.lineWidth=3;for(let k=0;k<3;k++){x.beginPath();x.arc(f[0],f[1],20+k*16+p*40,0,TAU*(1-p));x.stroke();}})),
+   U(e.FU,1.2,.8,[{transform:"none"},{transform:"rotate(-25deg)",offset:.3},{transform:"rotate(20deg)",offset:.6},{transform:"none"}],{stagger:.04})];},
+ ananke:(e)=>{const cx=e.W/2,top=-20;return [D(0,2.2,(x,p,W,H)=>fill(x,"#0a0a10",.7*bell(p),W,H)),
+   D(.05,2,(x,p,W,H)=>{x.save();x.globalAlpha=fade(p,.05,.85);x.strokeStyle="#c8c8d8";glow(x,"#a0a0ff",12);x.lineWidth=3;x.beginPath();x.moveTo(cx,top);x.lineTo(cx,H*.5);x.stroke();
+     x.translate(cx,H*.5);x.rotate(p*TAU*3);x.fillStyle="#8a8a9a";x.beginPath();x.ellipse(0,0,46,14,0,0,TAU);x.fill();for(let i=0;i<8;i++){x.rotate(TAU/8);x.fillRect(-1,-48,2,96);}x.restore();x.shadowBlur=0;}),
+   ...e.F.map((f,i)=>D(.6+i*.08,1.4,(x,p,W,H)=>{x.globalAlpha=fade(p,.05,.8);const k=ease(seg(p,0,.4));x.save();x.strokeStyle="#9a9aaa";x.lineWidth=5;glow(x,"#c0c0ff",10);
+     x.beginPath();x.moveTo(cx,H*.5);x.lineTo(lerp(cx,f[0],k),lerp(H*.5,f[1]-20,k));x.stroke();[-1,1].forEach(s=>{x.beginPath();x.ellipse(f[0],f[1]-20,34*k,10*k,s*.6,0,TAU);x.stroke();});x.restore();x.shadowBlur=0;})),
+   D(1.35,.6,(x,p,W,H)=>{x.globalAlpha=(1-p)*.8;x.fillStyle="#ffffff";x.fillRect(0,0,W,H);}),
+   U(e.FU,.95,1.1,[{transform:"none",filter:"none"},{transform:"scale(.9)",filter:"grayscale(1) brightness(.7)",offset:.2},{transform:"scale(.9)",filter:"grayscale(1) brightness(.7)",offset:.8},{transform:"none",filter:"none"}],{stagger:.03})];},
+ phanes:(e)=>{const cx=e.me[0],cy=e.me[1]-80;return [D(0,2.3,(x,p,W,H)=>{fill(x,"#000",.8*(1-seg(p,.35,.5))*bell(p),W,H);}),
+   D(.05,.9,(x,p)=>at(x,cx,cy,0,1.4,()=>{x.globalAlpha=1;x.fillStyle="#e8e8f0";glow(x,"#ffffff",30*p);x.beginPath();x.ellipse(0,0,34,44,0,0,TAU);x.fill();x.strokeStyle="#c9a040";x.lineWidth=2;
+     x.beginPath();x.moveTo(-34,0);for(let i=0;i<=8;i++)x.lineTo(-34+i*8.5,i%2?-8*seg(p,.5,1):6*seg(p,.5,1));x.stroke();x.shadowBlur=0;})),
+   D(.85,1.4,(x,p,W,H)=>{const r=Math.hypot(W,H)*ease(seg(p,0,.5));const g=x.createRadialGradient(cx,cy,5,cx,cy,r);g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(.3,"rgba(255,230,140,.8)");g.addColorStop(1,"rgba(255,200,80,0)");x.globalAlpha=1-seg(p,.6,1);x.fillStyle=g;x.fillRect(0,0,W,H);}),
+   D(.9,1.3,(x,p)=>at(x,cx,cy,0,1,()=>{x.globalAlpha=fade(p,.1,.8);[-1,1].forEach(k=>{x.save();x.scale(k,1);P.wing(x,150*ease(seg(p,0,.4)),"#fff6c8","#f0c040",11);x.restore();});})),
+   ...e.A.map((a,i)=>fx.ring(a[0],a[1],"#fff6c8",70,1.1+i*.06,.5,5)),
+   U(e.AU,.95,1.2,[{filter:"none"},{filter:"drop-shadow(0 0 18px #fff6c8) brightness(1.4)",offset:.25},{filter:"none"}])];}
+});
+Object.assign(MOVE,{pankratiast:"charge",narcissus:"twirl",echo:"sway",ariadne:"float",pandora:"stir",theseus:"smash",bellerophon:"leap",hera:"raise",demeter:"kneel",erebus:"sink",aion:"spin",ananke:"float",phanes:"rise"});
+Object.assign(USND,{
+ pankratiast:[[.45,(a,t)=>{for(let i=0;i<3;i++)thud(a,t+i*.18,.35);}],[.9,(a,t)=>{a.chord([60,64,67].map(a.m),t,.6,"square",.04);}]],
+ narcissus:[[0,(a,t)=>a.pad(a.m(64),t,1.5,.06,"sine",2000)],[.3,(a,t)=>{for(let i=0;i<6;i++)a.bell(a.m(76+(i%3)*4),t+i*.12,.6,.04);}],[.9,(a,t)=>a.sweep(t,.3,.15,5000,1500,2)]],
+ echo:[[.15,(a,t)=>{[0,1,2,3,4].forEach(i=>a.tone(a.m(69),t+i*.22,.3,"sine",.1*(1-i*.18)));}],[.7,(a,t)=>[0,1,2].forEach(i=>a.tone(a.m(74),t+i*.25,.25,"triangle",.06*(1-i*.3)))]],
+ ariadne:[[0,(a,t)=>a.sweep(t,1.4,.06,300,2400,.4)],[.2,(a,t)=>{for(let i=0;i<8;i++)a.pluck(a.m(62+[0,3,7,10][i%4]),t+i*.12,.25);}]],
+ pandora:[[.1,(a,t)=>{a.noise(t,.25,.15,600,.8);a.tone(180,t+.1,.3,"square",.05,.5);}],[.4,(a,t)=>{for(let i=0;i<14;i++)a.noise(t+i*.05,.15,.06,800+Math.random()*2000,3);a.pad(a.m(37),t,1.2,.08,"sawtooth",600);}],[1.2,(a,t)=>a.bell(a.m(88),t,1.4,.06)]],
+ theseus:[[0,(a,t)=>{a.pad(a.m(33),t,1.6,.1,"sawtooth",300);}],[.2,(a,t)=>{a.tone(110,t,.8,"sawtooth",.08,.4);a.noise(t,.6,.1,400,.8);}],[1,(a,t)=>{clang(a,t,220,.18);clang(a,t+.12,260,.15);thud(a,t+.05,.4);}]],
+ bellerophon:[[0,(a,t)=>{for(let i=0;i<6;i++)whoosh(a,t+i*.12,.3,.08);}],[.4,(a,t)=>{a.tone(330,t,.25,"square",.05,1.3);a.tone(392,t+.18,.3,"square",.05,1.3);}],[.85,(a,t)=>{a.noise(t,1,.3,900,.5);thud(a,t,.4);}]],
+ hera:[[0,(a,t)=>a.chord([55,59,62,67].map(a.m),t,1.4,"sawtooth",.04)],[.2,(a,t)=>{for(let i=0;i<10;i++)a.bell(a.m(79+(i%4)*2),t+i*.06,.5,.03);}],[.8,(a,t)=>{a.sweep(t,.4,.2,6000,1500,1);thud(a,t+.2,.3);}]],
+ demeter:[[0,(a,t)=>a.pad(a.m(48),t,2,.08,"triangle",1400)],[.1,(a,t)=>{for(let i=0;i<16;i++)a.noise(t+i*.06,.2,.04,2500+i*120,2);}],[.6,(a,t)=>a.arp([0,4,7,12,16].map(k=>a.m(60)*Math.pow(2,k/12)),t,.08,.8,"sine",.06)]],
+ erebus:[[0,(a,t)=>{a.sweep(t,1.6,.2,2000,60,.5);a.pad(a.m(26),t,2.2,.15,"sawtooth",300);}],[.4,(a,t)=>{for(let i=0;i<10;i++)a.vib(a.m(30+i%3),t+i*.05,.6,"sawtooth",.03,3,40);}],[1.05,(a,t)=>{rumble(a,t,1.2,.35);thud(a,t,.5);}]],
+ aion:[[0,(a,t)=>{for(let i=0;i<16;i++)a.noise(t+i*.12,.03,.14,5000,3);}],[.3,(a,t)=>a.chord([45,52,57,64].map(a.m),t,1.8,"sine",.07)],[.6,(a,t)=>a.sweep(t,1,.1,3000,200,.5)],[1.2,(a,t)=>{a.bell(a.m(81),t,2,.08);a.bell(a.m(69),t+.15,2,.07);thud(a,t,.4);}]],
+ ananke:[[0,(a,t)=>{a.pad(a.m(29),t,2.2,.12,"sawtooth",250);a.vib(a.m(41),t,2,"sine",.06,.3,6);}],[.6,(a,t)=>{for(let i=0;i<8;i++)clang(a,t+i*.08,900+i*60,.06);}],[1.35,(a,t)=>{a.noise(t,.5,.4,2000,.4);thud(a,t,.55);}]],
+ phanes:[[0,(a,t)=>a.tone(a.m(40),t,.9,"sine",.06,1.5)],[.8,(a,t)=>{a.noise(t,.15,.3,6000,1);a.chord([60,64,67,72,76].map(a.m),t+.05,2,"sine",.07);}],[1,(a,t)=>{sparkle(a,t,.06,2093);a.sweep(t,1.2,.1,800,7000,.6);}]]
+});
 
 const PAL={verm:["#ff5a3c","#ffd34d"],verd:["#3fbf7a","#e8ff9a"],lapis:["#4a6cf0","#b8e0ff"],gold:["#f2b632","#fff3b0"],iron:["#6a6f86","#e6ecff"]};
 function runList(cv,x,W,H,list,ms,onEnd){const total=Math.max(...list.map(f=>f.t0+f.d)),scale=ms/1000/total,t0=performance.now();let raf=0,stopped=false;
@@ -7034,7 +7358,7 @@ if(typeof location!=="undefined"&&location.search.includes("ultdemo"))window.__h
 (function(){
 const set=(o,k,v)=>{if(o&&v!=null)o[k]=v;};
 Object.assign(EL,{verm:"Fire",verd:"Earth",lapis:"Sea",gold:"Sun",iron:"Night"});
-QN.splice(0,QN.length,"Mortal","Famed","Legendary","Demigod","Olympian","Primordial");
+QN.splice(0,QN.length,"Mortal","Famed","Legendary","Demigod","Olympian","Primordial","Aeon");
 /* ---- heroes: [name, lore, basic, skill, ultimate, passive name, passive text, quips, legends] ---- */
 const H={
  squire:["Young Hoplite","Fresh from the training fields, with a shield too big for him and courage even bigger.","Spear Thrust","Shield Bash","Othismos","Phalanx Drill","+40% damage against foes whose DEF is lowered. (His skill, Shield Bash, lowers DEF.)",["For the polis! And for supper!","I didn't drop my shield this time."],["His father gave him the shield, his mother told him to come back with it or on it. He is hoping for 'with'.","He counts the steps of the phalanx under his breath. He has never once reached the end."]],
@@ -7279,7 +7603,7 @@ function vOdds(a){
   <div class="voleg">${a.slice().reverse().map(([q,p])=>`<span class="q${q}" title="${QN[q]}"><i></i>${p}%</span>`).join("")}</div>`;}
 function vDial(lbl,cur,max,cls=""){return `<div class="vdial ${cls}" title="${esc(lbl)}: ${max-cur} summons left (${cur}/${max})">${vring(cur,max,String(max-cur))}<span>${esc(lbl)}</span></div>`;}
 function vWells(){
-  const hr=[[5,SECRET.hero.rate],[4,HERO_OLY.rate],[3,3],[2,13],[1,32],[0,51]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
+  const hr=[[6,AEON.rate],[5,SECRET.hero.rate],[4,HERO_OLY.rate],[3,3],[2,13],[1,32],[0,51]],gr=[[5,SECRET.gear.rate],[4,.5],[3,4.5],[2,15],[1,32],[0,47.85]];
   const D=ensureDaily(),fh=HERO[D.featured];
   const full=viewWells(),rest=full.slice(full.indexOf('<section class="panel" style="grid-column:1/-1">'),full.lastIndexOf("</div>"));
   return `<div class="wells vis">
@@ -7289,7 +7613,7 @@ function vWells(){
        <div class="vhi"><span class="label">★ Featured</span><b>${esc(fh.n)}</b><div class="vtags"><span class="qtag q${fh.q}">${QN[fh.q]}</span>${elname(fh.el)}${clsBadge(fh.id)}</div></div>
      </div>
      ${vOdds(hr)}
-     <div class="vdials">${vDial("Legendary+",G.pity.h10,10)}${vDial("Demigod",G.pity.hL,50)}${vDial("Olympian",G.pity.hO||0,HERO_OLY.pity,"q4")}<div class="secretpity">${vDial("✦ Primordial",G.pity.hS||0,SECRET.hero.pity,"q5")}</div></div>
+     <div class="vdials">${vDial("Legendary+",G.pity.h10,10)}${vDial("Demigod",G.pity.hL,50)}${vDial("Olympian",G.pity.hO||0,HERO_OLY.pity,"q4")}<div class="secretpity">${vDial("✦ Primordial",G.pity.hS||0,SECRET.hero.pity,"q5")}${vDial("✧ Aeon",G.pity.hA||0,AEON.pity,"q6")}</div></div>
      <div class="pullrow"><button class="btn gold big" data-act="pullh" data-n="1" ${G.gilt<COST.hero1?"disabled":""}>×1 ${ico("c_gilt")}${COST.hero1}</button><button class="btn gold big" data-act="pullh" data-n="10" ${G.gilt<COST.hero10?"disabled":""}>×10 ${ico("c_gilt")}${COST.hero10}</button></div>
      ${apPanel("h")}
    </section>
@@ -7340,7 +7664,7 @@ function vScrip(){
    Oracle's Favour (wishlist + Charon's obols), Apotheosis, hero myths and mythic looks.
    Hooks in m_game.js call these with typeof checks, so the battle simulator works without this file. */
 const MORE_ACT={},MORE_VIEW={},MORE_STATUS={};
-const QNAMES=["Mortal","Famed","Legendary","Demigod","Olympian","Primordial"];
+const QNAMES=["Mortal","Famed","Legendary","Demigod","Olympian","Primordial","Aeon"];
 const nowDay=()=>dayNum(dayKey());
 /* ---------- stat bonuses from the new systems (never for borrowed or rival heroes) ---------- */
 const EPITHET={tank:"the Unbroken",bruiser:"the Undaunted",dps:"the Swift",mage:"the Wise",healer:"the Merciful",buffer:"the Radiant",control:"the Enchanting"};
@@ -7467,6 +7791,7 @@ function mythWaves(id,part){const ci=(hashK(id)+part*3)%CH.length,ch=CH[ci],p=ch
 /* myths are hard: they give the Epic skin. Foes are stages ahead of your best, stronger still, and elite */
 const MYTH_STAGE=[0,5,10,16],MYTH_HP=[1,1.4,1.8,2.4],MYTH_ATK=[1,1.2,1.4,1.65];
 const mythStage=part=>Math.max(6,refS()+MYTH_STAGE[part]);
+Object.assign(HMYTH,globalThis.HERO3_MYTH||{});
 function mythPanel(id){const M=HMYTH[id];if(!M)return "";const p=mythPart(id),h=HERO[id];
   return `<div class="myth"><h3>Myth: ${esc(M[0])} <span class="soft">${p}/3</span></h3>
     <ol>${[1,2,3].map(i=>`<li class="${p>=i?"done":p+1===i?"next":""}">${p+1>=i?esc(M[i]):"🔒 A later chapter"}</li>`).join("")}</ol>
@@ -7606,6 +7931,7 @@ const ACH=[
  ["c10","Out of the Village","Clear stage 1-10",()=>Math.max(G.cleared,G.bestEver||0)>=10,80,null],["c40","Hero of Troy","Clear stage 4-10",()=>Math.max(G.cleared,G.bestEver||0)>=40,200,"Sacker of Cities"],["c80","The Last Page","Clear stage 8-10",()=>Math.max(G.cleared,G.bestEver||0)>=80,800,"Conqueror"],
  ["p100","Pilgrim","Summon 100 times",()=>G.stats.pulls>=100,120,"Pilgrim"],["p1000","Oracle's Favourite","Summon 1,000 times",()=>G.stats.pulls>=1000,500,"Oracle's Favourite"],
  ["sec1","Touched by Chaos","Summon a Primordial",()=>(G.stats.secrets||0)>=1,300,"Touched by Chaos"],
+ ["aeon1","Out of Time","Summon an Aeon",()=>(G.stats.aeons||0)>=1,600,"Out of Time"],
  ["h25","Collector","Own 25 heroes",()=>ownedN()>=25,250,"Collector"],["h51","Pantheon","Own every hero",()=>ownedN()>=HEROES.length,1500,"Keeper of the Pantheon"],
  ["apo1","Apotheosis","Ascend a hero",()=>Object.keys(G.apo||{}).length>=1,300,"Maker of Gods"],["apo5","Many Gods","Ascend 5 heroes",()=>Object.keys(G.apo||{}).length>=5,800,null],
  ["myth1","Storyteller","Complete a hero's myth",()=>Object.values(G.myth||{}).filter(p=>p>=3).length>=1,150,"Storyteller"],["myth10","Rhapsode","Complete 10 myths",()=>Object.values(G.myth||{}).filter(p=>p>=3).length>=10,600,"Rhapsode"],["myth51","Homer","Complete every myth",()=>Object.values(G.myth||{}).filter(p=>p>=3).length>=HEROES.length,2000,"Homer Reborn"],
@@ -7838,6 +8164,7 @@ const SKIN_DEF={
  daedalus:["ochre","Master Craftsman",{hat:["hairM","pilos"]},"ash","bronze","Bronze Inventor","blackfig","The Labyrinth Vase"],
  arachne:["hyacinth","Weaver of Lydia",{hat:["hairF","diadem"]},"tyrian","porphyry","Purple Thread","eidolon","Spider Queen"],
  jason:["aegean","The Golden Fleece",{cape:"dil",hat:["hairM","laurel"],item:"xiphos"},"ivory","gold","Fleece-bearer","tide","Voyage of the Argo"]};
+Object.assign(SKIN_DEF,globalThis.HERO3_SKIN||{});
 const SKINS={};
 Object.entries(SKIN_DEF).forEach(([h,d])=>{const [cw,rn,ro,rcw,mat,en,form,ln]=d;
   SKINS[h+"_1"]={id:h+"_1",hero:h,tier:0,name:CW[cw][0],kind:SKIN_KIND[0],art:{id:h+"_1",tier:0,mat:"painted",eyes:1,cw:CW[cw][1]}};
