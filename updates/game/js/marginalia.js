@@ -4535,8 +4535,8 @@ function updateBattle(){
   unitsAll().forEach(x=>{const el=unode(x.uid);if(!el)return;
     el.classList.toggle("dead",x.dead);el.classList.toggle("act",x.uid===C.cur&&!C.over);
     const t=vt.includes(x);el.classList.toggle("tgt",t);el.classList.toggle("ally",t&&n==="ally");
-    el.querySelector(".bhp i").style.width=(x.hp/x.maxhp*100)+"%";
-    el.querySelector(".bhp s").style.width=Math.min(100,x.shield/x.maxhp*100)+"%";
+    {const sh=Math.max(0,x.shield||0),tot=Math.max(x.maxhp,x.hp+sh),hp=Math.max(0,x.hp)/tot*100,bs=el.querySelector(".bhp s");
+     el.querySelector(".bhp i").style.width=hp+"%";bs.style.left=hp+"%";bs.style.width=(sh/tot*100)+"%";}
     el.querySelector(".bhn").textContent=x.dead?"down":`${fmt(x.hp)}${x.shield>0?` +${fmt(x.shield)}`:""}`;
     el.querySelector(".bst").innerHTML=statusHTML(x);
     {const sk=el.querySelector(".bsk");if(sk)sk.innerHTML=skillChip(x);}
