@@ -432,6 +432,10 @@ html.rm *{animation-duration:.01ms!important;animation-iteration-count:1!importa
 .clsf .btn .ci{width:13px;height:13px;color:var(--cc,currentColor)}
 .clsf .btn i{font-style:normal;opacity:.6;font-size:12px}
 .clsf .btn[aria-pressed="true"] .ci{color:inherit}
+.psort{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 4px}
+.psort .label,.elf .label{margin-right:2px}.elf{align-items:center}
+.psort .pdir{margin-left:auto}
+.elf .eld{width:10px;height:10px;border-radius:50%;background:var(--cc);display:inline-block;border:1px solid #0004}
 .makeup{margin-top:8px}.clsrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .ihead .cls{margin:2px 0}
 @media (max-width:560px){.tsel .cls span{display:none}.tsel .cls{padding:2px 4px}.hc .cls{font-size:9px}}

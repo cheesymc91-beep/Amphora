@@ -1,17 +1,17 @@
 {
- "version": "1.8.2",
+ "version": "1.8.3",
  "shell": "1.1.0",
- "notes": "Fix: shields now show as a blue section after the health bar instead of hiding underneath it, so health bars stay visible when a unit has a shield (issue #1).",
+ "notes": "Party: sort your heroes by power, rarity, level, stars, newest, name, element, class, upgrades ready, spare copies, skins or team, reverse any order, and filter by element as well as class. Your choice is remembered.",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "bc30aee9b9951cc770c77528dae79aeb3f1fe28cafad6fd717d051f1a5a648ea",
+  "css/marginalia.css": "0eade0f6db413417c9265106b6d1f5077e41415a5b362f1d60e7f6a31e1b10e6",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "d0aed2bf114b5096e92ff13e34a8712e3bb2ad939f462cdde89e73a7667b335e",
-  "js/marginalia.js": "2b022970b06f5295fcce5a48eabf7d30049390d042c9e817a57f6e683b7dd7d0"
+  "index.html": "c422d1b15c232e9e5fb290256ec52429d1dc6fb21c9ad5fbe031950769b0fe5b",
+  "js/marginalia.js": "32b080a12a28cbdc5f8b00ed3ecdabf48421910eb99ae135c5c2df653aea5aa8"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

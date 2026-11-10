@@ -4730,6 +4730,20 @@ function gearCard(g,actions=""){
     <ul><li><b>${statTxt(g.main.k,gearStatVal(g))}</b></li>${g.subs.map(s=>`<li>${statTxt(s.k,s.v)}</li>`).join("")}</ul>
     ${m?`<span class="uq">★ ${esc(m.t)}</span>`:""}${actions?`<div class="ga">${actions}</div>`:""}</div>`;
 }
+/* roster sorting: each key returns a number (bigger first) or a string (A to Z) */
+const PSORT={
+  power:{n:"Power",t:"Strongest first",k:(h,pw)=>pw(h.id)},
+  rarity:{n:"Rarity",t:"Rarest first",k:h=>h.q},
+  level:{n:"Level",t:"Highest level first",k:h=>G.heroes[h.id].lvl},
+  stars:{n:"Stars",t:"Most stars first",k:h=>G.heroes[h.id].stars*1000+G.heroes[h.id].lvl},
+  newest:{n:"Newest",t:"Most recently summoned first",k:h=>(G.newHeroes&&G.newHeroes[h.id]?1e4:0)+Object.keys(G.heroes).indexOf(h.id)},
+  name:{n:"Name",t:"A to Z",k:h=>h.n,az:1},
+  element:{n:"Element",t:"Grouped by element",k:h=>Object.keys(EL).indexOf(h.el)*-1},
+  cls:{n:"Class",t:"Grouped by class",k:h=>Object.keys(CLS).indexOf(h.cls)*-1},
+  ready:{n:"Upgrades",t:"Heroes ready for a star or perk first",k:h=>{const r=G.heroes[h.id];return (r.shards>=r.stars&&r.stars<6?2:0)+(perkPending(h.id).length?1:0);}},
+  copies:{n:"Copies",t:"Most spare copies first",k:h=>G.heroes[h.id].shards||0},
+  skins:{n:"Skins",t:"Most skins owned first",k:h=>typeof heroSkins==="function"&&G.skins?heroSkins(h.id).filter(s=>G.skins[s.id]).length+(G.skinEq&&G.skinEq[h.id]?.5:0):0},
+  team:{n:"In team",t:"Team members first, in team order",k:h=>{const i=G.team.indexOf(h.id);return i<0?-1:10-i;}}};
 function viewParty(){
   const owned=HEROES.filter(h=>G.heroes[h.id]);
   if(!partySel||!G.heroes[partySel])partySel=G.team[0]||owned[0].id;
@@ -4738,9 +4752,11 @@ function viewParty(){
   const team=[0,1,2,3].map(i=>{const t=G.team[i],lab=`<span class="rowtag">${i<2?"Front":"Back"} row</span>`;return t?`<div class="tslot">${lab}<button class="tsel" data-act="hsel" data-id="${t}">${im(t)}<span>${esc(HERO[t].n)}</span>${clsBadge(t)}<span class="pwr">⚔ ${fmt(powerOf(heroStats(t)))}</span></button>
     <span class="tmv"><button data-act="tmove" data-i="${i}" data-d="-1" ${i===0?"disabled":""} aria-label="Move left">◂</button><button data-act="tmove" data-i="${i}" data-d="1" ${i>=G.team.length-1?"disabled":""} aria-label="Move right">▸</button></span></div>`:`<div class="tslot empty">${lab}Empty slot<br>tap a hero below</div>`;}).join("");
   const pw=id=>powerOf(heroStats(id)),maxPw=Math.max(...owned.map(h=>pw(h.id)));
-  const shown=owned.filter(h=>partyCls==="all"||h.cls===partyCls);
+  const pel=G.partyEl||"all",srt=PSORT[G.partySort]?G.partySort:"power",dir=G.partyAsc?-1:1;
+  const shown=owned.filter(h=>(partyCls==="all"||h.cls===partyCls)&&(pel==="all"||h.el===pel));
   const filt=`<div class="clsf"><button class="btn small" data-act="clsf" data-k="all" aria-pressed="${partyCls==="all"}">All</button>${Object.keys(CLS).map(k=>{const n=owned.filter(h=>h.cls===k).length;return `<button class="btn small" data-act="clsf" data-k="${k}" aria-pressed="${partyCls===k}" style="--cc:${CLS[k].c}" ${n?"":"disabled"}>${clsIco(k)} ${CLS[k].n} <i>${n}</i></button>`;}).join("")}</div>`;
-  const roster=shown.slice().sort((a,b)=>pw(b.id)-pw(a.id)).map(h=>{const r=G.heroes[h.id],ti=G.team.indexOf(h.id);
+  const PS=PSORT[srt],keyOf={};shown.forEach(h=>keyOf[h.id]=PS.k(h,pw));
+  const roster=shown.slice().sort((a,b)=>{const x=keyOf[a.id],y=keyOf[b.id];return (typeof x==="string"?x.localeCompare(y):y-x)*dir||pw(b.id)-pw(a.id);}).map(h=>{const r=G.heroes[h.id],ti=G.team.indexOf(h.id);
     const isNewH=!!(G.newHeroes&&G.newHeroes[h.id]);
     return `<button class="hc q${h.q} ${isNewH?"isnew":""} ${h.id===id?"sel":""} ${evoOf(r)?"evo"+evoOf(r):""}" data-act="hsel" data-id="${h.id}">${isNewH?`<span class="newb">NEW</span>`:""}${ti>=0?`<span class="badge">TEAM</span>`:""}${r.shards>=r.stars&&r.stars<6?`<span class="up">★UP</span>`:perkPending(h.id).length?`<span class="up pkup">PERK</span>`:""}${im(h.id)}<span class="n">${esc(h.n)}</span>${clsBadge(h.id)}<span class="l">Lv ${r.lvl} ${"★".repeat(r.stars)}</span><span class="pwr" title="Power">⚔ ${fmt(pw(h.id))}</span></button>`;}).join("");
   const slot=gearSlotSel&&SLOTS[gearSlotSel]?gearSlotSel:null;
@@ -4759,10 +4775,13 @@ function viewParty(){
      ${viewBestTeam()}
      <div class="row" style="margin-top:8px"><button class="btn main" data-act="bestteam">Pick highest-power team</button><button class="btn main" data-act="autoteam" ${G.gear.length?"":"disabled"}>Auto-equip best gear for team</button><button class="btn" data-act="teamclear" ${G.team.length?"":"disabled"}>✕ Clear team</button></div>
      <p class="soft" style="font-size:14px;margin-top:4px">“Pick highest-power team” simply fills your 4 slots with your highest-power heroes, without testing them. “Auto-equip” then gives the best gear to the strongest heroes first.</p>
-     <div class="label" style="margin-top:12px">All heroes (${owned.length}) · sorted by power${partyCls!=="all"?` · showing ${CLS[partyCls].n}s (${shown.length})`:""}</div>
+     <div class="label" style="margin-top:12px">All heroes (${owned.length}) · sorted by ${PS.n.toLowerCase()}${partyCls!=="all"||pel!=="all"?` · showing ${shown.length}`:""}</div>
      ${(()=>{const n=owned.filter(h=>{const r=G.heroes[h.id];return r.shards>=r.stars&&r.stars<6;}).length;return `<div class="row starall"><button class="btn gold" data-act="starall" ${n?"":"disabled"}>★ Star up all heroes${n?` (${n} ready)`:""}</button><span class="soft" style="font-size:14px">${n?"Spends every spare copy on every hero, as many stars as the copies allow.":"No hero has enough copies for a new star yet."}</span></div>`;})()}
+     <div class="psort"><span class="label">Sort</span>${Object.keys(PSORT).map(k=>`<button class="btn small" data-act="psort" data-k="${k}" aria-pressed="${srt===k}" title="${esc(PSORT[k].t)}">${PSORT[k].n}</button>`).join("")}
+       <button class="btn small pdir" data-act="pdir" title="Reverse the order">${G.partyAsc?"↑ Reversed":"↓ Normal"}</button></div>
      ${filt}
-     <div class="roster">${roster}</div>
+     <div class="clsf elf"><span class="label">Element</span><button class="btn small" data-act="pel" data-k="all" aria-pressed="${pel==="all"}">All</button>${Object.keys(EL).map(k=>{const n=owned.filter(h=>h.el===k).length;return `<button class="btn small" data-act="pel" data-k="${k}" aria-pressed="${pel===k}" style="--cc:${ELC[k]||"currentColor"}" ${n?"":"disabled"}><span class="eld"></span>${EL[k]} <i>${n}</i></button>`;}).join("")}</div>
+     <div class="roster">${roster||'<p class="soft">No heroes match these filters.</p>'}</div>
    </section>
    ${typeof partyExtra==="function"?partyExtra():""}
    <section class="panel"><details class="codex"><summary>${PH("Book of Bonds ▾","synergy",`${Object.keys(G.syn||{}).length} of ${SYN.length} discovered`)}</summary>
@@ -5090,6 +5109,9 @@ document.addEventListener("click",e=>{
     case "closeinspect":if(C)C.inspect=null;break;
     case "hsel":partySel=b.dataset.id;tab="party";if(G.newHeroes&&G.newHeroes[partySel]){delete G.newHeroes[partySel];}break;
     case "clsf":partyCls=b.dataset.k;break;
+    case "psort":G.partySort=b.dataset.k;G.partyAsc=false;break;
+    case "pdir":G.partyAsc=!G.partyAsc;break;
+    case "pel":G.partyEl=b.dataset.k;break;
     case "bestfind":runBestTeam();return;
     case "bestundo":if(bestUndo){G.team=bestUndo.team.filter(id=>G.heroes[id]);restoreGear(bestUndo.gear);bestUndo=null;bestReport=null;toast("Previous team and gear restored.");}break;
     case "sound":G.sound=G.sound===false;if(G.sound)SFX.play("coin");break;
