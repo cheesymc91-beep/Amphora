@@ -1,6 +1,6 @@
 /* Amphora offline worker. Bump CACHE when you deploy a new version so players get the update. */
-const CACHE = "marginalia-1.11.0-1dba34be84";
-const CORE = ["./", "./index.html", "./css/marginalia.css?v=1dba34be84", "./js/marginalia.js?v=1dba34be84", "./js/register-sw.js?v=1dba34be84",
+const CACHE = "marginalia-1.12.0-56f5a47021";
+const CORE = ["./", "./index.html", "./css/marginalia.css?v=56f5a47021", "./js/marginalia.js?v=56f5a47021", "./js/register-sw.js?v=56f5a47021",
   "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/favicon-32.png"];
 const FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com"];
 
