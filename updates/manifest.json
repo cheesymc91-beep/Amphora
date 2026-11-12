@@ -1,7 +1,7 @@
 {
- "version": "1.14.9",
+ "version": "1.14.10",
  "shell": "1.1.0",
- "notes": "TCG packs: nothing shakes any more. Opening a pack is a short glow instead of a shake, and shining cards stand still and only pulse. Shine colours now match the coloured rarity labels on the Packs screen (Demigod gold, Olympian teal-pink, Primordial rainbow, Aeon white-gold; alternate arts in their skin colour). The TCG menu shows the version number at the bottom.",
+ "notes": "TCG match: the table is now always as wide as a full board of 5 heroes, so nothing grows, shrinks or shifts as heroes are played or die (computer and phone).",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "093b548823d1b7a985ee0439df778108d66e79feb3640fdfdfa7da5505c91624",
-  "js/marginalia.js": "e37918aa919b41a1ba37e72b4dae6edc20f5264a3e430984bc7339bd8ab68de4"
+  "index.html": "b983358eecdf55fa93ce05101afef5aaf07c0f8fe671f370cc40345fa9a28344",
+  "js/marginalia.js": "af0cd37792fdcc3a9ffaeb5c97c10696710f8528aad0e2798dbe3ab4458ef88e"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

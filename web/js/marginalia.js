@@ -9086,6 +9086,9 @@ const css=`
 .gnum{font:700 14px var(--f-px);margin-left:8px;color:#bcd6ff}
 .pdk{display:flex;gap:10px;align-items:center;font:700 14px var(--f-px)}.backs{display:flex}.backs i{width:14px;height:20px;border-radius:3px;background:repeating-linear-gradient(45deg,#7a1a10 0 3px,#8a2a14 3px 6px);border:1px solid #e8c060;margin-left:-5px}
 .lane{display:flex;gap:12px;justify-content:center;align-items:center;min-height:140px;padding:8px 4px;border-radius:14px}
+/* 1.14.10: the table is always as wide as a full board of 5 heroes, so nothing grows or shrinks as heroes come and go */
+.table{--mw:96px;--lg:12px;width:min(100%,calc(5*var(--mw) + 4*var(--lg) + 28px));grid-template-columns:minmax(0,1fr)}
+.lane{flex-wrap:nowrap;min-width:0}
 .lane.me{background:rgba(255,240,200,.04)}.lhint{color:rgba(246,234,208,.45);font-style:italic}
 .midl{display:flex;align-items:center;gap:10px;border-top:1px solid rgba(246,234,208,.2);border-bottom:1px solid rgba(246,234,208,.2);padding:6px 4px}
 .tlog{flex:1;font-size:14.5px;line-height:1.35;color:rgba(246,234,208,.7);min-height:38px}.tlog div:first-child{color:#f6ead0;font-weight:600}
@@ -9130,7 +9133,7 @@ const css=`
 .endbox .tgb{font-size:17px}
 @media (max-width:600px){
   .cd{--w:128px}.thc .cd{--w:104px}.hand{height:170px}.thc{margin-left:calc(-56px * (1 - var(--s)) - 8px)}
-  .cd.mini{--w:64px;height:88px}.cd.mini .ca,.cd.mini .ch{width:24px;height:24px;font-size:13px}.lane{gap:6px;min-height:100px}
+  .cd.mini{--w:64px;height:88px}.cd.mini .ca,.cd.mini .ch{width:24px;height:24px;font-size:13px}.lane{gap:6px;min-height:106px}.table{--mw:64px;--lg:6px}
   .por{width:48px;height:48px;font-size:24px}.por img{width:42px;height:42px}.endt{width:64px;height:64px;font-size:12.5px}
   .hubhero{flex-direction:column;align-items:flex-start}.hhp{align-self:center}.cd.tbig{--w:min(200px,25vh)}}
 .mvp .cd.tbig{--w:min(230px,26vh)}
@@ -9231,7 +9234,7 @@ function hub(){
   </div>
   <div class="treset"><span class="tsoft"><small style="opacity:.7">Version ${TCG_VER} · </small>${tReset>Date.now()?"This erases your TCG record, cards, alternate arts, Obols, packs and deck. Idle mode is not touched. It cannot be undone.":"Start the TCG over from the very beginning."}</span>
     <button class="tgb ${tReset>Date.now()?"pri":""}" data-tcg="tcgreset">${tReset>Date.now()?"Tap again to erase everything":"Reset TCG progress"}</button></div>`;}
-let tReset=0;const TCG_VER="1.14.9";
+let tReset=0;const TCG_VER="1.14.10";
 function packsView(){
   if(PK){const all=PK.flip.length===PK.cards.length;
     if(!PK.torn)return `<div class="pkstage"><div class="pkhint">Tap the pack to open it</div><button class="pack" data-tcg="tear"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></button></div>`;
@@ -9444,7 +9447,7 @@ function open(){injectCss();let r=root();if(!r){r=document.createElement("div");
     r.addEventListener("mouseleave",()=>{const pv=document.getElementById("tpv");if(pv)pv.hidden=true;});}
   r.hidden=false;if(tab==="match"&&!M)tab="hub";render();}
 function close(){const r=root();if(r)r.hidden=true;}
-if(/tcgdebug/.test(location.search))window.__tcg={get:()=>M,nm:d=>{sel=null;newMatch(d);tab="match";render();},run:f=>{f(M,{play,attack,checkEnd,rec});render();}};
+if(/tcgdebug/.test(location.search))window.__tcg={get:()=>M,nm:d=>{sel=null;newMatch(d);tab="match";render();},run:f=>{f(M,{play,attack,checkEnd,rec,summon,cardOf});render();}};
 return {open,close,css:injectCss};
 })();
 
