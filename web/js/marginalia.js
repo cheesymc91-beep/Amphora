@@ -8597,7 +8597,7 @@ function start(data){
 const TCG=(()=>{
 const KEY="amphora-tcg";
 let rec;try{rec=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){rec=null;}
-rec=rec||{w:0,l:0};
+rec=rec||{w:0,l:0};rec.d=rec.d||{};
 const saveRec=()=>{try{localStorage.setItem(KEY,JSON.stringify(rec));}catch(e){}};
 const MAXHP=20,MAXMANA=10,BOARD=5,HAND=8;
 const COST=[1,2,3,4,5,6,7];
@@ -8665,7 +8665,8 @@ const SPELLS=[
   {id:"sp_ambrosia",t:"spell",n:"Ambrosia",cost:2,el:"verd",q:1,fx:{k:"face",v:6},txt:"Heal your hero by 6."},
   {id:"sp_muse",t:"spell",n:"Gift of the Muses",cost:3,el:"lapis",q:2,fx:{k:"draw",v:2},txt:"Draw 2 cards."}
 ];
-const SPELL=Object.fromEntries(SPELLS.map(s=>[s.id,s]));
+const COIN={id:"sp_coin",t:"spell",n:"Obol of Charon",cost:0,el:"iron",q:0,fx:{k:"coin",v:1},txt:"Gain 1 Favour this turn only. The player who goes second gets one."};
+const SPELL=Object.fromEntries(SPELLS.concat([COIN]).map(s=>[s.id,s]));
 const cardOf=id=>id==="pig"?Object.assign({},PIG):SPELL[id]?Object.assign({},SPELL[id]):heroCard(HERO[id]);
 const owned=()=>HEROES.filter(h=>G&&G.heroes&&G.heroes[h.id]);
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
@@ -8680,18 +8681,28 @@ function playerDeck(){
   const heroes=ids.length>14?shuffle(ids).slice(0,14):ids;
   return heroes.concat(SPELLS.flatMap(s=>[s.id,s.id]));
 }
-function aiDeck(){
-  const top=Math.max(1,...owned().map(h=>h.q)),pool=HEROES.filter(h=>h.q<=Math.min(3,top));const ids=[];
+function aiDeck(diff){
+  const top=Math.max(1,...owned().map(h=>h.q));
+  const cap=diff==="easy"?Math.max(1,Math.min(2,top-1)):diff==="hard"?Math.max(2,Math.min(5,top+1)):Math.min(3,top);
+  const pool=HEROES.filter(h=>h.q<=cap);const ids=[];
   while(ids.length<14){const h=pool[Math.floor(Math.random()*pool.length)];if(ids.filter(x=>x===h.id).length<2)ids.push(h.id);}
   return ids.concat(SPELLS.flatMap(s=>[s.id,s.id]));
 }
 /* ---- match state ---- */
 let M=null,view="hub",sel=null,busy=false,uidN=1,peek=null;
 function side(deck){return {hp:MAXHP,mana:0,max:0,deck:shuffle(deck.map(cardOf)),hand:[],board:[],fat:0,fallen:[],disc:0,lastPlay:null};}
-function newMatch(){
-  M={p:side(playerDeck()),a:side(aiDeck()),turn:"p",log:[],over:null,n:1};
-  for(let i=0;i<3;i++)draw(M.p);for(let i=0;i<4;i++)draw(M.a);
-  startTurn("p");
+/* A coin flip decides who goes first. The other player draws an extra card and gets an Obol of Charon (+1 Favour once). */
+function setup(pd,ad,diff){
+  M={p:side(pd),a:side(ad),turn:"p",log:[],over:null,n:1,diff,first:Math.random()<.5?"p":"a"};
+  const f=M.first==="p"?M.p:M.a,s2=foe(f);
+  for(let i=0;i<3;i++)draw(f);for(let i=0;i<4;i++)draw(s2);s2.hand.push(cardOf("sp_coin"));
+  log(M.first==="p"?"You won the coin flip and go first.":"The rival won the coin flip and goes first. You get an Obol of Charon.");
+  if(M.first==="p")startTurn("p");
+}
+function newMatch(diff){
+  diff=DIFF[diff]?diff:"normal";
+  setup(playerDeck(),aiDeck(diff),diff);
+  if(M.first==="a")aiTurn();
 }
 const foe=s=>s===M.p?M.a:M.p;
 const nm=s=>s===M.p?"You":"Rival";
@@ -8734,6 +8745,7 @@ function play(s,i,target){
   else{
     if(c.fx.k==="bolt"){if(target==="face"||!target)hitHero(o,c.fx.v,c);else dmg(o,target,c.fx.v,c);}
     if(c.fx.k==="face"){s.hp=Math.min(MAXHP,s.hp+c.fx.v);log(`${nm(s)} drank Ambrosia (+${c.fx.v}).`);}
+    if(c.fx.k==="coin"){s.mana+=c.fx.v;log(`${nm(s)} spent an Obol of Charon: +1 Favour this turn.`);}
     if(c.fx.k==="draw"){for(let k=0;k<c.fx.v;k++)draw(s);log(`${nm(s)} drew ${c.fx.v} cards.`);}
   }
   checkEnd();return true;
@@ -8749,17 +8761,27 @@ function attack(s,u,t){
 }
 function checkEnd(){
   if(!M||M.over)return;
-  if(M.p.hp<=0||M.a.hp<=0){M.over=M.a.hp<=0&&M.p.hp>0?"win":"lose";if(M.over==="win")rec.w++;else rec.l++;saveRec();}
+  if(M.p.hp<=0||M.a.hp<=0){M.over=M.a.hp<=0&&M.p.hp>0?"win":"lose";if(SIMQ)return;
+    const d=rec.d[M.diff]=rec.d[M.diff]||{w:0,l:0};if(M.over==="win"){rec.w++;d.w++;}else{rec.l++;d.l++;}saveRec();}
 }
-/* ---- rival AI: simple and readable, not clever ---- */
-function aiStep(){
+/* ---- rival AI ----
+   Easy: the simple rules (play the priciest card, then attack).
+   Normal / Hard: tries every possible move on a copy of the match, scores the result and picks the best one.
+   It also checks each ability against a blank copy of the same card: if the ability would do nothing right now
+   (Hades with no enemies, Hera on an empty board), the card is held back for a better moment.
+   Hard tries each move several times (abilities with random targets), sees your lethal threats, and gets a stronger deck. */
+const DIFF={
+  easy:{n:"Easy",d:"Simple rules, cheaper cards. Good for learning.",samples:0},
+  normal:{n:"Normal",d:"Thinks about every move and saves abilities for the right moment.",samples:1},
+  hard:{n:"Hard",d:"Plans carefully, watches for lethal and brings rarer cards.",samples:4}
+};
+let SIMQ=0,THREAT=false;
+function aiEasy(){
   const s=M.a,o=M.p;if(M.over)return null;
   const playable=s.hand.map((c,i)=>({c,i})).filter(x=>costOf(s,x.c)<=s.mana&&(x.c.t!=="unit"||s.board.length<BOARD)).sort((a,b)=>b.c.cost-a.c.cost);
   for(const x of playable){
     if(x.c.id==="sp_ambrosia"&&s.hp>MAXHP-5)continue;
-    if(x.c.id==="aion"&&o.board.length<=s.board.length)continue;       /* only wipe the board when behind */
-    if(x.c.id==="wyvern"&&o.board.length<2)continue;
-    if(x.c.id==="pandora"&&s.board.length>o.board.length)continue;
+    if(x.c.id==="sp_coin"&&!s.hand.some(c=>c.id!=="sp_coin"&&costOf(s,c)===s.mana+1))continue;
     if(x.c.id==="sp_bolt"){const kill=o.board.filter(u=>u.hp<=x.c.fx.v&&!u.shield).sort((a,b)=>b.atk-a.atk)[0];return ()=>play(s,x.i,kill||"face");}
     return ()=>play(s,x.i,null);
   }
@@ -8770,11 +8792,86 @@ function aiStep(){
     return ()=>attack(s,att,t);}
   return null;
 }
+/* how good a match position is for the rival (side a) */
+function unitVal(u){const a=u.ab&&AB[u.ab];
+  return u.atk*1.1+u.hp*.7+(u.kw==="Guard"?.6:0)+(u.shield?1.2:0)-(u.psn?1.5:0)-(u.frz?.6:0)+(a&&(a.on==="turn"||a.on==="foe")?1.8:0)+(a&&a.on==="death"?.8:0);}
+function evalFor(hard){hard=hard&&THREAT;
+  const A=M.a,P=M.p;
+  if(M.over)return A.hp>0&&P.hp<=0?1e4:-1e4;
+  const hpV=h=>h+(h<=8?(h-8)*.6:0);
+  let v=A.board.reduce((t,u)=>t+unitVal(u),0)-P.board.reduce((t,u)=>t+unitVal(u),0)*1.05
+    +hpV(A.hp)-hpV(P.hp)+A.hand.length*.6-P.hand.length*.3+A.max*.3;
+  if(hard){
+    const threat=P.board.reduce((t,u)=>t+u.atk,0),myGuard=guards(A).reduce((t,u)=>t+u.hp,0);
+    if(threat>=A.hp&&threat-myGuard>=A.hp)v-=40;                         /* you could kill it next turn */
+    else if(threat>=A.hp)v-=12;
+    const mine=A.board.reduce((t,u)=>t+u.atk,0);
+    if(!guards(P).length&&mine>=P.hp)v+=15;                              /* it can kill you next turn */
+  }
+  return v;
+}
+function aiMoves(){
+  const s=M.a,o=M.p,mv=[];
+  s.hand.forEach((c,i)=>{if(costOf(s,c)>s.mana||(c.t==="unit"&&s.board.length>=BOARD))return;
+    if(c.tgt){o.board.forEach(u=>mv.push({k:"play",i,t:u.uid}));mv.push({k:"play",i,t:"face"});}
+    else mv.push({k:"play",i,t:null});});
+  s.board.forEach(u=>{if(!u.ready||u.atk<=0)return;
+    if(canHit(o,"face"))mv.push({k:"atk",u:u.uid,t:"face"});
+    o.board.forEach(e=>{if(canHit(o,e))mv.push({k:"atk",u:u.uid,t:e.uid});});});
+  return mv;
+}
+function doMove(m,blank){
+  const s=M.a,o=M.p,tg=m.t==="face"||m.t==null?m.t:o.board.find(x=>x.uid===m.t);
+  if(m.k==="play"){if(blank&&s.hand[m.i])s.hand[m.i]=Object.assign({},s.hand[m.i],{ab:null});return play(s,m.i,tg);}
+  const u=s.board.find(x=>x.uid===m.u);return u&&tg?attack(s,u,tg):false;
+}
+function trial(m,n,hard,blank){
+  const saved=M,snap=JSON.stringify(M);let tot=0;SIMQ++;
+  try{for(let k=0;k<n;k++){M=JSON.parse(snap);doMove(m,blank);tot+=evalFor(hard);}}
+  finally{M=saved;SIMQ--;}
+  return tot/n;
+}
+/* score every move one step ahead; abilities that would be wasted right now get a hold-back penalty */
+function scoreMoves(hard,n){
+  const out=[];
+  for(const m of aiMoves()){
+    let v=trial(m,n,hard,false),pen=0;
+    if(m.k==="play"){const c=M.a.hand[m.i],a=c&&c.ab&&AB[c.ab];
+      if(a&&a.on==="play"&&v-trial(m,n,hard,true)<=.25)pen=1.5+c.cost*.3;}
+    out.push({m,v:v-pen,pen});
+  }
+  return {base:evalFor(hard),out};
+}
+function aiThink(){
+  if(M.over)return null;
+  const D=DIFF[M.diff]||DIFF.normal,hard=M.diff==="hard",n=D.samples;
+  const {base,out}=scoreMoves(hard,n);
+  let best=null,bv=base+.05;
+  if(!hard){for(const x of out){let v=x.v;
+      if(x.m.k==="play"&&M.a.hand[x.m.i]&&M.a.hand[x.m.i].id==="sp_coin"){const saved=M,snap=JSON.stringify(M);SIMQ++;
+        try{M=JSON.parse(snap);doMove(x.m,false);const r=scoreMoves(false,n);v=Math.max(r.base,...r.out.map(y=>y.v))-.3;}finally{M=saved;SIMQ--;}}
+      if(v>bv){bv=v;best=x.m;}}}
+  else{
+    /* Hard looks two moves ahead: for the 6 most promising moves, what is the best thing it can do next? */
+    out.sort((a,b)=>b.v-a.v);
+    for(const x of out.slice(0,6)){
+      const saved=M,snap=JSON.stringify(M);let tot=0;const R=2;SIMQ++;
+      try{for(let k=0;k<R;k++){M=JSON.parse(snap);doMove(x.m,false);
+        if(M.over){tot+=evalFor(true);continue;}
+        const r=scoreMoves(true,1);tot+=Math.max(r.base,...r.out.map(y=>y.v));}}
+      finally{M=saved;SIMQ--;}
+      const v=tot/R-x.pen;if(v>bv){bv=v;best=x.m;}
+    }
+  }
+  return best?()=>doMove(best,false):null;
+}
+function aiStep(){return M.diff==="easy"?aiEasy():aiThink();}
 function aiTurn(){
-  busy=true;startTurn("a");render();
+  busy=true;if(M.first==="a"&&M.aStarted)M.n++;M.aStarted=true;startTurn("a");render();
   const step=()=>{if(!M||M.over){busy=false;render();return;}
-    const f=aiStep();if(f){f();render();setTimeout(step,650);}
-    else{M.n++;startTurn("p");busy=false;render();}};
+    let f=null;try{f=aiStep();}catch(e){console.error(e);f=null;}
+    if(f){f();render();setTimeout(step,650);}
+    else{if(M.first=="p")M.n++;startTurn("p");busy=false;render();}};
   setTimeout(step,700);
 }
 /* ---- UI ---- */
@@ -8861,8 +8958,12 @@ function hub(){
     return `<div class="tgbar"><h2>Your deck (${deck.length})</h2><button class="tgb" data-tcg="hub">Back</button></div>
       <p class="tgp" style="margin:0">For now the deck builds itself: every hero you own (cheap ones twice), topped up with free Mortal starters, plus two of each spell. A real deck builder comes later.</p>
       <div class="cards">${Object.keys(cnt).map(id=>`<div style="position:relative">${cardHtml(cardOf(id))}${cnt[id]>1?`<div style="text-align:center;font-weight:700">×${cnt[id]}</div>`:""}</div>`).join("")}</div>`;}
+  if(view==="diff"){const r=k=>{const d=rec.d[k]||{w:0,l:0};return `${d.w} W · ${d.l} L`;};
+    return `<div class="tgbar"><h2>Choose your rival</h2><button class="tgb" data-tcg="hub">Back</button></div>
+      <div class="tgmenu">${Object.entries(DIFF).map(([k,d])=>`<button class="hmb" data-tcg="start" data-d="${k}"><span class="ic">${{easy:"🌿",normal:"⚔",hard:"🔥"}[k]}</span><span><b>${d.n}</b><small>${d.d}<br><span style="font:700 14px var(--f-px)">${r(k)}</span></small></span></button>`).join("")}</div>`;}
   if(view==="rules")return `<div class="tgbar"><h2>How to play</h2><button class="tgb" data-tcg="hub">Back</button></div>
     <div class="tgp"><p>Bring the rival's hero from <b>${MAXHP}</b> to 0.</p><ul>
+    <li>A coin flip decides who goes first. The other player draws an extra card and gets an <b>Obol of Charon</b> (+1 Favour for one turn).</li>
     <li><b>Favour</b> (the blue number) pays for cards. You get 1 more each turn, up to ${MAXMANA}.</li>
     <li>Tap a card in your hand to play it. Heroes go on your side of the board (max ${BOARD}).</li>
     <li>Heroes can attack from your next turn. Tap your hero, then tap an enemy hero or the rival's hero bar.</li>
@@ -8873,7 +8974,7 @@ function hub(){
   return `<div class="tgbar"><h2>Amphora TCG</h2><button class="tgb" data-tcg="home">⌂ Home</button></div>
     <div class="tgp" style="text-align:center"><div style="font-size:15px;color:var(--ink-soft)">Early preview · your record</div><div style="font:700 22px var(--f-px)">${rec.w} W · ${rec.l} L</div></div>
     <div class="tgmenu">
-      <button class="hmb" data-tcg="play"><span class="ic">⚔</span><span><b>${M&&!M.over?"Continue match":"Play vs Rival"}</b><small>Battle a computer opponent with your deck.</small></span></button>
+      <button class="hmb" data-tcg="play"><span class="ic">⚔</span><span><b>${M&&!M.over?"Continue match":"Play vs Rival"}</b><small>${M&&!M.over?`Your ${(DIFF[M.diff]||DIFF.normal).n} match is waiting.`:"Pick Easy, Normal or Hard and battle a computer opponent."}</small></span></button>
       <button class="hmb" data-tcg="deck"><span class="ic">🂠</span><span><b>Your deck</b><small>${deck.length} cards, built from the ${own} heroes you own.</small></span></button>
       <button class="hmb" data-tcg="cards"><span class="ic">🏺</span><span><b>Card collection</b><small>Every hero as a card. Locked ones are summoned in Idle.</small></span></button>
       <button class="hmb" data-tcg="rules"><span class="ic">?</span><span><b>How to play</b><small>The rules in one minute.</small></span></button>
@@ -8886,8 +8987,8 @@ function board(){
   const aiming=!!(selU||selS);
   const tOk=t=>selS?true:selU?canHit(a,t):false;
   const hb=(s,mine)=>`<div class="hb ${!mine&&aiming&&tOk("face")?"tgt":""}" ${!mine?'data-tcg="face"':""}><span>${mine?"🛡 You":"👑 Rival"}</span><span class="mana">◆ ${s.mana}/${s.max}</span><span>🂠 ${s.deck.length}${mine?"":" · ✋ "+s.hand.length}</span><span class="hp ${s.hp<=6?"low":""}">♥ ${Math.max(0,s.hp)}</span></div>`;
-  const over=M.over?`<div class="tgp tgover">${M.over==="win"?"Victory! 🏆":"Defeat…"}<div style="margin-top:10px;display:flex;gap:8px;justify-content:center"><button class="tgb pri" data-tcg="again">Play again</button><button class="tgb" data-tcg="hub">Menu</button></div></div>`:"";
-  return `<div class="tgbar"><button class="tgb" data-tcg="hub">☰ Menu</button><span style="font-family:var(--f-display);font-weight:700">Turn ${M.n}</span><button class="tgb" data-tcg="home">⌂ Home</button></div>
+  const over=M.over?`<div class="tgp tgover">${M.over==="win"?"Victory! 🏆":"Defeat…"}<div style="margin-top:10px;display:flex;gap:8px;justify-content:center"><button class="tgb pri" data-tcg="again">Play again</button><button class="tgb" data-tcg="play">Change difficulty</button><button class="tgb" data-tcg="hub">Menu</button></div></div>`:"";
+  return `<div class="tgbar"><button class="tgb" data-tcg="hub">☰ Menu</button><span style="font-family:var(--f-display);font-weight:700">Turn ${M.n} · ${(DIFF[M.diff]||DIFF.normal).n}</span><button class="tgb" data-tcg="home">⌂ Home</button></div>
     ${hb(a,false)}
     <div class="row">${a.board.map(u=>cardHtml(u,(aiming&&tOk(u)?"tgt ":"")+(peek===u.uid?"sel":""),`data-tcg="enemy" data-uid="${u.uid}"`,false)).join("")||'<span class="tx" style="color:var(--ink-soft)">Rival\'s side</span>'}</div>
     <div class="mid"><div class="tlog">${M.log.slice(0,3).map(t=>`<div>${t}</div>`).join("")||"<div>Your move.</div>"}</div>
@@ -8905,8 +9006,9 @@ function click(e){
   const b=e.target.closest("[data-tcg]");if(!b)return;const a=b.dataset.tcg;
   if(a==="home"){HOME.show();return;}
   if(["hub","deck","cards","rules"].includes(a)){view=a;sel=null;render();return;}
-  if(a==="play"){peek=null;if(!M||M.over)newMatch();view="match";sel=null;render();return;}
-  if(a==="again"){peek=null;newMatch();sel=null;render();return;}
+  if(a==="play"){peek=null;sel=null;view=M&&!M.over?"match":"diff";render();return;}
+  if(a==="start"){peek=null;sel=null;newMatch(b.dataset.d);view="match";render();return;}
+  if(a==="again"){peek=null;newMatch(M&&M.diff);sel=null;render();return;}
   if((a==="enemy"||a==="mine")&&M&&(M.over||busy||M.turn!=="p")){peek=+b.dataset.uid;render();return;}
   if(!M||M.over||busy||M.turn!=="p")return;
   const p=M.p,o=M.a;

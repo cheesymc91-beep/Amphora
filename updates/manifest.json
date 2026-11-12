@@ -1,7 +1,7 @@
 {
- "version": "1.12.0",
+ "version": "1.13.0",
  "shell": "1.1.0",
- "notes": "TCG update: every mage, healer and support hero now has its own unique ability (no two the same), from Medusa's stone gaze to Poseidon's tidal wave. Cards are bigger and easier to read, with clear type labels (Tank, Striker, Mage, Healer, Support, Warrior, Guard, Swift). Tap any hero on the board to read its full card.",
+ "notes": "TCG: choose Easy, Normal or Hard. The rival now thinks through every move and saves its abilities for the right moment instead of wasting them; Hard also looks two moves ahead and brings rarer cards. A coin flip now decides who goes first, and the second player gets an Obol of Charon (+1 Favour once).",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -11,7 +11,7 @@
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
   "index.html": "857d71226edeef918f488a4155e7d3d4a837e1d21b0be9154d66c616a65f32c2",
-  "js/marginalia.js": "56f5a470211196ecd29868a2f70085ea8aa56b13b7cd45b342f0214ee34cbbc7"
+  "js/marginalia.js": "178ccc30d331bc0b7751236b3dd099e8d7b9900ee8d8c525934e28ede692a152"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
