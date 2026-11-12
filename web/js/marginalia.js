@@ -8957,7 +8957,8 @@ const css=`
 .tgb:hover:not(:disabled){border-color:var(--gold)}.tgb.ghost{background:transparent}
 .tgb.pri{background:var(--rubric);color:#fff;border-color:var(--rubric)}.tgb.gold{background:linear-gradient(#e8c060,#c9973c);color:#2a1a06;border-color:#a8781c}.tgb:disabled{opacity:.45;cursor:default}
 .tgp{background:var(--sheet);border:1px solid var(--rule-hi);padding:14px 18px;border-radius:10px;font-size:17px;line-height:1.45}
-.tsoft{color:var(--ink-soft)}.row2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tsoft{color:var(--ink-soft)}
+.treset{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;padding-top:12px;border-top:1px solid var(--rule-hi);font-size:14px}.row2{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 /* hub */
 .hubhero{display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(120deg,#3a2414,#6a3a1c 60%,#8a5a24);color:#f6ead0;border-radius:14px;padding:18px 22px;overflow:hidden;min-height:150px}
 .hhk{font:700 12px var(--f-px);letter-spacing:.08em;text-transform:uppercase;opacity:.75}.hhr{font-family:var(--f-display);font-size:28px}.hhr small{font-size:15px;opacity:.8}
@@ -9219,7 +9220,10 @@ function hub(){
     <button class="tile" data-tcg="cards"><span class="ti">🏺</span><b>Collection</b><small>Every card and printing you own.</small></button>
     <button class="tile" data-tcg="deck"><span class="ti">🂠</span><b>Deck</b><small>${deckOk(rec.deck)?"Your own 20 cards.":"Built for you. Make your own."}</small></button>
     <button class="tile" data-tcg="rules"><span class="ti">?</span><b>How to play</b><small>The rules in one minute.</small></button>
-  </div>`;}
+  </div>
+  <div class="treset"><span class="tsoft">${tReset>Date.now()?"This erases your TCG record, cards, alternate arts, Obols, packs and deck. Idle mode is not touched. It cannot be undone.":"Start the TCG over from the very beginning."}</span>
+    <button class="tgb ${tReset>Date.now()?"pri":""}" data-tcg="tcgreset">${tReset>Date.now()?"Tap again to erase everything":"Reset TCG progress"}</button></div>`;}
+let tReset=0;
 function packsView(){
   if(PK){const all=PK.flip.length===PK.cards.length;
     if(!PK.torn)return `<div class="pkstage"><div class="pkhint">Tap the pack to open it</div><button class="pack" data-tcg="tear"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></button></div>`;
@@ -9356,6 +9360,10 @@ function click(e){
   const pv=document.getElementById("tpv");
   const b=e.target.closest("[data-tcg]");if(!b){if(pv)pv.hidden=true;return;}const a=b.dataset.tcg;
   if(a==="home"){HOME.show();return;}
+  if(a==="tcgreset"){if(tReset>Date.now()){tReset=0;try{localStorage.removeItem(KEY);}catch(e){}
+      for(const k of Object.keys(rec))delete rec[k];Object.assign(rec,{w:0,l:0,d:{},ob:100,packs:3,col:{},alt:{},pr:{},gift:1,spv:1});saveRec();
+      M=null;PK=null;dk=null;sel=null;busy=false;printPick=null;tab="hub";render();toast("TCG progress reset. Your starter deck and 3 packs are waiting.");}
+    else{tReset=Date.now()+5000;render();setTimeout(()=>{if(tab==="hub")render();},5100);}return;}
   if(["hub","packs","cards","deck","rules"].includes(a)){if(a!=="deck")dk=null;tab=a;sel=null;printPick=null;render();return;}
   if(a==="play"){peek=null;sel=null;tab=M&&!M.over?"match":"diff";render();return;}
   if(a==="start"){sel=null;newMatch(b.dataset.d);tab="match";render();return;}
@@ -9368,7 +9376,6 @@ function click(e){
   if(a==="flip"||a==="flipall"){const idx=a==="flip"?[+b.dataset.i]:PK.cards.map((_,i)=>i);let best=-1,charged=false;
     idx.forEach(i=>{if(PK.flip.includes(i))return;const x=PK.cards[i];
       if(bigPull(x)&&!PK.ch.includes(i)){PK.ch.push(i);charged=true;return;}
-      if(a==="flipall"&&bigPull(x))return;
       PK.flip.push(i);best=Math.max(best,x.alt?Math.max(4,x.q):x.q);});
     if(charged)snd("charge");else if(best>=0)snd(best>=4?"star":best>=3?"reveal":"page");render();return;}
   if(a==="pkdone"){PK=null;render();return;}
