@@ -9158,7 +9158,8 @@ function rollSpell(){const q=wpick(SPELL_W()),pool=SPELLS.filter(s=>s.q===q&&!ST
 function rollPack(){
   return SLOT_W.map((w,si)=>{if(si<4&&Math.random()<SPELL_CH)return rollSpell();
     const q=wpick(w),pool=HEROES.filter(h=>h.q===q);const h=pool[Math.floor(Math.random()*pool.length)];
-    let alt=null;if(typeof SKINS!=="undefined"&&Math.random()<ALT_CH){const t=wpick(ALT_W);if(SKINS[h.id+"_"+(t+1)])alt=h.id+"_"+(t+1);}
+    /* 1.14.4: an alternate art only drops for a hero card you have already unlocked */
+    let alt=null;if(typeof SKINS!=="undefined"&&baseOwned(h.id)&&Math.random()<ALT_CH){const t=wpick(ALT_W);if(SKINS[h.id+"_"+(t+1)])alt=h.id+"_"+(t+1);}
     const isNew=alt?!rec.alt[alt]:!baseOwned(h.id);let melt=0;
     if(alt)rec.alt[alt]=(rec.alt[alt]||0)+1;
     else if((rec.col[h.id]||0)>=COPIES+1){melt=MELT;rec.ob+=MELT;}
@@ -9230,7 +9231,7 @@ function packsView(){
   return `${topbar("Packs","hub")}
     <div class="shop"><div class="pack still"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></div>
     <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 cards, and each of the first four has a ${Math.round(SPELL_CH*100)}% chance to be a <b>spell</b> instead of a hero. Heroes are as rare as in the Temple in Idle mode (but Demigods and up are 2 to 4 times as likely), and the fifth card is always Legendary or better.
-      Any card can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
+      Any hero card you have <b>already unlocked</b> can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
       <p class="tsoft">Per card: ${QN.map((n,q)=>SLOT_W[0][q]?`${n} ${slotPct(SLOT_W[0],q)}%`:"").filter(Boolean).join(" · ")}<br>Fifth card: ${QN.map((n,q)=>SLOT_W[4][q]?`${n} ${slotPct(SLOT_W[4],q)}%`:"").filter(Boolean).join(" · ")}<br>A third copy of a card you already have turns into ${MELT} 🪙.</p>
       <div class="row2"><button class="tgb pri" data-tcg="openpk" ${rec.packs?"":"disabled"}>Open a pack${rec.packs?` (${rec.packs})`:""}</button>
       <button class="tgb gold" data-tcg="buypk" ${rec.ob<PACK_COST?"disabled":""}>Buy a pack · ${PACK_COST} 🪙</button></div>
