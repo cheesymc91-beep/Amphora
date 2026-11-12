@@ -1,7 +1,7 @@
 {
- "version": "1.14.4",
+ "version": "1.14.5",
  "shell": "1.1.0",
- "notes": "TCG: alternate arts now only drop for hero cards you have already unlocked.",
+ "notes": "TCG is now its own game: heroes you own in Idle mode no longer count as TCG cards. Your TCG cards are the free starter deck (the Mortals plus Bolt of Zeus, Ambrosia and Gift of the Muses) and whatever you pull from packs. Alternate arts only drop for cards already in your TCG collection, and the rival's strength follows your TCG collection.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "3cb2147f24d0ea806cc309c8e29c7e5429ec295810af4fb0f712863871eae1ef",
-  "js/marginalia.js": "070a97a765aff3cb79982a39337e00d20e664d8781ac473bbb33ccd36de8e258"
+  "index.html": "3aa5fed4201587160ab46699bf22b4f81fbff604cdf6069f959e3d72f0ec5d14",
+  "js/marginalia.js": "1530f45da7a6a70afb75947a4c3e069073cad52b882d9d1c4a3857f5e99dc8b0"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

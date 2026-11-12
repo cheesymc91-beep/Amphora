@@ -8686,15 +8686,17 @@ const PEGASUS={id:"pegasus",t:"unit",n:"Pegasus",q:2,el:"gold",cost:3,atk:3,hp:2
 const COIN={id:"sp_coin",t:"spell",n:"Obol of Charon",cost:0,el:"iron",q:0,fx:{k:"coin",v:1},txt:"Gain 1 Favour this turn only. The player who goes second gets one."};
 const SPELL=Object.fromEntries(SPELLS.concat([COIN]).map(s=>[s.id,s]));
 const cardOf=id=>id==="pegasus"?Object.assign({},PEGASUS):id==="pig"?Object.assign({},PIG):SPELL[id]?Object.assign({},SPELL[id]):heroCard(HERO[id]);
-const owned=()=>HEROES.filter(h=>G&&G.heroes&&G.heroes[h.id]);
+/* 1.14.5: the TCG is its own game. Nothing you own in Idle mode counts here: your cards are the free Mortal
+   starters, the starter spells, and whatever you pull from packs. */
+const owned=()=>HEROES.filter(h=>(rec.col[h.id]||0)>0);
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
-/* Your deck: 20 cards. Heroes you own in Idle mode (up to 2 copies, cheap ones first for a sensible curve), topped up with
+/* Your deck: 20 cards. Heroes from your TCG collection (up to 2 copies, cheap ones first for a sensible curve), topped up with
    free Mortal starters, plus 2 of each spell. */
-/* how many copies of a card you can put in a deck (max 2). Mortals are free for everyone; any hero you own in Idle counts as 2 copies. */
+/* how many copies of a card you can put in a deck (max 2). Mortals are free for everyone; other heroes come from packs. */
 const DECK=20,COPIES=2;
 /* 1.14.3: spells come from packs too. Everyone starts with the three starter spells (2 of each). */
 const STARTER_SP=["sp_bolt","sp_ambrosia","sp_muse"];
-const copies=id=>SPELL[id]?(STARTER_SP.includes(id)?COPIES:Math.min(COPIES,rec.col[id]||0)):!HERO[id]?0:Math.min(COPIES,Math.max(rec.col[id]||0,HERO[id].q===0||(G&&G.heroes&&G.heroes[id])?COPIES:0));
+const copies=id=>SPELL[id]?(STARTER_SP.includes(id)?COPIES:Math.min(COPIES,rec.col[id]||0)):!HERO[id]?0:Math.min(COPIES,Math.max(rec.col[id]||0,HERO[id].q===0?COPIES:0));
 const ownedIds=()=>HEROES.filter(h=>copies(h.id)>0).map(h=>h.id);
 /* auto-build: a sensible cost curve from what you own, abilities preferred, plus 2 of each spell */
 function autoDeck(){
@@ -9231,7 +9233,7 @@ function packsView(){
   return `${topbar("Packs","hub")}
     <div class="shop"><div class="pack still"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></div>
     <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 cards, and each of the first four has a ${Math.round(SPELL_CH*100)}% chance to be a <b>spell</b> instead of a hero. Heroes are as rare as in the Temple in Idle mode (but Demigods and up are 2 to 4 times as likely), and the fifth card is always Legendary or better.
-      Any hero card you have <b>already unlocked</b> can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
+      Any hero card already in your TCG collection (from a pack, or a free Mortal starter) can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
       <p class="tsoft">Per card: ${QN.map((n,q)=>SLOT_W[0][q]?`${n} ${slotPct(SLOT_W[0],q)}%`:"").filter(Boolean).join(" · ")}<br>Fifth card: ${QN.map((n,q)=>SLOT_W[4][q]?`${n} ${slotPct(SLOT_W[4],q)}%`:"").filter(Boolean).join(" · ")}<br>A third copy of a card you already have turns into ${MELT} 🪙.</p>
       <div class="row2"><button class="tgb pri" data-tcg="openpk" ${rec.packs?"":"disabled"}>Open a pack${rec.packs?` (${rec.packs})`:""}</button>
       <button class="tgb gold" data-tcg="buypk" ${rec.ob<PACK_COST?"disabled":""}>Buy a pack · ${PACK_COST} 🪙</button></div>
