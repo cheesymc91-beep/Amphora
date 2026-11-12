@@ -9041,9 +9041,8 @@ const css=`
 .pkhint{color:#f6e2b0;font-family:var(--f-display);font-size:22px;text-align:center}
 .pkstage .pack{width:220px;height:320px;animation:foil 4s ease-in-out infinite,bob 2.4s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-8px) rotate(-1deg)}}
-.pack.tearing{animation:shake .12s linear 5,tear .4s .55s ease-in forwards}
-@keyframes shake{25%{transform:translate(-4px,2px) rotate(-2deg)}75%{transform:translate(4px,-2px) rotate(2deg)}}
-@keyframes tear{to{transform:scale(1.3);opacity:0;filter:brightness(3)}}
+.pack.tearing{animation:ttear .6s ease-in forwards}
+@keyframes ttear{60%{transform:scale(1.08);filter:brightness(1.6)}to{transform:scale(1.25);opacity:0;filter:brightness(3)}}
 .pkcards{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;max-width:960px}
 .tflip{width:150px;height:213px;perspective:900px;cursor:pointer;animation:deal .45s var(--d) both}
 @keyframes deal{from{opacity:0;transform:translateY(80px) scale(.6) rotate(-10deg)}}
@@ -9052,17 +9051,22 @@ const css=`
 .pkcards.nodeal .tflip:not(.charge){animation:none}
 .tflip.jf .fin{animation:tflipin .6s ease-in-out}
 @keyframes tflipin{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
-.tflip.charge{animation:tchg 1.2s ease-in-out infinite;z-index:3}.tflip.charge .fback span{animation:tgp .8s ease-in-out infinite}
-@keyframes tchg{0%,100%{transform:translateY(-8px) scale(1.04)}50%{transform:translateY(-12px) scale(1.05)}}
+.tflip.charge{animation:none;z-index:3}.tflip.charge .fback{animation:tglow 1.4s ease-in-out infinite}
+@keyframes tglow{50%{filter:brightness(1.25)}}
 .fback,.ffront{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .ffront{transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;gap:14px}
 .fback{border-radius:12px;background:repeating-linear-gradient(45deg,#7a1a10 0 8px,#8a2a14 8px 16px);border:4px solid #e8c060;display:grid;place-items:center;font-family:var(--f-display);font-size:64px;color:#f6d880;box-shadow:0 6px 16px rgba(0,0,0,.5)}
-.tflip.charge.glow3 .fback{box-shadow:0 0 26px #2fd0b8,0 0 50px #2fd0b8}.tflip.charge.glow4 .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ffd34d}.tflip.charge.glow5 .fback{box-shadow:0 0 36px #ff60e0,0 0 70px #fff}.tflip.charge.glow6 .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ff60e0,0 0 100px #60e0ff}
+.tflip.charge.glow3 .fback{box-shadow:0 0 0 3px #f0b020,0 0 30px #f0b020,0 0 60px #f0b020}
+.tflip.charge.glow4 .fback{box-shadow:0 0 0 3px #20c8b8,0 0 30px #20c8b8,0 0 60px #d050c0}
+.tflip.charge.glow5 .fback{box-shadow:0 0 0 3px #fff,0 0 30px #ff5e7a,0 0 55px #4dc3ff,0 0 80px #ffe066}
+.tflip.charge.glow6 .fback{box-shadow:0 0 0 3px #fffbe8,0 0 30px #f0c040,0 0 70px #fffbe8,0 0 100px #f0c040}
 
-.tflip.charge.galt.at0 .fback{box-shadow:0 0 18px #d8d8e0}.tflip.charge.galt.at1 .fback{box-shadow:0 0 26px #6fb0ff}
-.tflip.charge.galt.at2 .fback{box-shadow:0 0 30px #c070ff,0 0 50px #8040e0}.tflip.charge.galt.at3 .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ff80e0,0 0 90px #80e0ff}
+.tflip.charge.galt.at0 .fback{box-shadow:0 0 0 3px #e4e4ea,0 0 26px #e4e4ea}.tflip.charge.galt.at1 .fback{box-shadow:0 0 0 3px #6fb0ff,0 0 30px #6fb0ff}
+.tflip.charge.galt.at2 .fback{box-shadow:0 0 0 3px #b070ff,0 0 30px #b070ff,0 0 55px #b070ff}.tflip.charge.galt.at3 .fback{box-shadow:0 0 0 3px #fff,0 0 30px #ffd34d,0 0 60px #ff80e0,0 0 90px #80e0ff}
 .ftag b.altb.at0{background:#e4e4ea}.ftag b.altb.at1{background:#9cc8ff}.ftag b.altb.at2{background:#d0a0ff}.ftag b.altb.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
-.altodd{font-weight:700;padding:1px 6px;border-radius:8px;color:#2a1a06;white-space:nowrap}.altodd.at0{background:#e4e4ea}.altodd.at1{background:#9cc8ff}.altodd.at2{background:#d0a0ff}.altodd.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
+.altodd{font-weight:700;padding:1px 6px;border-radius:8px;color:#2a1a06;white-space:nowrap;display:inline-block;margin:1px 0}.altodd.at0{background:#e4e4ea}.altodd.at1{background:#6fb0ff}.altodd.at2{background:#b070ff;color:#fff}.altodd.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
+.altodd.rq0,.altodd.rq1,.altodd.rq2{background:rgba(127,127,127,.18);color:inherit}.altodd.rq3{background:#f0b020}.altodd.rq4{background:linear-gradient(90deg,#20c8b8,#d050c0);color:#fff}.altodd.rq5{background:linear-gradient(90deg,#ff5e7a,#ffe066,#4dc3ff)}.altodd.rq6{background:linear-gradient(90deg,#f0c040,#fffbe8,#f0c040)}
+.ftag b.altb.at1{background:#6fb0ff}.ftag b.altb.at2{background:#b070ff;color:#fff}
 .ftag{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.ftag b{font:700 12px var(--f-px);background:#f6e2b0;color:#2a1a06;padding:3px 8px;border-radius:10px}.ftag b.new{background:#ffd34d}.ftag b.altb{background:linear-gradient(90deg,#ff80e0,#80e0ff);color:#1a0a1a}
 .pkbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:30px}
 /* the match table */
@@ -9225,16 +9229,16 @@ function hub(){
     <button class="tile" data-tcg="deck"><span class="ti">🂠</span><b>Deck</b><small>${deckOk(rec.deck)?"Your own 20 cards.":"Built for you. Make your own."}</small></button>
     <button class="tile" data-tcg="rules"><span class="ti">?</span><b>How to play</b><small>The rules in one minute.</small></button>
   </div>
-  <div class="treset"><span class="tsoft">${tReset>Date.now()?"This erases your TCG record, cards, alternate arts, Obols, packs and deck. Idle mode is not touched. It cannot be undone.":"Start the TCG over from the very beginning."}</span>
+  <div class="treset"><span class="tsoft"><small style="opacity:.7">Version ${TCG_VER} · </small>${tReset>Date.now()?"This erases your TCG record, cards, alternate arts, Obols, packs and deck. Idle mode is not touched. It cannot be undone.":"Start the TCG over from the very beginning."}</span>
     <button class="tgb ${tReset>Date.now()?"pri":""}" data-tcg="tcgreset">${tReset>Date.now()?"Tap again to erase everything":"Reset TCG progress"}</button></div>`;}
-let tReset=0;
+let tReset=0;const TCG_VER="1.14.9";
 function packsView(){
   if(PK){const all=PK.flip.length===PK.cards.length;
     if(!PK.torn)return `<div class="pkstage"><div class="pkhint">Tap the pack to open it</div><button class="pack" data-tcg="tear"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></button></div>`;
     return `<div class="pkstage open"><div class="pkhint">${all?"Your new cards":PK.ch.some(i=>!PK.flip.includes(i))?"Something rare is shining! Tap it again to reveal it":"Tap a card to turn it over"}</div>
       <div class="pkcards ${PK.dealt?"nodeal":""}">${PK.cards.map((x,i)=>{const c=cardOf(x.id);if(x.alt)c.pr=x.alt;const f=PK.flip.includes(i),alt=x.alt&&SKINS[x.alt];
         const chg=!f&&PK.ch.includes(i),jf=(PK.jf||[]).includes(i);
-        return `<div class="tflip ${f?"on":""} ${jf?"jf":""} ${chg?"charge glow"+x.q:""} ${chg&&alt?"galt at"+alt.tier:""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
+        return `<div class="tflip ${f?"on":""} ${jf?"jf":""} ${chg?(alt?"charge galt at"+alt.tier:"charge glow"+x.q):""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
           ${f?`<div class="ftag">${x.isNew?`<b class="new">NEW</b>`:x.melt?`<b>+${x.melt} 🪙</b>`:"<b>+1 copy</b>"}${alt?`<b class="altb at${alt.tier}">${ALT_T[alt.tier]} alt art</b>`:""}</div>`:""}</div></div></div>`;}).join("")}</div>
       <div class="pkbtns">${all?"":`<button class="tgb" data-tcg="flipall">${PK.cards.some((x,i)=>!PK.flip.includes(i)&&!PK.ch.includes(i))?"Turn all over":"Reveal the rest"}</button>`}
         ${all&&rec.packs?`<button class="tgb pri" data-tcg="openpk">Open another (${rec.packs} left)</button>`:""}${all?`<button class="tgb" data-tcg="pkdone">Done</button>`:""}</div></div>`;}
@@ -9242,7 +9246,7 @@ function packsView(){
     <div class="shop"><div class="pack still"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></div>
     <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 cards, and each of the first four has a ${Math.round(SPELL_CH*100)}% chance to be a <b>spell</b> instead of a hero. Heroes are as rare as in the Temple in Idle mode (but Demigods and up are 2 to 4 times as likely), and the fifth card is always Legendary or better.
       Any hero card already in your TCG collection (from a pack, or a free Mortal starter) can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
-      <p class="tsoft">Per card: ${QN.map((n,q)=>SLOT_W[0][q]?`${n} ${slotPct(SLOT_W[0],q)}%`:"").filter(Boolean).join(" · ")}<br>Fifth card: ${QN.map((n,q)=>SLOT_W[4][q]?`${n} ${slotPct(SLOT_W[4],q)}%`:"").filter(Boolean).join(" · ")}<br>A third copy of a card you already have turns into ${MELT} 🪙.</p>
+      <p class="tsoft">Per card: ${QN.map((n,q)=>SLOT_W[0][q]?`<b class="altodd rq${q}">${n} ${slotPct(SLOT_W[0],q)}%</b>`:"").filter(Boolean).join(" ")}<br>Fifth card: ${QN.map((n,q)=>SLOT_W[4][q]?`<b class="altodd rq${q}">${n} ${slotPct(SLOT_W[4],q)}%</b>`:"").filter(Boolean).join(" ")}<br>Demigods and better, and alternate arts, shine in their colour above when you tap them. Tap again to reveal.<br>A third copy of a card you already have turns into ${MELT} 🪙.</p>
       <div class="row2"><button class="tgb pri" data-tcg="openpk" ${rec.packs?"":"disabled"}>Open a pack${rec.packs?` (${rec.packs})`:""}</button>
       <button class="tgb gold" data-tcg="buypk" ${rec.ob<PACK_COST?"disabled":""}>Buy a pack · ${PACK_COST} 🪙</button></div>
       <p class="tsoft">Earn 🪙 by battling: Easy 25, Normal 40, Hard 60 per win, 10 for a loss, and 50 extra for your first win each day.</p></div></div>`;}
