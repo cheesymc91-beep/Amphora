@@ -8602,6 +8602,7 @@ rec=rec||{w:0,l:0};rec.d=rec.d||{};
    alt = copies of each alternate-art printing (a hero card painted in one of its skins), pr = which printing you play with */
 rec.ob=rec.ob||0;rec.packs=rec.packs||0;rec.col=rec.col||{};rec.alt=rec.alt||{};rec.pr=rec.pr||{};
 if(!rec.gift){rec.gift=1;rec.packs+=3;rec.ob+=100;}
+if(!rec.spv){rec.spv=1;(rec.deck||[]).forEach(id=>{if(/^sp_/.test(id)&&!["sp_bolt","sp_ambrosia","sp_muse"].includes(id))rec.col[id]=Math.max(rec.col[id]||0,2);});}
 const saveRec=()=>{try{localStorage.setItem(KEY,JSON.stringify(rec));}catch(e){}};
 const MAXHP=20,MAXMANA=10,BOARD=5,HAND=8;
 const COST=[1,2,3,4,5,6,7];
@@ -8691,7 +8692,9 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()
    free Mortal starters, plus 2 of each spell. */
 /* how many copies of a card you can put in a deck (max 2). Mortals are free for everyone; any hero you own in Idle counts as 2 copies. */
 const DECK=20,COPIES=2;
-const copies=id=>SPELL[id]?COPIES:!HERO[id]?0:Math.min(COPIES,Math.max(rec.col[id]||0,HERO[id].q===0||(G&&G.heroes&&G.heroes[id])?COPIES:0));
+/* 1.14.3: spells come from packs too. Everyone starts with the three starter spells (2 of each). */
+const STARTER_SP=["sp_bolt","sp_ambrosia","sp_muse"];
+const copies=id=>SPELL[id]?(STARTER_SP.includes(id)?COPIES:Math.min(COPIES,rec.col[id]||0)):!HERO[id]?0:Math.min(COPIES,Math.max(rec.col[id]||0,HERO[id].q===0||(G&&G.heroes&&G.heroes[id])?COPIES:0));
 const ownedIds=()=>HEROES.filter(h=>copies(h.id)>0).map(h=>h.id);
 /* auto-build: a sensible cost curve from what you own, abilities preferred, plus 2 of each spell */
 function autoDeck(){
@@ -8700,10 +8703,10 @@ function autoDeck(){
   Object.keys(want).map(Number).sort((a,b)=>b-a).forEach(c=>{let n=want[c];for(const id of pickFrom(c)){for(let k=0;k<copies(id)&&n>0;k++){ids.push(id);n--;}if(n<=0)break;}});
   const rest=shuffle(pool.slice()).sort((a,b)=>HERO[a].q-HERO[b].q);
   for(const id of rest){while(ids.length<DECK-6&&ids.filter(x=>x===id).length<copies(id))ids.push(id);if(ids.length>=DECK-6)break;}
-  return ids.slice(0,DECK-6).concat(spellPick());
+  return ids.slice(0,DECK-6).concat(spellPick(true));
 }
-/* three different spells, two of each; the Bolt is always one of them */
-const spellPick=()=>{const l=["sp_bolt",...shuffle(SPELLS.filter(x=>x.id!=="sp_bolt").map(x=>x.id)).slice(0,2)];return l.flatMap(x=>[x,x]);};
+/* three different spells, two of each; the Bolt is always one of them. mine = only spells you own (your auto deck) */
+const spellPick=mine=>{const l=["sp_bolt",...shuffle(SPELLS.filter(x=>x.id!=="sp_bolt"&&(!mine||copies(x.id)>=COPIES)).map(x=>x.id)).slice(0,2)];return l.flatMap(x=>[x,x]);};
 const deckOk=d=>Array.isArray(d)&&d.length===DECK&&d.every(id=>d.filter(x=>x===id).length<=copies(id));
 function playerDeck(){return deckOk(rec.deck)?rec.deck.slice():autoDeck();}
 function aiDeck(diff){
@@ -9042,13 +9045,15 @@ const css=`
 @keyframes deal{from{opacity:0;transform:translateY(80px) scale(.6) rotate(-10deg)}}
 .fin{position:relative;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
 .tflip.on .fin{transform:rotateY(180deg)}
+.tflip.charge{animation:tchg .5s ease-in-out infinite;z-index:3}.tflip.charge .fback span{animation:tgp .8s ease-in-out infinite}
+@keyframes tchg{0%,100%{transform:translateY(-10px) rotate(-1.5deg) scale(1.05)}50%{transform:translateY(-14px) rotate(1.5deg) scale(1.07)}}
 .fback,.ffront{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .ffront{transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;gap:14px}
 .fback{border-radius:12px;background:repeating-linear-gradient(45deg,#7a1a10 0 8px,#8a2a14 8px 16px);border:4px solid #e8c060;display:grid;place-items:center;font-family:var(--f-display);font-size:64px;color:#f6d880;box-shadow:0 6px 16px rgba(0,0,0,.5)}
-.tflip.glow3:not(.on) .fback{box-shadow:0 0 22px #2fd0b8}.tflip.glow4:not(.on) .fback{box-shadow:0 0 28px #ffd34d}.tflip.glow5:not(.on) .fback,.tflip.glow6:not(.on) .fback{box-shadow:0 0 36px #ff60e0,0 0 60px #fff;animation:tgp .8s ease-in-out infinite}
-.tflip.galt:not(.on) .fback{box-shadow:0 0 30px #8af0ff,0 0 50px #ff80e0}
-.tflip.galt.at0:not(.on) .fback{box-shadow:0 0 18px #d8d8e0}.tflip.galt.at1:not(.on) .fback{box-shadow:0 0 26px #6fb0ff}
-.tflip.galt.at2:not(.on) .fback{box-shadow:0 0 30px #c070ff,0 0 50px #8040e0}.tflip.galt.at3:not(.on) .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ff80e0,0 0 90px #80e0ff}
+.tflip.charge.glow3 .fback{box-shadow:0 0 26px #2fd0b8,0 0 50px #2fd0b8}.tflip.charge.glow4 .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ffd34d}.tflip.charge.glow5 .fback{box-shadow:0 0 36px #ff60e0,0 0 70px #fff}.tflip.charge.glow6 .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ff60e0,0 0 100px #60e0ff}
+
+.tflip.charge.galt.at0 .fback{box-shadow:0 0 18px #d8d8e0}.tflip.charge.galt.at1 .fback{box-shadow:0 0 26px #6fb0ff}
+.tflip.charge.galt.at2 .fback{box-shadow:0 0 30px #c070ff,0 0 50px #8040e0}.tflip.charge.galt.at3 .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ff80e0,0 0 90px #80e0ff}
 .ftag b.altb.at0{background:#e4e4ea}.ftag b.altb.at1{background:#9cc8ff}.ftag b.altb.at2{background:#d0a0ff}.ftag b.altb.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
 .altodd{font-weight:700;padding:1px 6px;border-radius:8px;color:#2a1a06;white-space:nowrap}.altodd.at0{background:#e4e4ea}.altodd.at1{background:#9cc8ff}.altodd.at2{background:#d0a0ff}.altodd.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
 .ftag{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.ftag b{font:700 12px var(--f-px);background:#f6e2b0;color:#2a1a06;padding:3px 8px;border-radius:10px}.ftag b.new{background:#ffd34d}.ftag b.altb{background:linear-gradient(90deg,#ff80e0,#80e0ff);color:#1a0a1a}
@@ -9144,8 +9149,15 @@ const ALT_W=typeof LOOM_ODDS!=="undefined"?LOOM_ODDS:[58,30,10,2],ALT_CH=.1,ALT_
 const altPct=t=>+(ALT_CH*ALT_W[t]/ALT_W.reduce((a,b)=>a+b,0)*100).toFixed(1);
 const wpick=w=>{let r=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++){if((r-=w[i])<0)return i;}return w.length-1;};
 const baseOwned=id=>copies(id)>0;
+const SPELL_CH=.25;
+const SPELL_W=()=>{const w=HERO_W();return w.map((x,q)=>SPELLS.some(s=>s.q===q&&!STARTER_SP.includes(s.id))?x:0);};
+function rollSpell(){const q=wpick(SPELL_W()),pool=SPELLS.filter(s=>s.q===q&&!STARTER_SP.includes(s.id)),sp=pool[Math.floor(Math.random()*pool.length)];
+  const isNew=!(rec.col[sp.id]>0);let melt=0;
+  if((rec.col[sp.id]||0)>=COPIES+1){melt=MELT;rec.ob+=MELT;}else rec.col[sp.id]=(rec.col[sp.id]||0)+1;
+  return {id:sp.id,q:sp.q,alt:null,isNew,melt,sp:1};}
 function rollPack(){
-  return SLOT_W.map(w=>{const q=wpick(w),pool=HEROES.filter(h=>h.q===q);const h=pool[Math.floor(Math.random()*pool.length)];
+  return SLOT_W.map((w,si)=>{if(si<4&&Math.random()<SPELL_CH)return rollSpell();
+    const q=wpick(w),pool=HEROES.filter(h=>h.q===q);const h=pool[Math.floor(Math.random()*pool.length)];
     let alt=null;if(typeof SKINS!=="undefined"&&Math.random()<ALT_CH){const t=wpick(ALT_W);if(SKINS[h.id+"_"+(t+1)])alt=h.id+"_"+(t+1);}
     const isNew=alt?!rec.alt[alt]:!baseOwned(h.id);let melt=0;
     if(alt)rec.alt[alt]=(rec.alt[alt]||0)+1;
@@ -9154,7 +9166,9 @@ function rollPack(){
     return {id:h.id,q:h.q,alt,isNew,melt};});
 }
 let PK=null;
-function openPack(){if(rec.packs<=0)return false;rec.packs--;PK={cards:rollPack(),torn:false,flip:[]};saveRec();return true;}
+function openPack(){if(rec.packs<=0)return false;rec.packs--;PK={cards:rollPack(),torn:false,flip:[],ch:[]};saveRec();return true;}
+/* Demigod or better, and every alternate art, shine in their rarity's colour on the first tap; the second tap turns them over */
+const bigPull=x=>x.q>=3||!!x.alt;
 /* ---- card art: the hero's picture (3D or painted), or the skin it was printed in ---- */
 function artImg(c){
   if(c.t==="spell")return `<div class="cbig">${c.ic||{sp_bolt:"⚡",sp_ambrosia:"🍯",sp_muse:"🎶",sp_coin:"🪙"}[c.id]||"✦"}</div>`;
@@ -9194,7 +9208,7 @@ function hub(){
   const live=M&&!M.over;
   return `${topbar("Amphora TCG")}
   <div class="hubhero"><div class="hhl"><div class="hhk">Your record</div><div class="hhr">${rec.w} <small>wins</small> · ${rec.l} <small>losses</small></div>
-    <div class="hhk" style="margin-top:6px">Collection</div><div class="hhr" style="font-size:20px">${own}/${tot} heroes · ${alts}/${altTot} alternate arts</div></div>
+    <div class="hhk" style="margin-top:6px">Collection</div><div class="hhr" style="font-size:20px">${own}/${tot} heroes · ${SPELLS.filter(x=>copies(x.id)>0).length}/${SPELLS.length} spells · ${alts}/${altTot} alternate arts</div></div>
     <div class="hhp">${["aion","athena","phoenix"].map((k,i)=>`<div class="hfan" style="--i:${i}">${cardHtml(cardOf(k),{mini:true})}</div>`).join("")}</div></div>
   <div class="tiles">
     <button class="tile wide" data-tcg="play"><span class="ti">⚔</span><b>${live?"Continue match":"Battle"}</b><small>${live?`Your ${(DIFF[M.diff]||DIFF.normal).n} match is waiting.`:"Duel a rival on Easy, Normal or Hard. Win Obols."}</small></button>
@@ -9206,15 +9220,16 @@ function hub(){
 function packsView(){
   if(PK){const all=PK.flip.length===PK.cards.length;
     if(!PK.torn)return `<div class="pkstage"><div class="pkhint">Tap the pack to open it</div><button class="pack" data-tcg="tear"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></button></div>`;
-    return `<div class="pkstage open"><div class="pkhint">${all?"Your new cards":"Tap a card to turn it over"}</div>
+    return `<div class="pkstage open"><div class="pkhint">${all?"Your new cards":PK.ch.some(i=>!PK.flip.includes(i))?"Something rare is shining! Tap it again to reveal it":"Tap a card to turn it over"}</div>
       <div class="pkcards">${PK.cards.map((x,i)=>{const c=cardOf(x.id);if(x.alt)c.pr=x.alt;const f=PK.flip.includes(i),alt=x.alt&&SKINS[x.alt];
-        return `<div class="tflip ${f?"on":""} glow${x.q} ${alt?"galt at"+alt.tier:""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
+        const chg=!f&&PK.ch.includes(i);
+        return `<div class="tflip ${f?"on":""} ${chg?"charge glow"+x.q:""} ${chg&&alt?"galt at"+alt.tier:""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
           ${f?`<div class="ftag">${x.isNew?`<b class="new">NEW</b>`:x.melt?`<b>+${x.melt} 🪙</b>`:"<b>+1 copy</b>"}${alt?`<b class="altb at${alt.tier}">${ALT_T[alt.tier]} alt art</b>`:""}</div>`:""}</div></div></div>`;}).join("")}</div>
-      <div class="pkbtns">${all?"":`<button class="tgb" data-tcg="flipall">Turn all over</button>`}
+      <div class="pkbtns">${all?"":`<button class="tgb" data-tcg="flipall">${PK.cards.some((x,i)=>!PK.flip.includes(i)&&!PK.ch.includes(i))?"Turn all over":"Reveal the rest"}</button>`}
         ${all&&rec.packs?`<button class="tgb pri" data-tcg="openpk">Open another (${rec.packs} left)</button>`:""}${all?`<button class="tgb" data-tcg="pkdone">Done</button>`:""}</div></div>`;}
   return `${topbar("Packs","hub")}
     <div class="shop"><div class="pack still"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></div>
-    <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 hero cards. Heroes are as rare as in the Temple in Idle mode (but Demigods and up are 2 to 4 times as likely), and the fifth card is always Legendary or better.
+    <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 cards, and each of the first four has a ${Math.round(SPELL_CH*100)}% chance to be a <b>spell</b> instead of a hero. Heroes are as rare as in the Temple in Idle mode (but Demigods and up are 2 to 4 times as likely), and the fifth card is always Legendary or better.
       Any card can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
       <p class="tsoft">Per card: ${QN.map((n,q)=>SLOT_W[0][q]?`${n} ${slotPct(SLOT_W[0],q)}%`:"").filter(Boolean).join(" · ")}<br>Fifth card: ${QN.map((n,q)=>SLOT_W[4][q]?`${n} ${slotPct(SLOT_W[4],q)}%`:"").filter(Boolean).join(" · ")}<br>A third copy of a card you already have turns into ${MELT} 🪙.</p>
       <div class="row2"><button class="tgb pri" data-tcg="openpk" ${rec.packs?"":"disabled"}>Open a pack${rec.packs?` (${rec.packs})`:""}</button>
@@ -9226,7 +9241,7 @@ function collectionView(){
   return `${topbar("Collection","hub")}
     <div class="tchips">${f.map(([k,n])=>`<button class="chipb ${cfilter===k?"on":""}" data-tcg="cf" data-k="${k}">${n}</button>`).join("")}</div>
     <p class="tsoft" style="margin:0 2px">Hover a card to read it (tap on a phone). Cards with alternate arts let you choose which printing you play with.</p>
-    ${cfilter==="spell"?`<p class="tsoft" style="margin:0 2px">Spells are free for everyone: put up to ${COPIES} of each in your deck.</p><div class="grid">${SPELLS.map(c=>`<div class="gcell">${cardHtml(c,{data:`data-pv="c" data-cid="${c.id}"`})}</div>`).join("")}</div>`:""}
+    ${cfilter==="spell"?`<p class="tsoft" style="margin:0 2px">Everyone starts with 2 of Bolt of Zeus, Ambrosia and Gift of the Muses. Other spells come from packs: put up to ${COPIES} of each in your deck.</p><div class="grid">${SPELLS.map(c=>{const n=copies(c.id),k=STARTER_SP.includes(c.id)?COPIES:rec.col[c.id]||0;return `<div class="gcell">${cardHtml(c,{cls:n?"":"tlock",data:`data-pv="c" data-cid="${c.id}"`})}<div class="gsub">${n?`×${k}${STARTER_SP.includes(c.id)?" · starter":""}`:"not found yet"}</div></div>`;}).join("")}</div>`:""}
     <div class="grid">${(cfilter==="spell"?[]:list).map(h=>{const c=cardOf(h.id),own=baseOwned(h.id),p=printOf(h.id);if(p)c.pr=p;const n=Math.max(rec.col[h.id]||0,own?copies(h.id):0),al=heroAlts(h.id);
       return `<div class="gcell">${cardHtml(c,{cls:own?"":"tlock",data:`data-pv="c" data-cid="${h.id}"`})}<div class="gsub">${own?`×${n}`:"not found yet"}${al.length?` · <button class="altbtn" data-tcg="print" data-id="${h.id}">${al.length} alt art${al.length>1?"s":""}</button>`:""}</div></div>`;}).join("")}</div>
     ${printPick?printPanel():""}`;}
@@ -9240,7 +9255,7 @@ function printPanel(){const id=printPick,h=HERO[id];
 function deckView(){
   if(!dk)dk=deckOk(rec.deck)?rec.deck.slice():autoDeck();
   const cnt={};dk.forEach(id=>cnt[id]=(cnt[id]||0)+1);
-  const pool=[...SPELLS.map(s=>s.id),...ownedIds().sort((a,b)=>HERO[a].q-HERO[b].q||HERO[a].n.localeCompare(HERO[b].n))];
+  const pool=[...SPELLS.filter(x=>copies(x.id)>0).map(x=>x.id),...ownedIds().sort((a,b)=>HERO[a].q-HERO[b].q||HERO[a].n.localeCompare(HERO[b].n))];
   const sorted=Object.keys(cnt).sort((a,b)=>cardOfP(a).cost-cardOfP(b).cost||cardOfP(a).n.localeCompare(cardOfP(b).n));
   const curve=[1,2,3,4,5,6,7].map(c=>dk.filter(id=>cardOf(id).cost===c).length);
   return `${topbar("Deck","hub")}
@@ -9347,9 +9362,12 @@ function click(e){
   if(a==="buypk"){if(rec.ob<PACK_COST)return;rec.ob-=PACK_COST;rec.packs++;saveRec();snd("coin");render();return;}
   if(a==="openpk"){if(openPack()){tab="packs";render();}return;}
   if(a==="tear"){const pk=b;pk.classList.add("tearing");snd("charge");setTimeout(()=>{PK.torn=true;render();},650);return;}
-  if(a==="flip"||a==="flipall"){const idx=a==="flip"?[+b.dataset.i]:PK.cards.map((_,i)=>i);let best=-1;
-    idx.forEach(i=>{if(!PK.flip.includes(i)){PK.flip.push(i);const x=PK.cards[i];best=Math.max(best,x.alt?Math.max(4,x.q):x.q);}});
-    if(best>=0)snd(best>=4?"star":best>=3?"reveal":"page");render();return;}
+  if(a==="flip"||a==="flipall"){const idx=a==="flip"?[+b.dataset.i]:PK.cards.map((_,i)=>i);let best=-1,charged=false;
+    idx.forEach(i=>{if(PK.flip.includes(i))return;const x=PK.cards[i];
+      if(bigPull(x)&&!PK.ch.includes(i)){PK.ch.push(i);charged=true;return;}
+      if(a==="flipall"&&bigPull(x))return;
+      PK.flip.push(i);best=Math.max(best,x.alt?Math.max(4,x.q):x.q);});
+    if(charged)snd("charge");else if(best>=0)snd(best>=4?"star":best>=3?"reveal":"page");render();return;}
   if(a==="pkdone"){PK=null;render();return;}
   /* collection */
   if(a==="cf"){cfilter=b.dataset.k;render();return;}

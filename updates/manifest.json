@@ -1,7 +1,7 @@
 {
- "version": "1.14.2",
+ "version": "1.14.3",
  "shell": "1.1.0",
- "notes": "TCG: hero cards in packs now follow the Temple odds from Idle mode, with Demigods and up 2 to 4 times as likely (still a bit kinder than the alt-art odds). The fifth card in every pack is Legendary or better. The odds per card are listed on the Packs screen. Fixed white text on white card text boxes in dark mode, and the coin-flip choice now shows properly on big screens.",
+ "notes": "TCG: spells now come from packs. Everyone keeps the starter spells (Bolt of Zeus, Ambrosia, Gift of the Muses), and each of the first four cards in a pack has a 25% chance to be a spell. Rarer spells are rarer pulls. Spells you already put in a saved deck stay unlocked. Opening packs: Demigods and better, and every alternate art, now shine in their rarity's colour when you tap them, and you tap once more to reveal them.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "a4abdb5fb9bdc7e691f910e8ea73a5c3f5766bbfa892a0210f1640cb963bf659",
-  "js/marginalia.js": "2d34bf19f073967d4e35dd0c954e894dc1a8aad24d8a907e43381808a9eafc73"
+  "index.html": "55c761196611a200a964a5738cf43ef14f339c3038a7dc2196ebc9d9538e00f7",
+  "js/marginalia.js": "acc90dc7bc742e5caa259710aad1906e074617b4074f03f6e1cb61ac498856bc"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
