@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The game window: core events only. The game is served by the app itself (amphora:// protocol).",
+  "windows": ["main"],
+  "remote": {
+    "urls": ["http://amphora.localhost/*", "https://amphora.localhost/*", "amphora://localhost/*"]
+  },
+  "permissions": ["core:default"]
+}

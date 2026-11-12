@@ -1,0 +1,116 @@
+name: Build desktop app (Tauri)
+
+# Builds the new, smaller Amphora desktop app (Tauri) for Windows and Mac, checks that it starts and loads
+# the game, and attaches the installers to the "app-v<version>" release (a pre-release until it is promoted).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["tauri/**", ".github/workflows/build-app.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-app
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: macos-15
+            name: mac
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Rust targets (Mac builds one app for Apple Silicon and Intel)
+        if: matrix.name == 'mac'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tauri/src-tauri
+          key: ${{ matrix.name }}
+
+      - name: Bundle the current game
+        run: |
+          set -euo pipefail
+          rm -rf tauri/src-tauri/game
+          cp -R updates/game tauri/src-tauri/game
+          GV=$(node -p "require('./updates/manifest.json').version")
+          AV=$(node -p "require('./tauri/src-tauri/tauri.conf.json').version")
+          printf '%s' "$GV" > tauri/src-tauri/game-version.txt
+          echo "GV=$GV" >> "$GITHUB_ENV"; echo "AV=$AV" >> "$GITHUB_ENV"
+          echo "App $AV with game $GV"
+
+      - name: Icons
+        working-directory: tauri
+        run: npx --yes @tauri-apps/cli@2 icon ../desktop/icon.png -o src-tauri/icons
+
+      - name: Build (Windows)
+        if: matrix.name == 'windows'
+        working-directory: tauri
+        run: npx --yes @tauri-apps/cli@2 build --bundles nsis
+
+      - name: Build (Mac)
+        if: matrix.name == 'mac'
+        working-directory: tauri
+        run: npx --yes @tauri-apps/cli@2 build --bundles app,dmg --target universal-apple-darwin
+
+      - name: Smoke test (the app starts, shows the game and can talk to the page)
+        run: |
+          set -uo pipefail
+          if [ "${{ matrix.name }}" = windows ]; then
+            EXE=tauri/src-tauri/target/release/amphora.exe; D="$APPDATA/Amphora"
+          else
+            EXE=$(ls -d tauri/src-tauri/target/universal-apple-darwin/release/bundle/macos/Amphora.app)/Contents/MacOS/amphora; D="$HOME/Library/Application Support/Amphora"
+          fi
+          rm -f "$D/smoke.txt"
+          AMPHORA_SMOKE=1 "$EXE" > run.log 2>&1 &
+          PID=$!
+          for i in $(seq 1 90); do [ -f "$D/smoke.txt" ] && break; sleep 1; done
+          kill $PID 2>/dev/null || true
+          echo "--- update.log"; cat "$D/update.log" 2>/dev/null || true
+          echo "--- stdout"; cat run.log || true
+          echo "--- smoke"; cat "$D/smoke.txt" 2>/dev/null || { echo "::error::The app did not report that the game loaded"; exit 1; }
+          grep -q "ok=true" "$D/smoke.txt" || { echo "::error::The game page did not load properly"; exit 1; }
+          grep -q "tauri=true" "$D/smoke.txt" || { echo "::error::The page could not talk to the app"; exit 1; }
+
+      - name: Collect the installer
+        run: |
+          set -euo pipefail
+          mkdir out
+          if [ "${{ matrix.name }}" = windows ]; then
+            cp tauri/src-tauri/target/release/bundle/nsis/*-setup.exe "out/Amphora-Setup-$AV.exe"
+          else
+            cp tauri/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg "out/Amphora-Mac-$AV.dmg"
+          fi
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amphora-${{ matrix.name }}
+          path: out/*
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="app-v$AV"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --prerelease --title "Amphora app $AV" \
+            --notes "The new, smaller Amphora desktop app (about 10 MB instead of 190 MB). Same game, same updates." || sleep 5
+          gh release upload "$TAG" out/* --clobber

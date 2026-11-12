@@ -1,0 +1,37 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Amphora",
+  "version": "2.0.0",
+  "identifier": "com.amphora.game",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "dmg"],
+    "publisher": "Amphora",
+    "category": "Game",
+    "shortDescription": "An idle gacha game of Greek myth",
+    "longDescription": "Summon marble heroes, build a team of five, fight turn-based battles across the lands of legend, and play the Amphora trading card game.",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "resources": ["game/**/*", "game-version.txt"],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": false
+      }
+    },
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "11.0"
+    }
+  }
+}
