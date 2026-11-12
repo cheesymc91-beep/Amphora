@@ -1,7 +1,7 @@
 {
- "version": "1.14.6",
+ "version": "1.14.7",
  "shell": "1.1.0",
- "notes": "TCG: a Reset TCG progress button at the bottom of the TCG menu (tap twice, like Idle mode). It erases only the TCG and gives you the starter deck, 3 packs and 100 Obols again. Fixed: Reveal the rest now also turns over shining cards.",
+ "notes": "TCG packs: turning a card over is now a smooth flip animation, and the other cards no longer jump and shake every time you flip one. Shining rare cards float gently instead of wobbling.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "cad5cc5fc62b0ce4ddb712221d12cf156d817353933ff2952c1de640b9fe06fa",
-  "js/marginalia.js": "049343b0cb89c4ff73808372e152a9f32bf204d0851485cb282dae84f9938594"
+  "index.html": "c801852d8a00ef0643ef53d4cb0fd0f4458c4133c610444d51ae647d69fdbc71",
+  "js/marginalia.js": "26d8ffe297ddc18f45496950b2269d55a3b9499e5f131dfaa71c7f8af94a75ce"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

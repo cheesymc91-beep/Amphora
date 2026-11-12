@@ -9048,8 +9048,11 @@ const css=`
 @keyframes deal{from{opacity:0;transform:translateY(80px) scale(.6) rotate(-10deg)}}
 .fin{position:relative;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
 .tflip.on .fin{transform:rotateY(180deg)}
-.tflip.charge{animation:tchg .5s ease-in-out infinite;z-index:3}.tflip.charge .fback span{animation:tgp .8s ease-in-out infinite}
-@keyframes tchg{0%,100%{transform:translateY(-10px) rotate(-1.5deg) scale(1.05)}50%{transform:translateY(-14px) rotate(1.5deg) scale(1.07)}}
+.pkcards.nodeal .tflip:not(.charge){animation:none}
+.tflip.jf .fin{animation:tflipin .6s ease-in-out}
+@keyframes tflipin{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
+.tflip.charge{animation:tchg 1.2s ease-in-out infinite;z-index:3}.tflip.charge .fback span{animation:tgp .8s ease-in-out infinite}
+@keyframes tchg{0%,100%{transform:translateY(-8px) scale(1.04)}50%{transform:translateY(-12px) scale(1.05)}}
 .fback,.ffront{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .ffront{transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;gap:14px}
 .fback{border-radius:12px;background:repeating-linear-gradient(45deg,#7a1a10 0 8px,#8a2a14 8px 16px);border:4px solid #e8c060;display:grid;place-items:center;font-family:var(--f-display);font-size:64px;color:#f6d880;box-shadow:0 6px 16px rgba(0,0,0,.5)}
@@ -9228,9 +9231,9 @@ function packsView(){
   if(PK){const all=PK.flip.length===PK.cards.length;
     if(!PK.torn)return `<div class="pkstage"><div class="pkhint">Tap the pack to open it</div><button class="pack" data-tcg="tear"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></button></div>`;
     return `<div class="pkstage open"><div class="pkhint">${all?"Your new cards":PK.ch.some(i=>!PK.flip.includes(i))?"Something rare is shining! Tap it again to reveal it":"Tap a card to turn it over"}</div>
-      <div class="pkcards">${PK.cards.map((x,i)=>{const c=cardOf(x.id);if(x.alt)c.pr=x.alt;const f=PK.flip.includes(i),alt=x.alt&&SKINS[x.alt];
-        const chg=!f&&PK.ch.includes(i);
-        return `<div class="tflip ${f?"on":""} ${chg?"charge glow"+x.q:""} ${chg&&alt?"galt at"+alt.tier:""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
+      <div class="pkcards ${PK.dealt?"nodeal":""}">${PK.cards.map((x,i)=>{const c=cardOf(x.id);if(x.alt)c.pr=x.alt;const f=PK.flip.includes(i),alt=x.alt&&SKINS[x.alt];
+        const chg=!f&&PK.ch.includes(i),jf=(PK.jf||[]).includes(i);
+        return `<div class="tflip ${f?"on":""} ${jf?"jf":""} ${chg?"charge glow"+x.q:""} ${chg&&alt?"galt at"+alt.tier:""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
           ${f?`<div class="ftag">${x.isNew?`<b class="new">NEW</b>`:x.melt?`<b>+${x.melt} 🪙</b>`:"<b>+1 copy</b>"}${alt?`<b class="altb at${alt.tier}">${ALT_T[alt.tier]} alt art</b>`:""}</div>`:""}</div></div></div>`;}).join("")}</div>
       <div class="pkbtns">${all?"":`<button class="tgb" data-tcg="flipall">${PK.cards.some((x,i)=>!PK.flip.includes(i)&&!PK.ch.includes(i))?"Turn all over":"Reveal the rest"}</button>`}
         ${all&&rec.packs?`<button class="tgb pri" data-tcg="openpk">Open another (${rec.packs} left)</button>`:""}${all?`<button class="tgb" data-tcg="pkdone">Done</button>`:""}</div></div>`;}
@@ -9373,10 +9376,10 @@ function click(e){
   if(a==="buypk"){if(rec.ob<PACK_COST)return;rec.ob-=PACK_COST;rec.packs++;saveRec();snd("coin");render();return;}
   if(a==="openpk"){if(openPack()){tab="packs";render();}return;}
   if(a==="tear"){const pk=b;pk.classList.add("tearing");snd("charge");setTimeout(()=>{PK.torn=true;render();},650);return;}
-  if(a==="flip"||a==="flipall"){const idx=a==="flip"?[+b.dataset.i]:PK.cards.map((_,i)=>i);let best=-1,charged=false;
+  if(a==="flip"||a==="flipall"){PK.dealt=true;PK.jf=[];const pk0=PK;setTimeout(()=>{if(pk0)pk0.jf=[];},700);const idx=a==="flip"?[+b.dataset.i]:PK.cards.map((_,i)=>i);let best=-1,charged=false;
     idx.forEach(i=>{if(PK.flip.includes(i))return;const x=PK.cards[i];
       if(bigPull(x)&&!PK.ch.includes(i)){PK.ch.push(i);charged=true;return;}
-      PK.flip.push(i);best=Math.max(best,x.alt?Math.max(4,x.q):x.q);});
+      PK.flip.push(i);PK.jf.push(i);best=Math.max(best,x.alt?Math.max(4,x.q):x.q);});
     if(charged)snd("charge");else if(best>=0)snd(best>=4?"star":best>=3?"reveal":"page");render();return;}
   if(a==="pkdone"){PK=null;render();return;}
   /* collection */
