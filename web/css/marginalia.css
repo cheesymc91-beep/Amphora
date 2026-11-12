@@ -981,4 +981,12 @@ html.rm .lcard{animation:none}
 .ultsplash.rq6 .usq{background:linear-gradient(90deg,#b08020,#fffbe8,#f0c040,#fffbe8,#b08020);background-size:200% 100%;animation:usholo .6s linear infinite;color:#1a1206}
 .ultsplash.rq6 .usrare{box-shadow:inset 0 0 0 10px #fff6c8,inset 0 0 0 14px #b08020,inset 0 0 180px rgba(240,192,64,.85);background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,246,200,.28) 0 4deg,transparent 4deg 12deg);animation:usrot var(--d) linear forwards}
 .ultsplash.rq6 .ustxt b{text-shadow:0 0 18px #fff6c8,0 0 34px #f0c040,5px 6px 0 #1a1206}
+/* ===== 1.10 3D statues ===== */
+.ped.v3d{width:230px;height:260px;align-items:stretch}
+.ped.v3d img,.srv.v3d img{display:none}
+.ped.v3d::after{bottom:10px;left:25%;right:25%}
+.v3dcv{width:100%!important;height:100%!important;display:block;cursor:grab;touch-action:pan-y;border-radius:14px;background:radial-gradient(ellipse at 50% 35%,color-mix(in srgb,var(--gold-hi) 22%,transparent),transparent 70%)}
+.v3dcv:active{cursor:grabbing}
+.srv{flex:none}.srv.v3d{width:170px;height:190px}
+@media (max-width:600px){.ped.v3d{width:190px;height:215px}}
 

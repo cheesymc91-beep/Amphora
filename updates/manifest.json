@@ -1,17 +1,17 @@
 {
- "version": "1.9.0",
+ "version": "1.10.0",
  "shell": "1.1.0",
- "notes": "13 new heroes and a new rarity above Primordial: the Aeons (Aion, Ananke, Phanes; 1 in 2,000 summons, guaranteed by 600) with their own time-stopping ultimates. Also Erebus (Primordial), Hera and Demeter (Olympians), Theseus and Bellerophon (Demigods), Ariadne and Pandora (Legendary), Narcissus and Echo (Famed) and the Pankratiast (Mortal), each with a passive, signature ultimate and sound, 4 skins, a myth and new bonds.",
+ "notes": "3D statues: every hero now has a 3D model, built from the same description as the painted art, so all outfits and skins work in 3D (marble, bronze, gold, obsidian, ice, lava, constellation, living flame, vase painting and more). Spin each hero on their page with your finger or mouse. The original painted look is one tap away in Settings (Hero art: Painted).",
  "base": "game/",
  "files": {
-  "css/marginalia.css": "3b4dc12878cf3acd58524eecbc2e97bd31bdf81c8d31a8dadce13df91c6af0f4",
+  "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
   "icons/apple-touch-icon.png": "7053edf96691f0b79696dc493d32488fb46179eb27e7b27a4c3e97f0a85eeba2",
   "icons/favicon-32.png": "f97473e280d1c60764c15df54b41a7b00f3ed78a95b14354148dfb423e24785b",
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "efb52b0fc3502b0defb8766976bb867b60c482ed73b7d4bea7baa72f7e755d6e",
-  "js/marginalia.js": "0f8d842c689b63f9f6403388659ac6464d237cbc9aced76ba8014de8ead3f86b"
+  "index.html": "857d71226edeef918f488a4155e7d3d4a837e1d21b0be9154d66c616a65f32c2",
+  "js/marginalia.js": "fc2cacb61d07045f1931498e89740dcc7e6ddf22b8f53d84f707db4787eee047"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
