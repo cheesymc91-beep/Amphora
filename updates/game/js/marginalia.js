@@ -9047,6 +9047,10 @@ const css=`
 .fback{border-radius:12px;background:repeating-linear-gradient(45deg,#7a1a10 0 8px,#8a2a14 8px 16px);border:4px solid #e8c060;display:grid;place-items:center;font-family:var(--f-display);font-size:64px;color:#f6d880;box-shadow:0 6px 16px rgba(0,0,0,.5)}
 .tflip.glow3:not(.on) .fback{box-shadow:0 0 22px #2fd0b8}.tflip.glow4:not(.on) .fback{box-shadow:0 0 28px #ffd34d}.tflip.glow5:not(.on) .fback,.tflip.glow6:not(.on) .fback{box-shadow:0 0 36px #ff60e0,0 0 60px #fff;animation:tgp .8s ease-in-out infinite}
 .tflip.galt:not(.on) .fback{box-shadow:0 0 30px #8af0ff,0 0 50px #ff80e0}
+.tflip.galt.at0:not(.on) .fback{box-shadow:0 0 18px #d8d8e0}.tflip.galt.at1:not(.on) .fback{box-shadow:0 0 26px #6fb0ff}
+.tflip.galt.at2:not(.on) .fback{box-shadow:0 0 30px #c070ff,0 0 50px #8040e0}.tflip.galt.at3:not(.on) .fback{box-shadow:0 0 30px #ffd34d,0 0 60px #ff80e0,0 0 90px #80e0ff}
+.ftag b.altb.at0{background:#e4e4ea}.ftag b.altb.at1{background:#9cc8ff}.ftag b.altb.at2{background:#d0a0ff}.ftag b.altb.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
+.altodd{font-weight:700;padding:1px 6px;border-radius:8px;color:#2a1a06;white-space:nowrap}.altodd.at0{background:#e4e4ea}.altodd.at1{background:#9cc8ff}.altodd.at2{background:#d0a0ff}.altodd.at3{background:linear-gradient(90deg,#ffd34d,#ff80e0,#80e0ff)}
 .ftag{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}.ftag b{font:700 12px var(--f-px);background:#f6e2b0;color:#2a1a06;padding:3px 8px;border-radius:10px}.ftag b.new{background:#ffd34d}.ftag b.altb{background:linear-gradient(90deg,#ff80e0,#80e0ff);color:#1a0a1a}
 .pkbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:30px}
 /* the match table */
@@ -9124,10 +9128,12 @@ const css=`
 function injectCss(){let st=document.getElementById("tcgcss");if(!st){st=document.createElement("style");st.id="tcgcss";document.head.appendChild(st);}st.textContent=css;}
 /* ---- packs ----
    A pack holds 5 cards: three common slots, one uncommon slot and one rare slot that can hold anything up to an Aeon.
-   Any card can come as an alternate-art printing (1 in 10): the hero painted in one of their skins. */
+   Any card can come as an alternate-art printing (1 in 10 overall, split by the Loom odds): the hero painted in one of their skins. */
 const PACK_COST=100,MELT=5;
 const SLOT_W=[[60,40],[60,40],[60,40],[0,50,40,10],[0,0,50,30,15,4,1]];
-const ALT_W=[55,30,12,3],ALT_CH=.1;
+/* alt-art odds follow the Loom: the more common a skin is in Idle mode, the more common its printing */
+const ALT_W=typeof LOOM_ODDS!=="undefined"?LOOM_ODDS:[58,30,10,2],ALT_CH=.1,ALT_T=typeof SKIN_T!=="undefined"?SKIN_T:["Common","Rare","Epic","Legendary"];
+const altPct=t=>+(ALT_CH*ALT_W[t]/ALT_W.reduce((a,b)=>a+b,0)*100).toFixed(1);
 const wpick=w=>{let r=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++){if((r-=w[i])<0)return i;}return w.length-1;};
 const baseOwned=id=>copies(id)>0;
 function rollPack(){
@@ -9194,14 +9200,14 @@ function packsView(){
     if(!PK.torn)return `<div class="pkstage"><div class="pkhint">Tap the pack to open it</div><button class="pack" data-tcg="tear"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></button></div>`;
     return `<div class="pkstage open"><div class="pkhint">${all?"Your new cards":"Tap a card to turn it over"}</div>
       <div class="pkcards">${PK.cards.map((x,i)=>{const c=cardOf(x.id);if(x.alt)c.pr=x.alt;const f=PK.flip.includes(i),alt=x.alt&&SKINS[x.alt];
-        return `<div class="tflip ${f?"on":""} glow${x.q} ${alt?"galt":""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
-          ${f?`<div class="ftag">${x.isNew?`<b class="new">NEW</b>`:x.melt?`<b>+${x.melt} 🪙</b>`:"<b>+1 copy</b>"}${alt?`<b class="altb">Alternate art</b>`:""}</div>`:""}</div></div></div>`;}).join("")}</div>
+        return `<div class="tflip ${f?"on":""} glow${x.q} ${alt?"galt at"+alt.tier:""}" data-tcg="flip" data-i="${i}" style="--d:${i*.08}s"><div class="fin"><div class="fback"><span>Α</span></div><div class="ffront">${cardHtml(c)}
+          ${f?`<div class="ftag">${x.isNew?`<b class="new">NEW</b>`:x.melt?`<b>+${x.melt} 🪙</b>`:"<b>+1 copy</b>"}${alt?`<b class="altb at${alt.tier}">${ALT_T[alt.tier]} alt art</b>`:""}</div>`:""}</div></div></div>`;}).join("")}</div>
       <div class="pkbtns">${all?"":`<button class="tgb" data-tcg="flipall">Turn all over</button>`}
         ${all&&rec.packs?`<button class="tgb pri" data-tcg="openpk">Open another (${rec.packs} left)</button>`:""}${all?`<button class="tgb" data-tcg="pkdone">Done</button>`:""}</div></div>`;}
   return `${topbar("Packs","hub")}
     <div class="shop"><div class="pack still"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></div>
     <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 hero cards: three common, one uncommon and one rare, which can be anything up to an <b>Aeon</b>.
-      Any card can come as an <b>alternate art</b>: the hero painted in one of their skins. Rarer skins are rarer printings.</p>
+      Any card can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
       <p class="tsoft">Rare slot: Demigod 15%, Olympian 4% (or better), Primordial and Aeon 1%. A third copy of a card you already have turns into ${MELT} 🪙.</p>
       <div class="row2"><button class="tgb pri" data-tcg="openpk" ${rec.packs?"":"disabled"}>Open a pack${rec.packs?` (${rec.packs})`:""}</button>
       <button class="tgb gold" data-tcg="buypk" ${rec.ob<PACK_COST?"disabled":""}>Buy a pack · ${PACK_COST} 🪙</button></div>
