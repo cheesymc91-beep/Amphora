@@ -8589,6 +8589,290 @@ function start(data){
   window.addEventListener("pagehide",save);
   window.claude?.hot?.snapshot?.(()=>({G,C,tab}));
 }
+
+/* ============ HOME SCREEN + AMPHORA TCG (rough first version) ============
+   A home screen with two modes: Idle (the game as it was) and TCG (a card game built from the same heroes).
+   Everything here is self-contained: it reads HEROES / G but never changes the idle game's save.
+   The TCG keeps its own small record in localStorage under "amphora-tcg". */
+const TCG=(()=>{
+const KEY="amphora-tcg";
+let rec;try{rec=JSON.parse(localStorage.getItem(KEY)||"null");}catch(e){rec=null;}
+rec=rec||{w:0,l:0};
+const saveRec=()=>{try{localStorage.setItem(KEY,JSON.stringify(rec));}catch(e){}};
+const MAXHP=20,MAXMANA=10,BOARD=5,HAND=8;
+const COST=[1,2,3,4,5,6,7];
+const KW={tank:"Guard",striker:"Swift"};
+const KWT={Guard:"Enemies must attack this first.",Swift:"Can attack the turn it is played."};
+/* ---- cards ---- */
+function heroCard(h){
+  const c=COST[h.q]||1,b=c*2+2,role=h.role;
+  const ar={tank:.3,warrior:.5,striker:.6,mage:.4,healer:.3,support:.4}[role]||.5;
+  let atk=Math.max(1,Math.round(b*ar)),hp=Math.max(1,b-atk);
+  let on=null,txt="";
+  if(role==="mage"){on={k:"zap",v:Math.ceil(c/2)};txt=`On play: deal ${on.v} damage to a random enemy.`;}
+  else if(role==="healer"){on={k:"heal",v:c+1};txt=`On play: heal your side by ${on.v}.`;}
+  else if(role==="support"){on={k:"buff",v:Math.max(1,Math.ceil(c/3))};txt=`On play: give another ally +${on.v}/+${on.v}.`;}
+  const kw=KW[role]||"";
+  return {id:h.id,t:"unit",n:h.n,q:h.q,el:h.el,cost:c,atk,hp,kw,on,txt:(kw?`<b>${kw}.</b> `:"")+txt};
+}
+const SPELLS=[
+  {id:"sp_bolt",t:"spell",n:"Bolt of Zeus",cost:3,el:"gold",q:2,fx:{k:"bolt",v:4},tgt:true,txt:"Deal 4 damage to an enemy."},
+  {id:"sp_ambrosia",t:"spell",n:"Ambrosia",cost:2,el:"verd",q:1,fx:{k:"face",v:6},txt:"Heal your hero by 6."},
+  {id:"sp_muse",t:"spell",n:"Gift of the Muses",cost:3,el:"lapis",q:2,fx:{k:"draw",v:2},txt:"Draw 2 cards."}
+];
+const SPELL=Object.fromEntries(SPELLS.map(s=>[s.id,s]));
+const cardOf=id=>SPELL[id]||heroCard(HERO[id]);
+const owned=()=>HEROES.filter(h=>G&&G.heroes&&G.heroes[h.id]);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+/* Your deck: 20 cards. Heroes you own in Idle mode (up to 2 copies, cheap ones first for a sensible curve), topped up with
+   free Mortal starters, plus 2 of each spell. */
+function playerDeck(){
+  const ids=[],own=owned().slice().sort((a,b)=>a.q-b.q);
+  own.forEach(h=>ids.push(h.id));
+  own.filter(h=>h.q<=2).forEach(h=>{if(ids.length<14)ids.push(h.id);});
+  const starters=HEROES.filter(h=>h.q===0);let i=0;
+  while(ids.length<14&&starters.length){ids.push(starters[i%starters.length].id);i++;}
+  const heroes=ids.length>14?shuffle(ids).slice(0,14):ids;
+  return heroes.concat(SPELLS.flatMap(s=>[s.id,s.id]));
+}
+function aiDeck(){
+  const top=Math.max(1,...owned().map(h=>h.q)),pool=HEROES.filter(h=>h.q<=Math.min(3,top));const ids=[];
+  while(ids.length<14){const h=pool[Math.floor(Math.random()*pool.length)];if(ids.filter(x=>x===h.id).length<2)ids.push(h.id);}
+  return ids.concat(SPELLS.flatMap(s=>[s.id,s.id]));
+}
+/* ---- match state ---- */
+let M=null,view="hub",sel=null,busy=false,uidN=1;
+function side(deck){return {hp:MAXHP,mana:0,max:0,deck:shuffle(deck.map(cardOf)),hand:[],board:[],fat:0};}
+function newMatch(){
+  M={p:side(playerDeck()),a:side(aiDeck()),turn:"p",log:[],over:null,n:1};
+  for(let i=0;i<3;i++)draw(M.p);for(let i=0;i<4;i++)draw(M.a);
+  startTurn("p");
+}
+const foe=s=>s===M.p?M.a:M.p;
+const nm=s=>s===M.p?"You":"Rival";
+const hn=s=>s===M.p?"your hero":"the rival's hero";
+function log(t){M.log.unshift(t);M.log.length=Math.min(M.log.length,6);}
+function draw(s){
+  if(!s.deck.length){s.fat++;s.hp-=s.fat;log(`${nm(s)} ran out of cards and took ${s.fat} damage.`);return;}
+  const c=s.deck.pop();if(s.hand.length>=HAND){log(`${nm(s)} had a full hand: ${c.n} was burned.`);return;}
+  s.hand.push(c);
+}
+function startTurn(who){
+  M.turn=who;const s=who==="p"?M.p:M.a;
+  s.max=Math.min(MAXMANA,s.max+1);s.mana=s.max;s.board.forEach(u=>u.ready=true);draw(s);checkEnd();
+}
+function summon(s,c){const u=Object.assign({},c,{uid:uidN++,max:c.hp,ready:c.kw==="Swift"});s.board.push(u);return u;}
+function hurtUnit(s,u,d){u.hp-=d;if(u.hp<=0){s.board=s.board.filter(x=>x!==u);log(`${u.n} falls.`);}}
+function rand(a){return a[Math.floor(Math.random()*a.length)];}
+function onPlay(s,u){
+  const o=foe(s);if(!u.on)return;
+  if(u.on.k==="zap"){const ts=[...o.board,"face"],t=rand(ts);if(t==="face"){o.hp-=u.on.v;log(`${u.n} strikes ${hn(o)} for ${u.on.v}.`);}else{log(`${u.n} hits ${t.n} for ${u.on.v}.`);hurtUnit(o,t,u.on.v);}}
+  if(u.on.k==="heal"){s.hp=Math.min(MAXHP,s.hp+u.on.v);s.board.forEach(x=>x.hp=Math.min(x.max,x.hp+u.on.v));log(`${u.n} heals ${s===M.p?"your":"the rival's"} side by ${u.on.v}.`);}
+  if(u.on.k==="buff"){const al=s.board.filter(x=>x!==u);if(al.length){const t=al.slice().sort((a,b)=>b.atk-a.atk)[0];t.atk+=u.on.v;t.hp+=u.on.v;t.max+=u.on.v;log(`${u.n} blesses ${t.n}: +${u.on.v}/+${u.on.v}.`);}}
+}
+/* play card i from s.hand; target = unit object, "face", or null */
+function play(s,i,target){
+  const c=s.hand[i];if(!c||c.cost>s.mana)return false;
+  if(c.t==="unit"&&s.board.length>=BOARD)return false;
+  s.mana-=c.cost;s.hand.splice(i,1);const o=foe(s);
+  if(c.t==="unit"){const u=summon(s,c);log(`${nm(s)} played ${c.n}.`);onPlay(s,u);}
+  else{
+    if(c.fx.k==="bolt"){if(target==="face"||!target){o.hp-=c.fx.v;log(`${c.n} hits ${hn(o)} for ${c.fx.v}.`);}else{log(`${c.n} hits ${target.n} for ${c.fx.v}.`);hurtUnit(o,target,c.fx.v);}}
+    if(c.fx.k==="face"){s.hp=Math.min(MAXHP,s.hp+c.fx.v);log(`${nm(s)} drank Ambrosia (+${c.fx.v}).`);}
+    if(c.fx.k==="draw"){for(let k=0;k<c.fx.v;k++)draw(s);log(`${nm(s)} drew ${c.fx.v} cards.`);}
+  }
+  checkEnd();return true;
+}
+const guards=s=>s.board.filter(u=>u.kw==="Guard");
+const canHit=(o,t)=>{const g=guards(o);return !g.length||(t!=="face"&&g.includes(t));};
+const dmgVs=(a,d)=>a.atk+(d&&d!=="face"&&BEATS[a.el]===d.el?1:0);
+function attack(s,u,t){
+  const o=foe(s);if(!u.ready||!canHit(o,t))return false;u.ready=false;
+  if(t==="face"){o.hp-=u.atk;log(`${u.n} attacks ${hn(o)} for ${u.atk}.`);}
+  else{const d1=dmgVs(u,t),d2=dmgVs(t,u);log(`${u.n} attacks ${t.n}${d1>u.atk?" (element advantage!)":""}.`);hurtUnit(o,t,d1);hurtUnit(s,u,d2);}
+  checkEnd();return true;
+}
+function checkEnd(){
+  if(!M||M.over)return;
+  if(M.p.hp<=0||M.a.hp<=0){M.over=M.a.hp<=0&&M.p.hp>0?"win":"lose";if(M.over==="win")rec.w++;else rec.l++;saveRec();}
+}
+/* ---- rival AI: simple and readable, not clever ---- */
+function aiStep(){
+  const s=M.a,o=M.p;if(M.over)return null;
+  const playable=s.hand.map((c,i)=>({c,i})).filter(x=>x.c.cost<=s.mana&&(x.c.t!=="unit"||s.board.length<BOARD)).sort((a,b)=>b.c.cost-a.c.cost);
+  for(const x of playable){
+    if(x.c.id==="sp_ambrosia"&&s.hp>MAXHP-5)continue;
+    if(x.c.id==="sp_bolt"){const kill=o.board.filter(u=>u.hp<=x.c.fx.v).sort((a,b)=>b.atk-a.atk)[0];return ()=>play(s,x.i,kill||"face");}
+    return ()=>play(s,x.i,null);
+  }
+  const att=s.board.find(u=>u.ready);
+  if(att){const g=guards(o);let t;
+    if(g.length)t=g.slice().sort((a,b)=>a.hp-b.hp)[0];
+    else{t=o.board.filter(e=>dmgVs(att,e)>=e.hp&&dmgVs(e,att)<att.hp).sort((a,b)=>b.atk-a.atk)[0]||"face";}
+    return ()=>attack(s,att,t);}
+  return null;
+}
+function aiTurn(){
+  busy=true;startTurn("a");render();
+  const step=()=>{if(!M||M.over){busy=false;render();return;}
+    const f=aiStep();if(f){f();render();setTimeout(step,650);}
+    else{M.n++;startTurn("p");busy=false;render();}};
+  setTimeout(step,700);
+}
+/* ---- UI ---- */
+const root=()=>document.getElementById("tcg");
+const css=`
+#home,#tcg{position:fixed;inset:0;z-index:60;background:var(--vellum);overflow-y:auto;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+#home[hidden],#tcg[hidden]{display:none}
+.hm{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center}
+.hm h1{font-family:var(--f-display);font-size:clamp(44px,12vw,72px);color:var(--rubric);margin:0;line-height:1}.hm h1 span{color:var(--gold)}
+.hm .sub{color:var(--ink-soft);font-style:italic;margin:-8px 0 6px}
+.hmb{width:100%;display:flex;align-items:center;gap:14px;text-align:left;background:var(--sheet);border:2px solid var(--rule-hi);border-radius:6px;padding:16px 18px;cursor:pointer;font:inherit;color:inherit;box-shadow:0 3px 0 var(--rule)}
+.hmb:hover,.hmb:focus-visible{border-color:var(--gold);outline:none}.hmb:active{transform:translateY(2px);box-shadow:none}
+.hmb .ic{font-size:34px;flex:0 0 48px;text-align:center}.hmb b{display:block;font-family:var(--f-display);font-size:24px;color:var(--rubric)}.hmb small{color:var(--ink-soft);font-size:15px}
+.tg{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.tg h2{font-family:var(--f-display);color:var(--rubric);margin:0;font-size:26px}
+.tgbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tgb{font:600 16px var(--f-body);background:var(--sheet2);border:1px solid var(--rule-hi);border-radius:4px;padding:8px 14px;color:var(--ink);cursor:pointer}
+.tgb.pri{background:var(--rubric);color:#fff;border-color:var(--rubric)}.tgb:disabled{opacity:.45;cursor:default}
+.tgp{background:var(--sheet);border:1px solid var(--rule-hi);padding:14px;border-radius:4px}
+.tgmenu{display:grid;gap:10px}
+.cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.cd{position:relative;width:96px;min-height:138px;background:var(--sheet);border:2px solid var(--q0);border-radius:6px;padding:4px 4px 6px;display:flex;flex-direction:column;align-items:center;font-size:12px;line-height:1.15;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none;flex:0 0 auto}
+.cd.q1{border-color:var(--q1)}.cd.q2{border-color:var(--q2)}.cd.q3{border-color:var(--q3)}.cd.q4,.cd.q5,.cd.q6{border-color:var(--q4a);box-shadow:0 0 0 1px var(--q4b) inset}
+.cd img.sp{width:62px;height:62px;object-fit:contain}
+.cd .cn{font-weight:700;font-size:12px;min-height:28px;display:flex;align-items:center}
+.cd .tx{font-size:10.5px;color:var(--ink-soft)}
+.cd .co{position:absolute;top:-7px;left:-7px;width:24px;height:24px;border-radius:50%;background:var(--e-lapis);color:#fff;font:700 13px var(--f-px);display:grid;place-items:center}
+.cd .st{display:flex;justify-content:space-between;width:100%;margin-top:auto;font:700 14px var(--f-px);padding:0 2px}
+.cd .st .a{color:var(--rubric)}.cd .st .h{color:var(--good)}.cd .st .h.hurt{color:var(--bad)}
+.cd .el{position:absolute;top:3px;right:4px;width:10px;height:10px;border-radius:50%}
+.cd.sil img{filter:brightness(0);opacity:.25}.cd.sil{opacity:.75}
+.cd.no{opacity:.5}.cd.sel{outline:3px solid var(--gold);outline-offset:1px}.cd.tgt{outline:3px dashed var(--rubric);outline-offset:1px}
+.cd.sleep img{opacity:.55}.cd .zz{position:absolute;top:24px;right:6px;font-size:12px;color:var(--ink-soft)}
+.cd.guard{border-style:double;border-width:5px;padding:1px 1px 3px}
+.cd.spell{background:color-mix(in srgb,var(--sheet) 80%,var(--e-lapis) 20%)}
+.cd .big{font-size:34px;line-height:62px}
+.row{display:flex;gap:6px;justify-content:center;min-height:142px;align-items:center;padding:6px;border:1px dashed var(--rule-hi);border-radius:6px;flex-wrap:wrap}
+.row .cd{width:86px;min-height:128px}.row .cd img.sp{width:54px;height:54px}
+.hand{display:flex;gap:8px;overflow-x:auto;padding:10px 6px 6px;justify-content:safe center}
+.hb{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--sheet);border:1px solid var(--rule-hi);border-radius:6px;padding:8px 12px;font-size:15px}
+.hb .hp{font:700 20px var(--f-px);color:var(--good)}.hb .hp.low{color:var(--bad)}
+.hb.tgt{outline:3px dashed var(--rubric);cursor:pointer}
+.mana{font:700 15px var(--f-px);color:var(--e-lapis)}
+.tlog{font-size:14px;color:var(--ink-soft);min-height:40px}.tlog div:first-child{color:var(--ink);font-weight:600}
+.mid{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tgover{text-align:center;font-family:var(--f-display);font-size:30px;color:var(--rubric)}
+.homebtn{margin-right:6px}
+`;
+function injectCss(){if(document.getElementById("tcgcss"))return;const st=document.createElement("style");st.id="tcgcss";st.textContent=css;document.head.appendChild(st);}
+function cardHtml(c,extra="",data=""){
+  const art=c.t==="spell"?`<div class="big">${{sp_bolt:"⚡",sp_ambrosia:"🍯",sp_muse:"🎶"}[c.id]||"✦"}</div>`:im(c.id,extra.includes("sil")?"sp sil":"sp");
+  const stats=c.t==="unit"?`<div class="st"><span class="a">⚔${c.atk}</span><span class="h${c.max&&c.hp<c.max?" hurt":""}">♥${c.hp}</span></div>`:`<div class="st"><span></span><span class="tx">Spell</span></div>`;
+  return `<div class="cd q${c.q} ${c.t==="spell"?"spell":""} ${c.kw==="Guard"?"guard":""} ${extra}" ${data} title="${esc(c.n)}${c.kw?" · "+c.kw+": "+KWT[c.kw]:""}"><span class="co">${c.cost}</span><span class="el" style="background:${ELC[c.el]||"#999"}"></span>${art}${extra.includes("zz")?'<span class="zz">z</span>':""}<div class="cn">${esc(c.n)}</div><div class="tx">${c.txt||""}</div>${stats}</div>`;
+}
+function hub(){
+  const own=owned().length,deck=playerDeck();
+  if(view==="cards"){
+    const all=HEROES.slice().sort((a,b)=>a.q-b.q||a.n.localeCompare(b.n));
+    return `<div class="tgbar"><h2>Card collection</h2><button class="tgb" data-tcg="hub">Back</button></div>
+      <p class="tgp" style="margin:0">You own <b>${own}</b> of ${HEROES.length} hero cards. Summon heroes in <b>Idle</b> mode to unlock them here. Spells are free for everyone.</p>
+      <div class="cards">${SPELLS.map(s=>cardHtml(s)).join("")}${all.map(h=>cardHtml(heroCard(h),G.heroes[h.id]?"":"sil")).join("")}</div>`;}
+  if(view==="deck"){
+    const cnt={};deck.forEach(id=>cnt[id]=(cnt[id]||0)+1);
+    return `<div class="tgbar"><h2>Your deck (${deck.length})</h2><button class="tgb" data-tcg="hub">Back</button></div>
+      <p class="tgp" style="margin:0">For now the deck builds itself: every hero you own (cheap ones twice), topped up with free Mortal starters, plus two of each spell. A real deck builder comes later.</p>
+      <div class="cards">${Object.keys(cnt).map(id=>`<div style="position:relative">${cardHtml(cardOf(id))}${cnt[id]>1?`<div style="text-align:center;font-weight:700">×${cnt[id]}</div>`:""}</div>`).join("")}</div>`;}
+  if(view==="rules")return `<div class="tgbar"><h2>How to play</h2><button class="tgb" data-tcg="hub">Back</button></div>
+    <div class="tgp"><p>Bring the rival's hero from <b>${MAXHP}</b> to 0.</p><ul>
+    <li><b>Favour</b> (the blue number) pays for cards. You get 1 more each turn, up to ${MAXMANA}.</li>
+    <li>Tap a card in your hand to play it. Heroes go on your side of the board (max ${BOARD}).</li>
+    <li>Heroes can attack from your next turn. Tap your hero, then tap an enemy hero or the rival's hero bar.</li>
+    <li>When two heroes fight, both deal damage. Element advantage (${Object.entries(BEATS).map(([a,b])=>EL[a]+" > "+EL[b]).join(", ")}) adds +1 damage.</li>
+    <li><b>Guard</b> (tanks): must be attacked first. <b>Swift</b> (strikers): can attack right away.</li>
+    <li>Mages zap a random enemy, healers heal your side and supports bless an ally when played.</li>
+    <li>Out of cards? You take growing damage each time you should draw.</li></ul></div>`;
+  return `<div class="tgbar"><h2>Amphora TCG</h2><button class="tgb" data-tcg="home">⌂ Home</button></div>
+    <div class="tgp" style="text-align:center"><div style="font-size:15px;color:var(--ink-soft)">Early preview · your record</div><div style="font:700 22px var(--f-px)">${rec.w} W · ${rec.l} L</div></div>
+    <div class="tgmenu">
+      <button class="hmb" data-tcg="play"><span class="ic">⚔</span><span><b>${M&&!M.over?"Continue match":"Play vs Rival"}</b><small>Battle a computer opponent with your deck.</small></span></button>
+      <button class="hmb" data-tcg="deck"><span class="ic">🂠</span><span><b>Your deck</b><small>${deck.length} cards, built from the ${own} heroes you own.</small></span></button>
+      <button class="hmb" data-tcg="cards"><span class="ic">🏺</span><span><b>Card collection</b><small>Every hero as a card. Locked ones are summoned in Idle.</small></span></button>
+      <button class="hmb" data-tcg="rules"><span class="ic">?</span><span><b>How to play</b><small>The rules in one minute.</small></span></button>
+    </div>`;
+}
+function board(){
+  const p=M.p,a=M.a,my=M.turn==="p"&&!busy&&!M.over;
+  const selU=sel&&sel.k==="unit"?p.board.find(u=>u.uid===sel.uid):null,selS=sel&&sel.k==="spell"?p.hand[sel.i]:null;
+  const aiming=!!(selU||selS);
+  const tOk=t=>selS?true:selU?canHit(a,t):false;
+  const hb=(s,mine)=>`<div class="hb ${!mine&&aiming&&tOk("face")?"tgt":""}" ${!mine?'data-tcg="face"':""}><span>${mine?"🛡 You":"👑 Rival"}</span><span class="mana">◆ ${s.mana}/${s.max}</span><span>🂠 ${s.deck.length}${mine?"":" · ✋ "+s.hand.length}</span><span class="hp ${s.hp<=6?"low":""}">♥ ${Math.max(0,s.hp)}</span></div>`;
+  const over=M.over?`<div class="tgp tgover">${M.over==="win"?"Victory! 🏆":"Defeat…"}<div style="margin-top:10px;display:flex;gap:8px;justify-content:center"><button class="tgb pri" data-tcg="again">Play again</button><button class="tgb" data-tcg="hub">Menu</button></div></div>`:"";
+  return `<div class="tgbar"><button class="tgb" data-tcg="hub">☰ Menu</button><span style="font-family:var(--f-display);font-weight:700">Turn ${M.n}</span><button class="tgb" data-tcg="home">⌂ Home</button></div>
+    ${hb(a,false)}
+    <div class="row">${a.board.map(u=>cardHtml(u,aiming&&tOk(u)?"tgt":"",`data-tcg="enemy" data-uid="${u.uid}"`)).join("")||'<span class="tx" style="color:var(--ink-soft)">Rival\'s side</span>'}</div>
+    <div class="mid"><div class="tlog">${M.log.slice(0,3).map(t=>`<div>${t}</div>`).join("")||"<div>Your move.</div>"}</div>
+      ${M.over?"":`<button class="tgb pri" data-tcg="end" ${my?"":"disabled"}>${busy?"Rival's turn…":"End turn"}</button>`}</div>
+    <div class="row">${p.board.map(u=>cardHtml(u,(selU&&selU.uid===u.uid?"sel ":"")+(u.ready?"":"sleep zz"),`data-tcg="mine" data-uid="${u.uid}"`)).join("")||'<span class="tx" style="color:var(--ink-soft)">Your side: play heroes here</span>'}</div>
+    ${hb(p,true)}
+    ${over}
+    <div class="hand">${p.hand.map((c,i)=>cardHtml(c,(c.cost>p.mana||!my?"no ":"")+(selS&&sel.i===i?"sel":""),`data-tcg="hand" data-i="${i}"`)).join("")}</div>
+    <div class="tx" style="text-align:center;color:var(--ink-soft);font-size:14px">${aiming?"Now tap a target marked with a dashed line (or tap again to cancel).":my?"Tap a card to play it, or tap one of your ready heroes to attack.":""}</div>`;
+}
+function render(){const r=root();if(!r||r.hidden)return;r.innerHTML=`<div class="tg">${view==="match"&&M?board():hub()}</div>`;
+  if(typeof refresh3d==="function")try{refresh3d();}catch(e){}}
+function click(e){
+  const b=e.target.closest("[data-tcg]");if(!b)return;const a=b.dataset.tcg;
+  if(a==="home"){HOME.show();return;}
+  if(["hub","deck","cards","rules"].includes(a)){view=a;sel=null;render();return;}
+  if(a==="play"){if(!M||M.over)newMatch();view="match";sel=null;render();return;}
+  if(a==="again"){newMatch();sel=null;render();return;}
+  if(!M||M.over||busy||M.turn!=="p")return;
+  const p=M.p,o=M.a;
+  if(a==="end"){sel=null;aiTurn();return;}
+  if(a==="hand"){const i=+b.dataset.i,c=p.hand[i];if(!c)return;
+    if(sel&&sel.k==="spell"&&sel.i===i){sel=null;render();return;}
+    if(c.cost>p.mana){toast(`Not enough Favour: ${c.n} costs ${c.cost}.`);return;}
+    if(c.t==="unit"&&p.board.length>=BOARD){toast("Your side of the board is full.");return;}
+    if(c.tgt){sel={k:"spell",i};render();return;}
+    sel=null;play(p,i,null);render();return;}
+  if(a==="mine"){const u=p.board.find(x=>x.uid===+b.dataset.uid);if(!u)return;
+    if(sel&&sel.k==="unit"&&sel.uid===u.uid){sel=null;render();return;}
+    if(!u.ready){toast(`${u.n} can attack next turn.`);return;}
+    sel={k:"unit",uid:u.uid};render();return;}
+  if(a==="enemy"||a==="face"){if(!sel)return;
+    const t=a==="face"?"face":o.board.find(x=>x.uid===+b.dataset.uid);if(!t)return;
+    if(sel.k==="spell"){const i=sel.i;sel=null;play(p,i,t);render();return;}
+    const u=p.board.find(x=>x.uid===sel.uid);if(!u)return;
+    if(!canHit(o,t)){toast("A Guard is in the way: attack it first.");return;}
+    sel=null;attack(p,u,t);render();}
+}
+function open(){injectCss();let r=root();if(!r){r=document.createElement("div");r.id="tcg";document.body.appendChild(r);r.addEventListener("click",click);}
+  r.hidden=false;if(view==="match"&&!M)view="hub";render();}
+function close(){const r=root();if(r)r.hidden=true;}
+return {open,close,css:injectCss};
+})();
+
+const HOME=(()=>{
+function el(){let h=document.getElementById("home");if(h)return h;
+  h=document.createElement("div");h.id="home";document.body.appendChild(h);
+  h.addEventListener("click",e=>{const b=e.target.closest("[data-home]");if(!b)return;
+    if(b.dataset.home==="idle")idle();else{h.hidden=true;TCG.open();}});
+  return h;}
+function show(){TCG.css();TCG.close();const h=el();
+  h.innerHTML=`<div class="hm"><img class="sp" src="${document.getElementById("logo").src}" style="width:96px;height:96px" alt=""><h1>Amph<span>o</span>ra</h1><p class="sub">Heroes of Greek myth, two ways to play.</p>
+    <button class="hmb" data-home="idle"><span class="ic">🏺</span><span><b>Idle</b><small>Summon heroes, build a team of five and fight across the lands of legend. Your merchants work while you're away.</small></span></button>
+    <button class="hmb" data-home="tcg"><span class="ic">🂠</span><span><b>TCG</b><small>Your heroes as cards. Build a deck and duel a rival. Early preview.</small></span></button></div>`;
+  h.hidden=false;document.documentElement.style.overflow="hidden";}
+function idle(){const h=el();h.hidden=true;TCG.close();document.documentElement.style.overflow="";if(typeof render==="function")render();}
+function addTopButton(){const t=document.querySelector(".top .purse");if(!t||document.getElementById("homebtn"))return;
+  const b=document.createElement("button");b.id="homebtn";b.className="btn small homebtn";b.title="Home";b.textContent="⌂ Home";
+  b.addEventListener("click",show);t.insertBefore(b,t.firstChild);}
+return {show,idle,addTopButton};
+})();
+start=(orig=>function(data){orig(data);
+  try{HOME.addTopButton();if(!(data&&data.G))HOME.show();}catch(e){console.error(e);}})(start);
+
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 
 })();
