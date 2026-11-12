@@ -9036,7 +9036,8 @@ const css=`
 .pkart{width:130px;height:130px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px #fff6c8,0 0 24px #fff6c8}.pkart .cimg{width:100%;height:100%;object-fit:cover}
 @keyframes foil{50%{background-position:100% 100%}}
 .pack.still{cursor:default}
-.pkstage{position:fixed;inset:0;z-index:70;background:radial-gradient(circle at 50% 40%,#5a3418,#120804);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:16px;overflow:auto}
+.pkstage{position:fixed;inset:0;z-index:70;background:radial-gradient(circle at 50% 40%,#5a3418,#120804);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;-webkit-overflow-scrolling:touch;gap:22px;padding:16px;overflow:auto}
+.pkstage>:first-child{margin-top:auto}.pkstage>:last-child{margin-bottom:auto}
 .pkhint{color:#f6e2b0;font-family:var(--f-display);font-size:22px;text-align:center}
 .pkstage .pack{width:220px;height:320px;animation:foil 4s ease-in-out infinite,bob 2.4s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-8px) rotate(-1deg)}}
@@ -9333,6 +9334,16 @@ function endScreen(){const win=M.over==="win",st=M.st,mvpId=Object.keys(st.by).s
       <div class="row2"><button class="tgb pri" data-tcg="again">Play again</button>${rec.packs||rec.ob>=PACK_COST?`<button class="tgb gold" data-tcg="packs">🎁 Packs</button>`:""}<button class="tgb" data-tcg="hub">Menu</button></div>
     </div></div>`;}
 /* ---- drawing and effects ---- */
+/* 1.14.8: turning cards over updates the open pack in place instead of redrawing the screen, so nothing jumps
+   or scrolls back to the top (on phones the pack is taller than the screen) and the flip is a real CSS turn */
+function patchPack(){const r=root(),st=r&&r.querySelector(".pkstage.open");if(!st||!PK||!PK.torn){render();return;}
+  const tmp=document.createElement("div");tmp.innerHTML=packsView();const ns=tmp.querySelector(".pkstage.open");if(!ns){render();return;}
+  const oc=st.querySelectorAll(".tflip"),nc=ns.querySelectorAll(".tflip");
+  const ok=st.querySelector(".pkcards"),nk=ns.querySelector(".pkcards");if(ok&&nk)ok.className=nk.className;
+  nc.forEach((n,i)=>{const o=oc[i];if(!o)return;const cls=n.className.replace(/\bjf\b/g,"").replace(/\s+/g," ").trim();
+    if(o.className!==cls)o.className=cls;const of=o.querySelector(".ffront"),nf=n.querySelector(".ffront");
+    const ot=of.querySelector(".ftag"),nt=nf.querySelector(".ftag");if(nt&&!ot)of.appendChild(nt);});
+  ["pkhint","pkbtns"].forEach(k=>{const a=st.querySelector("."+k),b2=ns.querySelector("."+k);if(a&&b2&&a.innerHTML!==b2.innerHTML)a.innerHTML=b2.innerHTML;});}
 function render(){const r=root();if(!r||r.hidden)return;
   const v=tab==="match"&&M?board():tab==="packs"?packsView():tab==="cards"?collectionView():tab==="deck"?deckView():tab==="diff"?diffView():tab==="rules"?rulesView():hub();
   r.innerHTML=`<div class="tg ${tab==="match"?"inmatch":""}">${v}</div><div id="tpv" hidden></div>`;
@@ -9380,7 +9391,7 @@ function click(e){
     idx.forEach(i=>{if(PK.flip.includes(i))return;const x=PK.cards[i];
       if(bigPull(x)&&!PK.ch.includes(i)){PK.ch.push(i);charged=true;return;}
       PK.flip.push(i);PK.jf.push(i);best=Math.max(best,x.alt?Math.max(4,x.q):x.q);});
-    if(charged)snd("charge");else if(best>=0)snd(best>=4?"star":best>=3?"reveal":"page");render();return;}
+    if(charged)snd("charge");else if(best>=0)snd(best>=4?"star":best>=3?"reveal":"page");patchPack();return;}
   if(a==="pkdone"){PK=null;render();return;}
   /* collection */
   if(a==="cf"){cfilter=b.dataset.k;render();return;}
