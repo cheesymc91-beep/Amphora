@@ -1,7 +1,7 @@
 {
- "version": "1.13.0",
+ "version": "1.14.0",
  "shell": "1.1.0",
- "notes": "TCG: choose Easy, Normal or Hard. The rival now thinks through every move and saves its abilities for the right moment instead of wasting them; Hard also looks two moves ahead and brings rarer cards. A coin flip now decides who goes first, and the second player gets an Obol of Charon (+1 Favour once).",
+ "notes": "TCG overhaul: a cleaner table, full-art cards, and packs to open. Win matches to earn Obols, buy packs and collect cards, with rare alternate-art printings that show the hero's skins. Build your own 20-card deck (up to 2 copies of each card). 11 new spell cards. Hover over a card to see its stats. A proper Victory screen with your hero of the match, stats and rewards. If you win the coin flip, you choose whether to go first or second.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "857d71226edeef918f488a4155e7d3d4a837e1d21b0be9154d66c616a65f32c2",
-  "js/marginalia.js": "178ccc30d331bc0b7751236b3dd099e8d7b9900ee8d8c525934e28ede692a152"
+  "index.html": "29a8d6d918627a4ddca3dfc426f45a474eb4d467dcd88993e1010ac0a49fa66d",
+  "js/marginalia.js": "ee481dcb53c2c7e9da6df615d5a0686ed6104ef907d5a2f9328460aac73d52da"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
