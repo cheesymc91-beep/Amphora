@@ -1,7 +1,7 @@
 {
- "version": "1.11.0",
+ "version": "1.12.0",
  "shell": "1.1.0",
- "notes": "New home screen: choose Idle (the game you know) or TCG, an early preview of the Amphora card game. Every hero you own in Idle becomes a card; build up your collection and duel a rival. Tap ⌂ Home at the top to switch.",
+ "notes": "TCG update: every mage, healer and support hero now has its own unique ability (no two the same), from Medusa's stone gaze to Poseidon's tidal wave. Cards are bigger and easier to read, with clear type labels (Tank, Striker, Mage, Healer, Support, Warrior, Guard, Swift). Tap any hero on the board to read its full card.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -11,7 +11,7 @@
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
   "index.html": "857d71226edeef918f488a4155e7d3d4a837e1d21b0be9154d66c616a65f32c2",
-  "js/marginalia.js": "1dba34be84911a9be9af1905bf4cb8e55a8b8dd97ce3fd7cb3ff34f467ffcf9c"
+  "js/marginalia.js": "56f5a470211196ecd29868a2f70085ea8aa56b13b7cd45b342f0214ee34cbbc7"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
