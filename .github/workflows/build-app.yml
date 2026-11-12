@@ -23,7 +23,7 @@ jobs:
         include:
           - os: windows-latest
             name: windows
-          - os: macos-15
+          - os: macos-13   # Intel Mac runner: GitHub is short on Apple Silicon runners; it still builds one app for both kinds of Mac
             name: mac
     runs-on: ${{ matrix.os }}
     defaults:
