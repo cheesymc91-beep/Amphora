@@ -1,7 +1,7 @@
 {
- "version": "1.14.1",
+ "version": "1.14.2",
  "shell": "1.1.0",
- "notes": "TCG alternate arts now follow the skin's rarity in Idle mode, using the same odds as the Loom: per card, Common skin printings 5.8%, Rare 3%, Epic 1%, Legendary 0.2%. Each printing shows its rarity and glows in that rarity's colour when you open it.",
+ "notes": "TCG: hero cards in packs now follow the Temple odds from Idle mode, with Demigods and up 2 to 4 times as likely (still a bit kinder than the alt-art odds). The fifth card in every pack is Legendary or better. The odds per card are listed on the Packs screen. Fixed white text on white card text boxes in dark mode, and the coin-flip choice now shows properly on big screens.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "2fe347f405be958c0805dd95566ca6c3690d170894a3609d8372b0a271ed0383",
-  "js/marginalia.js": "b18aad33d5875168fdb1ced0200c20c72fa41e98a5f850643331904a13fce774"
+  "index.html": "a4abdb5fb9bdc7e691f910e8ea73a5c3f5766bbfa892a0210f1640cb963bf659",
+  "js/marginalia.js": "2d34bf19f073967d4e35dd0c954e894dc1a8aad24d8a907e43381808a9eafc73"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }

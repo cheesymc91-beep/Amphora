@@ -8962,7 +8962,7 @@ const css=`
 .tile:hover{border-color:var(--gold);transform:translateY(-2px)}.tile:active{transform:translateY(1px);box-shadow:none}
 .tile .ti{font-size:30px}.tile b{font-family:var(--f-display);font-size:22px;color:var(--rubric)}.tile small{color:var(--ink-soft);font-size:15px}
 .tile.wide{grid-column:1/-1;background:linear-gradient(120deg,var(--rubric),#7a1a10);border-color:#5a1008}.tile.wide b,.tile.wide small{color:#fff}.tile.wide .ti{font-size:36px}
-.tile.gold{background:linear-gradient(140deg,#fff3c4,#e8c060)}.tile.red{border-color:#c0392b}.tile.green{border-color:#2f8a5a}
+.tile.gold{background:linear-gradient(140deg,#fff3c4,#e8c060);color:#2a1a06}.tile.gold small{color:#5a4220}.tile.gold b{color:#8a2a10}.tile.red{border-color:#c0392b}.tile.green{border-color:#2f8a5a}
 .tbadge{position:absolute;top:10px;right:12px;font:700 15px var(--f-px);background:var(--rubric);color:#fff;border-radius:20px;padding:2px 9px;font-style:normal}
 /* the card */
 .cd{--w:150px;position:relative;width:var(--w);height:calc(var(--w)*1.42);border-radius:12px;padding:6px;background:linear-gradient(160deg,#fffaf0,#efe2c6);border:3px solid var(--qc,#8a7a64);
@@ -8978,7 +8978,7 @@ const css=`
 .co.dn{background:radial-gradient(circle at 35% 30%,#7ae0a0,#1e8a4a)}
 .cnm{position:relative;z-index:2;font-family:var(--f-display);font-weight:700;font-size:14px;text-align:center;margin:2px 14px 1px 18px;line-height:1.1;color:#fff8e6;text-shadow:0 1px 2px #000,0 0 6px #000}
 .cty{position:relative;z-index:2;font:700 9.5px var(--f-px);letter-spacing:.05em;text-transform:uppercase;text-align:center;color:#ffe9b0;text-shadow:0 1px 2px #000}
-.ctx{position:relative;z-index:2;margin-top:auto;padding:5px 7px 15px;background:rgba(255,250,236,.86);border:1px solid rgba(255,255,255,.6);border-radius:7px;font-size:11.5px;overflow:hidden;text-align:center;max-height:46%;backdrop-filter:blur(2px)}
+.ctx{color:#2a1a06;position:relative;z-index:2;margin-top:auto;padding:5px 7px 15px;background:rgba(255,250,236,.86);border:1px solid rgba(255,255,255,.6);border-radius:7px;font-size:11.5px;overflow:hidden;text-align:center;max-height:46%;backdrop-filter:blur(2px)}
 .ctx b{color:var(--rubric);font-style:italic}
 .ca,.ch{position:absolute;bottom:-9px;width:32px;height:32px;display:grid;place-items:center;font:700 17px var(--f-px);color:#fff;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.35);z-index:2}
 .ca{left:-9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f08a5a,#a8281a)}
@@ -9088,7 +9088,7 @@ const css=`
 @keyframes dmgf{to{transform:translate(-50%,-40px);opacity:0}}
 /* hover preview */
 #tpv{position:fixed;z-index:90;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:14px;filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
-#tpv[hidden]{display:none}.pvst{background:rgba(255,250,236,.97);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.4;max-width:260px}
+#tpv[hidden]{display:none}.pvst{background:rgba(255,250,236,.97);color:#2a1a06;border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.4;max-width:260px}
 /* victory and defeat */
 .endov{position:fixed;inset:0;z-index:85;display:flex;overflow:auto;padding:16px;background:radial-gradient(circle at 50% 40%,rgba(90,52,24,.92),rgba(14,6,2,.96));animation:fadein .5s}
 .endov.lose{background:radial-gradient(circle at 50% 40%,rgba(40,40,52,.94),rgba(6,6,10,.97))}
@@ -9116,21 +9116,29 @@ const css=`
   .cd{--w:128px}.thc .cd{--w:104px}.hand{height:170px}.thc{margin-left:calc(-56px * (1 - var(--s)) - 8px)}
   .cd.mini{--w:64px;height:88px}.cd.mini .ca,.cd.mini .ch{width:24px;height:24px;font-size:13px}.lane{gap:6px;min-height:100px}
   .por{width:48px;height:48px;font-size:24px}.por img{width:42px;height:42px}.endt{width:64px;height:64px;font-size:12.5px}
-  .hubhero{flex-direction:column;align-items:flex-start}.hhp{align-self:center}.cd.tbig{--w:min(200px,25vh)}
+  .hubhero{flex-direction:column;align-items:flex-start}.hhp{align-self:center}.cd.tbig{--w:min(200px,25vh)}}
+.mvp .cd.tbig{--w:min(230px,26vh)}
 .coinov{position:fixed;inset:0;z-index:84;display:flex;overflow:auto;padding:16px;background:rgba(14,6,2,.8);animation:fadein .3s}
 .coinbox{margin:auto;max-width:420px;text-align:center;color:#f6ead0;display:flex;flex-direction:column;align-items:center;gap:10px;animation:rise .4s both}
 .coinbox h2{margin:0;font-size:28px;color:#f0c040}.coinbox p{margin:0;line-height:1.4;color:rgba(246,234,208,.85)}
 .tcoin{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-size:56px;background:radial-gradient(circle at 35% 30%,#fff3c4,#c9973c 60%,#7a5418);box-shadow:0 0 40px rgba(240,192,64,.5);animation:tcoinspin 1s ease-out}
 @keyframes tcoinspin{from{transform:rotateY(0) scale(.4)}to{transform:rotateY(1440deg) scale(1)}}
-@media (max-height:860px){.wreath{width:min(320px,90vw,38vh)}.endbox{gap:8px}.endov .stats span{padding:6px 12px}}}
+@media (max-height:860px){.wreath{width:min(320px,90vw,38vh)}.endbox{gap:8px}.endov .stats span{padding:6px 12px}}
 @media (prefers-reduced-motion:reduce){.rays,.confetti i,.cd.alt .cart::after,.pack,.endt.go,.cd.ttgt{animation:none!important}}
 `;
 function injectCss(){let st=document.getElementById("tcgcss");if(!st){st=document.createElement("style");st.id="tcgcss";document.head.appendChild(st);}st.textContent=css;}
 /* ---- packs ----
-   A pack holds 5 cards: three common slots, one uncommon slot and one rare slot that can hold anything up to an Aeon.
+   A pack holds 5 cards: four at the Idle Temple odds (rarer tiers boosted) and a fifth that is Legendary or better.
    Any card can come as an alternate-art printing (1 in 10 overall, split by the Loom odds): the hero painted in one of their skins. */
 const PACK_COST=100,MELT=5;
-const SLOT_W=[[60,40],[60,40],[60,40],[0,50,40,10],[0,0,50,30,15,4,1]];
+/* Hero odds follow the Temple in Idle mode (Mortal 51, Famed 32, Legendary 13, Demigod 3, Olympian 0.75,
+   Primordial 0.25, Aeon 0.05), boosted from Demigod up (x2, x3, x3, x4) so heroes come a bit easier than the Loom-based alt arts.
+   Slots 1-4 use these odds; slot 5 is Legendary or better, like the Temple's 10-summon guarantee. */
+const IDLE_Q=()=>[51,32,13,3,typeof HERO_OLY!=="undefined"?HERO_OLY.rate:.75,typeof SECRET!=="undefined"?SECRET.hero.rate:.25,typeof AEON!=="undefined"?AEON.rate:.05];
+const HERO_BOOST=[1,1,1,2,3,3,4];
+const HERO_W=()=>IDLE_Q().map((r,q)=>HEROES.some(h=>h.q===q)?r*HERO_BOOST[q]:0);
+const SLOT_W=(()=>{const w=HERO_W(),top=w.map((x,q)=>q>=2?x:0);return [w,w,w,w,top];})();
+const slotPct=(w,q)=>{const t=w.reduce((a,b)=>a+b,0);const v=w[q]/t*100;return v>=10?Math.round(v):v>=1?+v.toFixed(1):+v.toFixed(2);};
 /* alt-art odds follow the Loom: the more common a skin is in Idle mode, the more common its printing */
 const ALT_W=typeof LOOM_ODDS!=="undefined"?LOOM_ODDS:[58,30,10,2],ALT_CH=.1,ALT_T=typeof SKIN_T!=="undefined"?SKIN_T:["Common","Rare","Epic","Legendary"];
 const altPct=t=>+(ALT_CH*ALT_W[t]/ALT_W.reduce((a,b)=>a+b,0)*100).toFixed(1);
@@ -9206,9 +9214,9 @@ function packsView(){
         ${all&&rec.packs?`<button class="tgb pri" data-tcg="openpk">Open another (${rec.packs} left)</button>`:""}${all?`<button class="tgb" data-tcg="pkdone">Done</button>`:""}</div></div>`;}
   return `${topbar("Packs","hub")}
     <div class="shop"><div class="pack still"><span class="pkb">AMPHORA</span><span class="pkart">${im("phanes","cimg")}</span><span class="pks">Heroes of Myth · 5 cards</span></div>
-    <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 hero cards: three common, one uncommon and one rare, which can be anything up to an <b>Aeon</b>.
+    <div class="shopr"><h3>Heroes of Myth</h3><p>Every pack holds 5 hero cards. Heroes are as rare as in the Temple in Idle mode (but Demigods and up are 2 to 4 times as likely), and the fifth card is always Legendary or better.
       Any card can come as an <b>alternate art</b>: the hero painted in one of their skins. The more common the skin is in Idle mode, the more common its printing. Chance per card: ${ALT_T.map((n,t)=>`<b class="altodd at${t}">${n} ${altPct(t)}%</b>`).join(" ")}</p>
-      <p class="tsoft">Rare slot: Demigod 15%, Olympian 4% (or better), Primordial and Aeon 1%. A third copy of a card you already have turns into ${MELT} 🪙.</p>
+      <p class="tsoft">Per card: ${QN.map((n,q)=>SLOT_W[0][q]?`${n} ${slotPct(SLOT_W[0],q)}%`:"").filter(Boolean).join(" · ")}<br>Fifth card: ${QN.map((n,q)=>SLOT_W[4][q]?`${n} ${slotPct(SLOT_W[4],q)}%`:"").filter(Boolean).join(" · ")}<br>A third copy of a card you already have turns into ${MELT} 🪙.</p>
       <div class="row2"><button class="tgb pri" data-tcg="openpk" ${rec.packs?"":"disabled"}>Open a pack${rec.packs?` (${rec.packs})`:""}</button>
       <button class="tgb gold" data-tcg="buypk" ${rec.ob<PACK_COST?"disabled":""}>Buy a pack · ${PACK_COST} 🪙</button></div>
       <p class="tsoft">Earn 🪙 by battling: Easy 25, Normal 40, Hard 60 per win, 10 for a loss, and 50 extra for your first win each day.</p></div></div>`;}
