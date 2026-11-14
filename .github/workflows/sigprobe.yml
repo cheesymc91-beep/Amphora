@@ -2,10 +2,13 @@ name: Probe meeting point
 on:
   push:
     branches: [mp-test]
-    paths: ["tests/sigprobe.js", ".github/workflows/sigprobe.yml"]
+    paths: ["tests/probe2.py", ".github/workflows/sigprobe.yml"]
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cd tests && npm i ws@8 --no-save --silent && node sigprobe.js
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright==1.48.0 && python -m playwright install --with-deps chromium
+      - run: cd tests && python probe2.py
