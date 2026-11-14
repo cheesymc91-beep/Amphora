@@ -1,0 +1,11 @@
+name: Probe meeting point
+on:
+  push:
+    branches: [mp-test]
+    paths: ["tests/sigprobe.js", ".github/workflows/sigprobe.yml"]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cd tests && npm i ws@8 --no-save --silent && node sigprobe.js

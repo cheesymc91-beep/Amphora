@@ -2,6 +2,7 @@ name: Test TCG multiplayer (real meeting point)
 on:
   push:
     branches: [mp-test]
+    paths: ["web/**", "tests/mp_real.py", ".github/workflows/test-multiplayer.yml"]
   workflow_dispatch:
 jobs:
   test:
