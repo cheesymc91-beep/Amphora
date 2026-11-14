@@ -1,7 +1,7 @@
 {
- "version": "1.16.0",
+ "version": "1.17.0",
  "shell": "1.1.0",
- "notes": "TCG multiplayer: duel a friend online. TCG \u2192 Play a friend \u2192 Create a room gives a 5-letter code; your friend picks Join a room and types it. Works between PC, Mac, iPhone and the web, also on different Wi-Fi. You each play your own deck, the coin flip winner chooses who goes first, and the friend's device reconnects by itself if the connection drops. A win gives 40 Obols, a loss 10.",
+ "notes": "A Settings page on the start screen and in the TCG menu: sound effects and music volume, hero art (3D or painted), animations, Idle interface, ultimate length and tips, new TCG options (faster rival turns, card preview on hover, confirm before ending your turn), save backup, and resetting Idle or TCG progress separately.",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "edc454f6c4d7f234562a739f1d0b16c7c77f4ea9824f525a3a8c5eae14a3081a",
-  "js/marginalia.js": "c0398294aa41c68e40e3dc0f257e6192978316cdcac116217073937422ee9928"
+  "index.html": "a4c542ac741a945f7591dc70aded987d733fd8db412b1c1ffdcf8e4f54b97942",
+  "js/marginalia.js": "6b8d59899b96722c0222259f1436d75fb85fef85cf9aa623bb80c0581366558b"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
