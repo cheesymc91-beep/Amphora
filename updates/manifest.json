@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "bd0ff97944ae5044eb0851c94fe387c7c06cdd4b91d5ac461791f04983a2cb62",
-  "js/marginalia.js": "8a49d9064ba7ddf42d2973d271e805cb2660e00570dd77608f1bb18e509e96fc"
+  "index.html": "12d452927d34821492479966b5726f99eed7913c74618eb661d081b1fbf1d513",
+  "js/marginalia.js": "0f795b142ea8966aa8bb9d502f17799d738947f33cabf1cc869572ebc31079d0"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
