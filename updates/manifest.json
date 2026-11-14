@@ -1,7 +1,7 @@
 {
- "version": "1.15.0",
+ "version": "1.16.0",
  "shell": "1.1.0",
- "notes": "The game code is now packed and scrambled, which makes it smaller and much harder to read or tamper with. Copy my save code now also includes your TCG progress, so you can move everything to another device or to the new desktop app.",
+ "notes": "test",
  "base": "game/",
  "files": {
   "css/marginalia.css": "0191ce00cae1f208d5b9b48171965b27b91d7e43f3850554b4acf1e0e2a2dd46",
@@ -10,8 +10,8 @@
   "icons/icon-192.png": "0d8a7cd5f23d29acbebc9002bfbd24d24af614f473c71794ca82e85f1953c3e5",
   "icons/icon-512.png": "590a5e45b4c1c632d3ab45ebed76796b4310dc65b69e5037d6ad004703549214",
   "icons/icon-maskable-512.png": "b734988ab510566414769cea6cf5d0b9bf8bb7135faeee7997ac28321fbfe1f2",
-  "index.html": "1677fe094bf89882e431235b0e1a5b572cb15a3a7e34df721fd62682c20c24d8",
-  "js/marginalia.js": "24e214ff4c0278fdf26e2efe675e78deb3c97b316136260772ad9816481e53c1"
+  "index.html": "9fba0134f4cbf05df2c37b29b39de8e35f75f4d914f1a3169f973bddf0a49557",
+  "js/marginalia.js": "22b8e5219fb676cc5901f6dd2d8c7201f52d5995660c0a7694a9c7b7a54aab77"
  },
  "installer": "https://github.com/cheesymc91-beep/Amphora/releases/latest"
 }
