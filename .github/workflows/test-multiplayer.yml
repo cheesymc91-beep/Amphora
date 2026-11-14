@@ -1,0 +1,27 @@
+name: Test TCG multiplayer (real meeting point)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [direct, relay-only]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright==1.48.0 && python -m playwright install --with-deps chromium
+      - name: Serve the web game
+        run: (cd web && python -m http.server 8765 >/dev/null 2>&1 &) ; sleep 2
+      - name: Block direct links (relay-only)
+        if: matrix.mode == 'relay-only'
+        run: sed -i "s#?tcgdebug'#?tcgdebug\&tcgnop2p'#" tests/mp_real.py
+      - name: Two players, one match, through wss://0.peerjs.com
+        working-directory: tests
+        run: python mp_real.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: "mp-shots-${{ matrix.mode }}", path: tests/shots }
