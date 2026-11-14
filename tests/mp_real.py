@@ -27,6 +27,8 @@ async def main():
       await H.wait_for_timeout(500)
       st=await H.evaluate("({l:__tcg.mp.linked,r:__tcg.mp.relay,m:!!__tcg.get()})");
       if st['m']:break
+    if not st['m']:
+        for n,pg in (('host',H),('guest',Gu)):print(n,await pg.evaluate("JSON.stringify({st:__tcg.mp.st,err:__tcg.mp.err,l:__tcg.mp.linked,r:__tcg.mp.relay,dbg:__tcg.mp.dbg.slice(-25)})"))
     assert st['m'], 'the two devices did not connect'
     print('host link',st,'guest',await Gu.evaluate("({l:__tcg.mp.linked,r:__tcg.mp.relay})"))
     await Gu.wait_for_timeout(1000)
